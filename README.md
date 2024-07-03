@@ -1,4 +1,5 @@
 # GJ-Platform
+
 ## Dependencies Installation
 
 Instructions for **Ubuntu Linux 22.04 Minimal** on a production environment
@@ -41,13 +42,21 @@ apt install nodejs npm
 
 ### Backend
 
-Create a `.env` file in the backend root folder with the following variables:
+Run the following command in the backend root folder:
+
+```bash
+sudo npm install
+```
+
+This will install all the packages and dependencies required by the project. Then create a `.env` file in the backend root folder with the following variables:
 
 ```bash
 EMAIL=[email address of the system]
 EMAILPASSWORD=[email password of the system]
 PORT=[IP Address of the system]
 ```
+
+The system requires an email account to send emails through SMTP 
 
 ### Frontend
 
