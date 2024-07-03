@@ -136,6 +136,7 @@ const loginUser = async (req, res) => {
     const existingUser = await User.findOne({ email });
     let roles;
     let userId;
+
     if (!existingUser) {
         const registerLink = `http://${process.env.PORT}:3000/register`;
         const subject = 'Login in GameJam Platform';
@@ -144,17 +145,19 @@ const loginUser = async (req, res) => {
         await sendEmail(email, subject, message, link);
         res.status(200).json({ success: true, msg: 'Se envió el registro al usuario.', email, registerLink });
     }
-
-    roles = existingUser.roles;
-    userId = existingUser._id;
-
-    const token = jwt.sign({ userId, roles }, 'MY_JWT_SECRET', { expiresIn: 600000 });
-    const magicLink = `http://${process.env.PORT}:3000/api/user/magic-link/${token}`;
-    const subject = 'Login in GameJam Platform';
-    const message = `Hi, click on this link to continue to the app:`;
-    const link = magicLink;
-    await sendEmail(email, subject, message, link);
-    res.status(200).json({ success: true, msg: 'Se envió el magic link al usuario.', email, magicLink });
+    else
+    {
+        roles = existingUser.roles;
+        userId = existingUser._id;
+    
+        const token = jwt.sign({ userId, roles }, 'MY_JWT_SECRET', { expiresIn: 600000 });
+        const magicLink = `http://${process.env.PORT}:3000/api/user/magic-link/${token}`;
+        const subject = 'Login in GameJam Platform';
+        const message = `Hi, click on this link to continue to the app:`;
+        const link = magicLink;
+        await sendEmail(email, subject, message, link);
+        res.status(200).json({ success: true, msg: 'Se envió el magic link al usuario.', email, magicLink });
+    }
 };
 
 const magicLink = async (req, res) => {

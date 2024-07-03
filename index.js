@@ -91,7 +91,7 @@ const theme_route = require('./routes/themeRoute');
 app.use('/api/theme', theme_route);
 
 // Definir el archivo raíz para servir los archivos
-const root = path.join(__dirname, '../Frontend/GJ-Platform/dist/gj-platform/browser');
+const root = path.join(__dirname, 'dist/gj-platform/browser');
 
 // Servir los archivos estáticos
 app.use(express.static(root));

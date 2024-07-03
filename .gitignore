@@ -19,6 +19,7 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+.vscode
 
 # Environment Files - Check readme to see how to build the .env file
 .env
