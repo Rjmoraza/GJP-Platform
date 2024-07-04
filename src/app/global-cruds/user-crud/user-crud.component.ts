@@ -57,22 +57,9 @@ export class UserCrudComponent implements OnInit{
     const url = `http://${environment.apiUrl}:3000/api/user/get-users`;
     this.userService.getUsers(url).subscribe(
       (users: any[]) => {
-        console.log("Users listed");
-
         var empty = {
           name: "None"
         };
-
-        var map = users.map(user => ({ _id: user._id,
-          name: user.name,
-          email: user.email,
-          region: (user.region)?user.region:empty,
-          site: (user.site)?user.site:empty,
-          roles: user.roles,
-          coins: user.coins,
-          discordUsername: user.discordUsername }));
-
-        console.log(map);
 
         this.dataSource = users.map(user => ({ _id: user._id,
           name: user.name,
@@ -99,32 +86,53 @@ export class UserCrudComponent implements OnInit{
     );
   }
 
+  listSites(regionId: string, siteId: string)
+  {
+    this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${regionId}`)
+      .subscribe(
+        sites => {
+          this.sites = sites;
+
+          // If a site was selected, pick it from the list
+          if(siteId != "None")
+          {
+            const selectedSite = this.sites.find(site => site._id === siteId);
+            console.log(selectedSite);
+
+            if (selectedSite) {
+              this.myForm.patchValue({
+                site: selectedSite
+              });
+            }
+          }
+          else
+          {
+            this.myForm.get('site')?.setValue(undefined);
+          }
+        },
+        error => {
+          console.error('Error al obtener sitios:', error);
+        }
+      );
+  }
+
   onRegionSelection() {
     const selectedValue = this.myForm.get('region')?.value;
     if (selectedValue && selectedValue._id) {
-      this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${selectedValue._id}`)
-        .subscribe(
-          sites => {
-            console.log(sites);
-            this.sites = sites;
-
-            if (this.sites.length > 0) {
-              this.myForm.get('site')?.setValue(this.sites[0]);
-            }
-          },
-          error => {
-            console.error('Error al obtener sitios:', error);
-          }
-        );
+      this.listSites(selectedValue._id, "None");
     } else {
       console.error('La región seleccionada no tiene un ID válido.');
     }
   }
+
   seleccionarElemento(elemento: any) {
+    console.log("Usuario seleccionado");
+
+    console.log(elemento);
+
     this.userToEdit = elemento;
     this.indexUser = this.dataSource.indexOf(elemento);
     const selectedRegion = this.regions.find(region => region._id === elemento.region._id);
-    const selectedSite = this.sites.find(site => site._id === elemento.site._id);
     this.myForm.patchValue({
       name: elemento.name,
       region: selectedRegion,
@@ -132,11 +140,16 @@ export class UserCrudComponent implements OnInit{
       discordUsername: elemento.discordUsername
     });
 
-    if (selectedSite) {
-      this.myForm.patchValue({
-        site: selectedSite
-      });
+    if(selectedRegion && selectedRegion._id)
+    {
+      this.listSites(selectedRegion._id, elemento.site._id);
     }
+    else
+    {
+      this.sites = [];
+      this.myForm.get('site')?.setValue(undefined);
+    }
+
     if (elemento.roles && elemento.roles.length > 0) {
       const rolesString = elemento.roles.join(',');
       this.myForm.patchValue({
