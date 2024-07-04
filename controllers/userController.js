@@ -143,7 +143,7 @@ const loginUser = async (req, res) => {
         const message = `Hi, click on this link to create an account:`;
         const link = registerLink;
         await sendEmail(email, subject, message, link);
-        res.status(200).json({ success: true, msg: 'Se envió el registro al usuario.', email, registerLink });
+        res.status(200).json({ success: true, msg: `Register form sent to user's email`, email, registerLink });
     }
     else
     {
@@ -156,7 +156,7 @@ const loginUser = async (req, res) => {
         const message = `Hi, click on this link to continue to the app:`;
         const link = magicLink;
         await sendEmail(email, subject, message, link);
-        res.status(200).json({ success: true, msg: 'Se envió el magic link al usuario.', email, magicLink });
+        res.status(200).json({ success: true, msg: `Magic Link sent to user's email`, email, magicLink });
     }
 };
 
@@ -183,8 +183,8 @@ const magicLink = async (req, res) => {
         }
         return res.redirect(redirectUrl);
     } catch (error) {
-        console.error('Error al procesar el token:', error);
-        res.status(400).json({ success: false, error: 'Error al procesar el token' });
+        console.error('Error processing token:', error);
+        res.status(400).json({ success: false, error: 'Error processing token' });
     }
 };
 
@@ -206,7 +206,7 @@ const getCurrentUser = async (req, res) => {
 
         return res.status(200).json({ success: true, data: user });
     } catch (error) {
-        return res.status(400).json({ success: false, error: 'Error al procesar el token' });
+        return res.status(400).json({ success: false, error: 'Error processing token' });
     }
 };
 
@@ -214,7 +214,7 @@ const getLocalOrganizersPerSite = async (req, res) => {
     const { siteId } = req.params;
     try {
         var organizers = await User.find({ "site._id": siteId, roles: 'LocalOrganizer' });
-        return res.status(200).send({ success: true, msg: "Organizadores econtrados para site ", data: organizers });
+        return res.status(200).send({ success: true, msg: "Organizers found for site ", data: organizers });
     } catch (error) {
         return res.status(400).send({ success: false, msg: error.message });
     }
@@ -227,12 +227,12 @@ const updateSite = async (req, res) => {
         const user = await User.findByIdAndUpdate(id, { site: siteId }, { new: true });
 
         if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         return res.status(200).json(user);
     } catch (error) {
-        return res.status(500).json({ message: 'Error interno del servidor' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -249,7 +249,7 @@ const getStaffPerSite = async (req, res) => {
 const getUsers = async (req, res) => {
     try {
         const allUsers = await User.find({});
-        res.status(200).send({ success: true, msg: 'Se han encontrado usuarios en el sistema', data: allUsers });
+        res.status(200).send({ success: true, msg: 'Users found in the system', data: allUsers });
     } catch (error) {
         res.status(400).send({ success: false, msg: error.message });
     }
@@ -295,7 +295,7 @@ const deleteUser = async (req, res) => {
                 console.error('Error removing Jammer:', error);
             });
 
-        res.status(200).send({ success: true, msg: 'Usuario eliminado correctamente', data: deletedUser });
+        res.status(200).send({ success: true, msg: 'User removed correctly', data: deletedUser });
     } catch (error) {
         res.status(400).send({ success: false, msg: error.message });
     }
@@ -422,14 +422,14 @@ const addRol = async (req, res) => {
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ success: false, message: 'Usuario no existe' });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
         if (user.roles.includes(rol)) {
-            return res.status(400).json({ message: 'El usuario ya tiene este rol' });
+            return res.status(400).json({ message: 'User already has role' });
         }
         user.roles.push(rol)
         await user.save();
-        return res.status(200).json({ success: true, message: "Rol agregado" })
+        return res.status(200).json({ success: true, message: "Role added successfully" })
     }
     catch(error) {
         res.status(500).json({ success: false, error: error.message });
@@ -442,14 +442,14 @@ const deleteRol = async (req, res) => {
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ success: false, message: 'Usuario no existe' });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
         if (!user.roles.includes(rol)) {
-            return res.status(400).json({ message: 'El usuario no tiene este rol' });
+            return res.status(400).json({ message: `User doesn't have that role` });
         }
         user.roles = user.roles.filter(r => r !== rol);
             await user.save();
-            return res.status(200).json({ success: true, message: "Rol eliminado" })
+            return res.status(200).json({ success: true, message: "Rol removed successfully" })
     }
     catch(error){
         res.status(500).json({ success: false, error: error.message });
