@@ -1,0 +1,95 @@
+.cardBackground{
+    background: white;
+    border-radius: 35px;
+    border: 1px black solid;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.navBarStyle{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.centerRow{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formTitle{
+    margin-left: 50px;
+    text-align: left;
+    color: black;
+    font-size: 24px;
+    font-family: K2D;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.formList{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-radius: 44px;
+    max-width: 400px;
+}
+
+.formInput{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: 425px;
+}
+
+.messageSpacer{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.toast-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    z-index: 9998; /* Z-index menor que el del toast para que aparezca detrás */
+  }
+  
+  .custom-alert {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column; /* Establece la dirección de los elementos */
+    align-items: center; /* Centra los elementos horizontalmente */
+    z-index: 1002; /* Asegura que el toast esté por encima de otros elementos */
+  }
+  
+  
+  .ok-button {
+    background-color: #086cdc; 
+    color: rgb(250, 250, 250);
+    border-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .ok-button:hover {
+    background-color: #94b4d9e9;
+  }
+  .filters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Añade espacio entre los elementos */
+  }
+  
+  .filters select, .filters input, .filters button {
+    margin: 5px;
+  }
+  

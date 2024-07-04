@@ -1,0 +1,142 @@
+<div class="d2">
+  <div *ngIf="teamName" class="teamName1">
+    Time Remaining To Submit:
+  </div>
+  
+  <div *ngIf="teamName" class="contador">
+    {{timeRemaining}}
+  </div>
+
+  <nav class="navbar">
+    <div class="tabButton">
+      
+      <div *ngIf="teamName">
+        <div *ngIf="showSubmitButton">
+          <div 
+            class="btn btn-default crudButton" 
+            (click)="toggleSubmit()" 
+            (mouseenter)="isHovered = true" 
+            (mouseleave)="isHovered = false" 
+            [ngClass]="{'active': showSubmit}"
+          >
+            <span [style.textDecoration]="isHovered ? 'black' : 'black'">My Submission</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div 
+          *ngIf="!teamName" 
+          class="btn btn-default notTeamName" 
+          (click)="toggleCreateTeam()" 
+          (mouseenter)="isHovered = true" 
+          (mouseleave)="isHovered = false" 
+          [ngClass]="{'active': showCreateTeam}"
+        >
+          <span [style.textDecoration]="isHovered ? 'darkgray' : 'none'">Create Team</span>
+        </div>
+        <div 
+          *ngIf="teamName" 
+          class="btn btn-default crudButton" 
+          (click)="toggleUpdateTeam()" 
+          (mouseenter)="isHoveredSub = true" 
+          (mouseleave)="isHoveredSub = false" 
+          [ngClass]="{'active': showUpdateTeam}"
+        >
+          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Team {{teamName}}</span>
+        </div>
+      </div>
+      <div>
+        <div class="btn btn-default chatButton" data-toggle="modal" [attr.data-target]="'#chat'">
+          Chat
+        </div>
+        <div class="modal fade" [id]="'chat'" tabindex="-1" role="dialog" aria-labelledby="teamChat" aria-hidden="true" data-backdrop="static" style="max-width: 100%;">
+            <div class="modal-dialog" role="document" style="max-width: 85%;">
+                <app-chat-jammer [team]="teamName"></app-chat-jammer>
+            </div>
+        </div>
+        <div 
+          *ngIf="teamName" 
+          class="btn btn-default crudButton" 
+          (click)="toggleGames()" 
+          (mouseenter)="isHoveredSub = true" 
+          (mouseleave)="isHoveredSub = false" 
+          [ngClass]="{'active': showGames}"
+        >
+          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Site Submissions</span>
+        </div>
+      </div>
+      <div *ngIf="teamName">
+        <div 
+          (click)="toggleCategories()" 
+          class="btn btn-default crudButton" 
+          (mouseenter)="isHovered = true" 
+          (mouseleave)="isHovered = false" 
+          [ngClass]="{'active': showCategories}"
+        >
+          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Site Categories Info</span>
+        </div>
+        <div 
+          (click)="toggleThemes()" 
+          class="btn btn-default crudButton" 
+          (mouseenter)="isHovered = true" 
+          (mouseleave)="isHovered = false" 
+          [ngClass]="{'active': showThemes}"
+        >
+          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Site Themes Info</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Lista de juegos -->
+  <div *ngIf="showGames">
+    <div class="row title">
+      <h1>Site Submissions</h1>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6" *ngFor="let game of games">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ game.name }}</h5>
+            <p class="card-text">Team: {{ game.team }}</p>
+            <button type="button" class="btn btn-primary" data-toggle="modal" [attr.data-target]="'#gameInfoModal-' + game.id">More Info</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngFor="let game of games">
+      <div class="modal fade" [id]="'gameInfoModal-' + game.id" tabindex="-1" role="dialog" aria-labelledby="gameInfoModal" aria-hidden="true" data-backdrop="static" style="max-width: 100%;">
+        <div class="modal-dialog" role="document" style="max-width: 85%;">
+          <app-game-info [game]="game.id"></app-game-info>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showCategories">
+    <h1>Site Categories</h1>
+    <app-jammer-categories></app-jammer-categories>
+  </div>
+
+  <div *ngIf="showThemes">
+    <h1>Site Themes</h1>
+    <app-jammer-themes></app-jammer-themes>
+  </div>
+
+  <!-- Componentes de actualización y creación del equipo -->
+  <div>
+    <div *ngIf="showUpdateTeam">
+      <h1>Team Management</h1>
+      <app-jammer-team></app-jammer-team>
+    </div>
+    <div *ngIf="showCreateTeam">
+      <app-jammer-create-team></app-jammer-create-team>
+    </div>
+  </div>  
+  <div *ngIf="showSubmit">
+    <h1>My Submission</h1>
+    <app-jammer-submit></app-jammer-submit>
+  </div>
+</div>

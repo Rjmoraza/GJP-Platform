@@ -1,0 +1,105 @@
+
+<form [formGroup]="myForm">
+    <div class="miniWindow">
+        <div class="row">
+            <label class="label"> Pitch Score </label>
+            <div class="button-container">
+                <div *ngFor="let rate of rating" class="button-wrapper">
+                  <button 
+                    class="theme-button"
+                    [class.selected]="rate === pitchScore"
+                    (click)="pitchRating(rate)"
+                    [disabled]="!evaluando">
+                    {{rate}}
+                  </button>
+                </div>
+            </div>
+            <label class="label"> Pitch Feedback </label>
+            <input class="textSpace" id="pitch" type="text" [disabled]="!evaluando" placeholder="Give Feedback" formControlName="pitchFeedback">
+        </div>
+        <div class="row">
+            <label class="label"> Game Design Score </label>
+            <div class="button-container">
+                <div *ngFor="let rate of rating" class="button-wrapper">
+                  <button 
+                    class="theme-button"
+                    [class.selected]="rate === gameDesignScore"
+                    (click)="gameDesignRating(rate)"
+                    [disabled]="!evaluando">
+                    {{rate}}
+                  </button>
+                </div>
+            </div>
+            <label class="label"> Game Design Feedback </label>
+            <input class="textSpace" id="gameDesign" type="text" [disabled]="!evaluando" placeholder="Give Feedback" formControlName="gameDesignFeedback">
+        </div>
+        <div class="row">
+            <label class="label"> Art Score </label>
+            <div class="button-container">
+                <div *ngFor="let rate of rating" class="button-wrapper">
+                  <button 
+                    class="theme-button"
+                    [class.selected]="rate === artScore"
+                    (click)="artRating(rate)"
+                    [disabled]="!evaluando">
+                    {{rate}}
+                  </button>
+                </div>
+            </div>
+            <label class="label"> Art Feedback </label>
+            <input class="textSpace" id="art" type="text" [disabled]="!evaluando" placeholder="Give Feedback" formControlName="artFeedback">
+        </div>
+        <div class="row">
+            <label class="label"> Build Score </label>
+            <div class="button-container">
+                <div *ngFor="let rate of rating" class="button-wrapper">
+                  <button 
+                    class="theme-button"
+                    [class.selected]="rate === buildScore"
+                    (click)="buildRating(rate)"
+                    [disabled]="!evaluando">
+                    {{rate}}
+                  </button>
+                </div>
+            </div>
+            <label class="label"> Build Feedback </label>
+            <input class="textSpace" id="build" type="text" placeholder="Give Feedback" [disabled]="!evaluando" formControlName="buildFeedback">
+        </div>
+        <div class="row">
+            <label class="label"> Audio Score </label>
+            <div class="button-container">
+                <div *ngFor="let rate of rating" class="button-wrapper">
+                  <button 
+                    class="theme-button"
+                    [class.selected]="rate === audioScore"
+                    (click)="audioRating(rate)"
+                    [disabled]="!evaluando">
+                    {{rate}}
+                  </button>
+                </div>
+            </div>
+            <label class="label"> Audio Feedback </label>
+            <input class="textSpace" id="audio" type="text" placeholder="Give Feedback" [disabled]="!evaluando" formControlName="audioFeedback">
+        </div>
+        <div class="row">
+            <label class="label"> General Feedback </label>
+            <input class="textSpace" id="general" type="text" placeholder="Give Feedback" [disabled]="!evaluando" formControlName="generalFeedback">
+        </div>
+        <div class = "col btn btn-primary evaluateButton" type="submit" (click)="submitEvaluation()">
+            Evaluate
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show messageSpacer" role="alert">
+            {{ successMessage }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="successMessage=''">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show messageSpacer" role="alert">
+            {{ errorMessage }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="errorMessage=''">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</form>

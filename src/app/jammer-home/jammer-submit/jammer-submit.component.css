@@ -1,0 +1,141 @@
+.createButton {
+    width: auto; /* Convertido de 292px a porcentaje */
+    height: 5.2%; /* Convertido de 72px a porcentaje */
+    position: relative;
+    bottom: 20px; /* Distancia desde la parte inferior */
+    left: 50%; /* Posiciona el botón en el centro horizontal */
+    transform: translateX(-50%); /* Centra el botón exactamente en el centro */
+    background: #3EB9FF;
+    border-radius: 15px;
+    font-size: 1.2vw; /* Convertido de 20px a porcentaje */
+    font-family: Kanit;
+    font-weight: 400;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #ffffff;
+}
+
+.createButton:hover {
+    background: #0964ed; /* Cambia el color de fondo al pasar el ratón */
+}
+
+
+.rectanguloEquipo {
+    top: 15%;
+    position: relative;
+    background: white;
+    border-radius: 30px;
+    border: 2px black solid;
+}
+
+.rectanguloEquipo div {
+    margin: 2%; /* Agrega un margen de 20px en todos los lados de los elementos dentro de rectanguloEquipo */
+}
+.rectanguloEquipo label{
+    font-weight: bold;
+    font-family: Kanit;
+
+}
+.pestana {
+    position: relative; /* Cambiado a relativo */
+    top: 20px; /* Ajusta la distancia hacia abajo */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #515151;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5vw; /* Convertido de píxeles a porcentaje */
+    font-family: Kanit;
+    font-weight: 400;
+    cursor: pointer;
+}
+.textSpace {
+    width: 100%; 
+    height: 36%;
+    background: #D9D9D9; 
+    border-radius: 10px;
+}
+.label{
+    text-align: center; 
+    color: black; 
+    font-size: 1.2vw; 
+    font-family: Kanit; 
+    font-weight: 400;
+    word-wrap: break-word
+}
+.imagen{
+    width: 4.4%; 
+    height: 4.4%; 
+    top: 10.5%; 
+    position: relative; 
+    right: 2%
+}
+.contador {
+    position: relative; /* Cambiado a relativo */
+    text-align: center;
+    color: #FF0000;
+    font-size:  4vw;
+    font-family: Kanit;
+    font-weight: 400;
+    word-wrap: break-word;
+    min-height: 100px;
+}
+
+.c2 {
+    position: relative; /* Cambiado a relativo */
+    text-align: center;
+    color: black;
+    font-size: 4vw;
+    font-family: Kanit;
+    font-weight: 400;
+    word-wrap: break-word;
+    min-height: 100px;
+}
+.infoWrapper {
+    display: flex;
+    min-height: 100px;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    top: calc(8.5% + 80% + 40px); /* Aumenta la distancia desde la parte superior */
+}
+.empty {
+    min-height: 100px; /* Mantén la misma altura mínima incluso si los elementos no están presentes */
+  }
+
+  .button-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .button-wrapper {
+    margin-right: 10px; /* Espacio entre botones */
+    margin-bottom: 10px; /* Espacio entre líneas de botones */
+  }
+  
+  .theme-button {
+    /* Estilos para el botón */
+    padding: 16px 24px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    font-family: Kanit;
+    border-radius: 10px;
+  }
+  
+  .theme-button:hover {
+    background-color: #e0e0e0;
+  }
+  .theme-button.selected {
+    /* Estilos cuando el botón está seleccionado */
+    background: #515151; /* Cambia el color de fondo */
+    color: white; /* Cambia el color del texto */
+  }
+  

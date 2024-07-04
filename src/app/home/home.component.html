@@ -1,0 +1,76 @@
+<section class="vh-100 backgroundGradient">
+    <div class="container-fluid h-100 mainWindow">
+        <div class="row headerGradient">
+            <div class = "col GJrol">GJ+ - {{userRole}}  {{username}}</div>
+            <div class = "dashButton">
+                <img class="col btn btn-default" data-toggle="modal" data-target="#userDashboard" src="/assets/Images/menu.png" width="64" height="50">
+            </div>
+            <!--
+            <div class = "col btn btn-primary logOutButton" (click)="logOut()">Log out</div>
+            -->
+        </div>
+        <div class="row mainContainer">
+
+            <app-local-home *ngIf="userRole === 'LocalOrganizer'"></app-local-home>
+            <app-global-home *ngIf="userRole === 'GlobalOrganizer'"></app-global-home>
+            <app-jammer-home *ngIf="userRole === 'Jammer'"></app-jammer-home>
+            <app-juez-main *ngIf="userRole === 'Judge'"></app-juez-main>
+
+        </div>
+
+        <div #userDashboard class="modal fade" id="userDashboard" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <div class="row">
+                            <img src="/assets/Images/GJ-logo.png" width="64" height="50">
+                        </div>
+                        <span href="#" class="close" data-dismiss="modal">&times;</span>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+                            Name:
+                        </div>
+                        <div class="col">
+                            {{ name }}
+                        </div>
+                        <div class="row">
+                            Discord Username:
+                        </div>
+                        <div class="col">
+                            {{ discordName }}
+                        </div>
+                        <div class="row">
+                            Email:
+                        </div>
+                        <div class="col">
+                            {{ email }}
+                        </div>
+                        <div class="row">
+                            Site:
+                        </div>
+                        <div class="col">
+                            {{ region }} - {{ site }}
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="col btn btn-primary logOutButton" (click)="openEditUserInfoModal()" data-toggle="modal" data-target="#editUserInfo">
+                            Update User Data
+                        </div>
+                        <div *ngIf="localLogged" class="col btn btn-primary logOutButton" (click)="changeWindow()" href="#" data-dismiss="modal">
+                            Change Window
+                        </div>
+                        <div class="col btn btn-primary logOutButton" (click)="logOut()" href="#" data-dismiss="modal">
+                            Log Out
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <app-user-dashboard *ngIf="editing"></app-user-dashboard>
+    </div>
+</section>

@@ -1,0 +1,55 @@
+<div class="card-body">
+  <div class="row title">Members</div>
+
+  <div class="col cardContainer">
+    <div *ngFor="let member of members" class="cardBackground">
+      <div class="cardText">{{ member.name }}</div>
+      <div class="cardText">{{ member.discordUsername }}</div>
+      <div class="cardText">{{ member.email }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="showAddMemberModal" class="modal-overlay" (click)="toggleAddMemberModal()">
+    <div class="addMemberWindow" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <button class="close-btn" (click)="toggleAddMemberModal()">
+          <div class="close-btn1">
+            <div class="close-btn11"></div>
+            <div class="close-btn12"></div>
+          </div>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-body-section">
+          <input type="text" id="name" [(ngModel)]="newMember.name" name="name" (keydown)="clearInputOnBackspace($event)" (input)="suggestNames($event)">
+          <button class="close-btn" (click)="toggleSuggestionsVisibility()">
+            <div class="triangle" [style.transform]="isTriangleUp ? 'rotate(180deg)' : 'rotate(0deg)'"></div>
+          </button>
+          <ul *ngIf="suggestionsVisible" class="name-suggestions suggestion-ul">
+            <li *ngFor="let suggestion of filteredSuggestions" (click)="selectSuggestion(suggestion)" class="suggestion-li">
+              {{ suggestion.name }} ({{ suggestion.discordUsername }})
+            </li>
+          </ul>
+        </div>
+        <div class="modal-body-section">
+          <input type="text" id="email" [(ngModel)]="newMember.email" name="email" readonly>
+        </div>
+        <div class="modal-body-section">
+          <input type="text" id="discordUsername" [(ngModel)]="newMember.discordUsername" name="discordUsername" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="toggleAddMemberModal()">Close</button>
+        <button class="btn btn-primary" (click)="addMember()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row addBTN-container">
+    <button class="btn btn-default addBTN" (click)="toggleAddMemberModal()">Add member</button>
+  </div>
+
+  <div class="row leaveBTN-container">
+    <button class="btn btn-danger leaveBTN" (click)="leaveTeam()">Leave Team</button>
+  </div>
+</div>

@@ -1,0 +1,223 @@
+<div class="card-body cardBackground">
+<div class="table-container">
+    <div class="filters">
+        <select [(ngModel)]="selectedHeader">
+          <option value="titleSP">Title (ESP)</option>
+          <option value="titleEN">Title (EN)</option>
+          <option value="titlePT">Title (PT-BR)</option>
+          <option value="descriptionSP">Description (ESP)</option>
+          <option value="descriptionEN">Description (EN)</option>
+          <option value="descriptionPT">Description (PT-BR)</option>
+          <option value="manualSP">Manual (ESP)</option>
+          <option value="manualEN">Manual (EN)</option>
+          <option value="manualPT">Manual (PT-BR)</option>
+        </select>
+      
+        <input type="text" [(ngModel)]="filterValue" placeholder="Filter Value">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+          Export info to PDF
+        </button>
+        <div>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Select Columns to export</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div *ngFor="let column of columnOptions">
+                    <input type="checkbox" [value]="column.value" [(ngModel)]="column.checked" (change)="toggleColumn(column.value, $event)" />
+                    {{ column.label }}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" (click)="exportToPDF()">Export to PDF</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+    <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Title (ESP)</th>
+              <th scope="col">Description (ESP)</th>
+              <th scope="col">Manual (ESP)</th>
+              <th scope="col">Title (EN)</th>
+              <th scope="col">Description (EN)</th>
+              <th scope="col">Manual (EN)</th>
+              <th scope="col">Title (PT-BR)</th>
+              <th scope="col">Description (PT-BR)</th>
+              <th scope="col">Manual (PT-BR)</th>
+              <th scope="col">Update</th>
+              <th scope="col">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of obtenerDatosPagina()">
+              <td>{{ row.titleSP }}</td>
+              <td>{{ row.descriptionSP }}</td>
+              <td class="pdf"><a (click)="getPdf(row._id!, 'SP')" >Load PDF</a></td>
+              <td>{{ row.titleEN }}</td>
+              <td>{{ row.descriptionEN }}</td>
+              <td class="pdf"><a (click)="getPdf(row._id!, 'EN')">Load PDF</a></td>
+              <td>{{ row.titlePT }}</td>
+              <td>{{ row.descriptionPT }}</td>
+              <td class="pdf"><a (click)="getPdf(row._id!, 'PT')" >Load PDF</a></td>
+              <td>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
+              </td>
+              <td>
+                <button class="btn btn-danger" (click)="eliminar(row)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+</div>
+
+    <div class="navBarStyle">
+        <ul class="pagination">
+            <!-- Botón para ir a la primera página -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="cambiarPagina(1)" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <!-- Botón para ir a la página anterior -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="cambiarPagina(currentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <!-- Limitar el número de páginas mostradas -->
+            <ng-container *ngFor="let page of paginasMostradas">
+                <li class="page-item" *ngIf="page !== '...'">
+                    <a class="page-link" (click)="cambiarPagina(page)" [class.active]="currentPage === page">{{ page }}</a>
+                </li>
+            </ng-container>
+            <!-- Botón para ir a la página siguiente -->
+            <li class="page-item" [class.disabled]="currentPage === totalPaginas">
+                <a class="page-link" (click)="cambiarPagina(currentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <!-- Botón para ir a la última página -->
+            <li class="page-item" [class.disabled]="currentPage === totalPaginas">
+                <a class="page-link" (click)="cambiarPagina(totalPaginas)" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        </ul>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
+    </div>
+</div>
+
+<!-- Edit Window -->
+<div #editModal class="modal fade" id="editModal" role="dialog" aria-labelledby="editModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form (submit)="editar()" [formGroup]="myForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Update Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" *ngFor="let language of ['SP', 'EN', 'PT']">
+                            <label for="title{{language}}">Title ({{language}})</label>
+                            <input type="text" class="form-control" id="title{{language}}" placeholder="Enter title" formControlName="title{{language}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" *ngFor="let language of ['SP', 'EN', 'PT']">
+                            <label for="description{{language}}">Description ({{language}})</label>
+                            <input type="text" class="form-control" id="description{{language}}" placeholder="Enter description" formControlName="description{{language}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" *ngFor="let language of ['SP', 'EN', 'PT']">
+                            <label for="manual{{language}}">Manual ({{language}})</label>
+                            <input type="file" class="form-control" accept=".pdf" id="manual{{language}}" (change)="onFileChange($event, language)" placeholder="Upload .pdf">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Fuera del modal principal -->
+<div *ngIf="successMessage || errorMessage" class="toast-overlay">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ successMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+      </div>
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ errorMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Create Window -->
+<div #createModal class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form (ngSubmit)="agregar()" [formGroup]="myForm" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Add Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" *ngFor="let language of ['SP', 'EN', 'PT']">
+                            <label for="title{{language}}">Title ({{language}})</label>
+                            <input type="text" class="form-control" id="title{{language}}" placeholder="Enter title" formControlName="title{{language}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" *ngFor="let language of ['SP', 'EN', 'PT']">
+                            <label for="description{{language}}">Description ({{language}})</label>
+                            <input type="text" class="form-control" id="description{{language}}" placeholder="Enter description" formControlName="description{{language}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" *ngFor="let language of ['SP', 'EN', 'PT']">
+                            <label for="manual{{language}}">Manual ({{language}})</label>
+                            <input type="file" class="form-control" accept=".pdf" id="manual{{language}}" (change)="onFileChange($event, language)" placeholder="Upload .pdf">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>  
+ 

@@ -1,0 +1,68 @@
+<div #editUserInfo class="modal fade" id="editUserInfo" tabindex="-1" rol="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+     <div class="modal-dialog" rol="document">
+        <form (submit)="editar()" [formGroup]="myForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Update My info</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row centerRow">
+
+                        <div class="formTitle">
+                            Name</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input #editNameInput class="form-control" id="editNameInput" required
+                                    placeholder="Name" formControlName="name">
+                            </div>
+                        </div>
+                        
+                        <div class="formTitle">
+                            Discord Username</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input #editDiscordUsernameInput class="form-control" id="editDiscordUsernameInput" required
+                                    placeholder="Discord Username" formControlName="discordUsername">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                            Email</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input #editEmailInput class="form-control" id="editEmailInput" required
+                                    placeholder="Email" formControlName="email">
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div> 
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Fuera del modal principal -->
+<div *ngIf="successMessage || errorMessage" class="toast-overlay">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ successMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+      </div>
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ errorMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
+      </div>
+    </div>
+</div>

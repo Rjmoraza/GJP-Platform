@@ -1,0 +1,79 @@
+.cardBackground{
+    background: #515151;
+    border-radius: 35px;
+    border: 1px black solid;
+}
+
+.MHText{
+    color: white;
+    font-size: 50px; 
+}
+
+.modalBodyFlex{
+    display: flex;
+    flex-direction: column;
+}
+
+.cardRowFormat{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.gameTitle{
+    color: white;
+    font-size: 80px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.gameDescription{
+    color: white;
+    font-size: 15px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    margin-bottom: 20px;
+}
+
+.gameLinks{
+    color: white;
+    font-size: 20px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word
+}
+
+.cardTitles{
+    color: white;
+    font-size: 50px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    display: flex;
+    justify-content: center;
+}
+
+.my-custom-margin{
+    margin: 10px;
+}
+
+.cardFields{
+    color: white;
+    font-size: 20px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    display: flex;
+    justify-content: center;
+}
+
+.evaluationButton{
+    display: flex;
+    align-self: center;
+    max-width: fit-content;
+    justify-self: flex-end;
+    margin: 2%;
+}

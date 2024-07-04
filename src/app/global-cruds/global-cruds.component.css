@@ -1,0 +1,42 @@
+
+.navbar {
+    border-bottom: 1px solid #000000;
+}
+
+.tabButton {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    justify-content: start;
+    gap: 10px; /* Espacio entre los botones */
+    margin: auto;
+}
+
+.crudButton {
+    background: white;  
+    color: black;
+    border-radius: 35px;
+    font-size: 18px;
+    font-weight: 400;
+    word-wrap: break-word;
+    text-align: left;
+    padding: 10px 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.crudButton:hover {
+    background: black;
+    color: white;
+}
+
+.active {
+    background: black;
+    color: white;
+}
+
+
+.crudContent {
+    border: 0;
+    font-size: 15px;
+}

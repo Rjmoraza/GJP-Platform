@@ -1,0 +1,113 @@
+<div *ngIf="!inSite">
+    <div class="Card-heading flexToStart">
+        <div class="regionName">
+            <img class="btn btn-default" (click)="moveToRegionsRoot()" *ngIf="regionParameter != 'Regions'"
+            src="/assets/Images/back_arrow.png" alt="Lights" width="64" height="56"><!--style="max-width: 65px;"-->
+            {{ regionParameter }}
+        </div>
+    </div>
+    
+    <div class="Card-body">
+    
+        <div *ngIf="regionParameter === 'Regions'" class="flexWrap">
+            <div *ngFor="let region of regions" class="btn btn-default cardContent" (click)="moveToRegionSites(region.name)">
+                <div class="cardText">{{ region.name }}</div>
+            </div>
+        </div>
+    
+        <div *ngIf="regionParameter != 'Regions'">
+            <div *ngFor="let region of regions">
+                <div *ngIf="region.name === regionParameter" class="flexWrap">
+                    <div *ngFor="let site of region.sites" class="btn btn-default cardContent" (click)="moveToSiteInformation(site.name)">
+                        <div class="cardText">{{ site.name }}</div>
+                        <div class="cardText">-</div>
+                        <div class="cardText">{{ site.country }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+<div *ngIf="inSite">
+    <div class="Card-heading flexToStart">
+        <div class="regionName">
+            <img class="btn btn-default" (click)="moveToRegionSites(regionParameter)" *ngIf="regionParameter != 'Regions'"
+                src="/assets/Images/back_arrow.png" alt="Lights" width="64" height="56">
+            {{ regionParameter }} - {{ siteParameter }}
+        </div>
+    </div>
+    
+    <div class="Card-body">
+    
+        <div class="row">
+            <div class="col flexToCenter">
+                <div class="colTitles">
+                    Staff
+                </div>
+            </div>
+            <div class="col flexToCenter">
+                <div class="colTitles">
+                    Jammers
+                </div>
+            </div>
+            <div class="col flexToCenter">
+                <div class="colTitles">
+                    Games
+                </div>
+            </div>
+        </div>
+    
+        <div class="row" style="align-items: flex-start;">
+            <div class="col flexWrapCenter">
+                <div *ngFor="let member of staff" class="cardBackground">
+                    <div class="cardTextSite">
+                        {{ member.roles }}
+                    </div>
+                    <div class="cardTextSite">
+                        {{ member.name }}
+                    </div>
+                    <div class="cardTextSite">
+                        {{ member.email }}
+                    </div>
+                </div>
+            </div>
+            <div class="col flexWrapCenter">
+                <div *ngFor="let jammer of jammers" class="cardBackground">
+                    <div class="cardTextSite">
+                        {{ jammer.roles }}
+                    </div>
+                    <div class="cardTextSite">
+                        {{ jammer.name }}
+                    </div>
+                    <div class="cardTextSite">
+                        {{ jammer.email }}
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col flexWrapCenter">
+                <div *ngFor="let game of games" class="btn btn-primary cardBackground" data-toggle="modal"
+                    [attr.data-target]="'#gameInfoModal-' + game.id">
+                    <div class="cardTextSite">
+                        {{ game.name }}
+                    </div>
+                    <div class="cardTextSite">
+                        {{ game.team }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div *ngFor="let game of games">
+            <div class="modal fade w-100" [id]="'gameInfoModal-' + game.id" tabindex="-1" role="dialog"
+                aria-labelledby="gameInfoModal" aria-hidden="true" data-backdrop="static">
+                <div class="modal-dialog w-85" role="document">
+                    <app-game-information [game]="game.name" ></app-game-information>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>

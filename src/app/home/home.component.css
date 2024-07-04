@@ -1,0 +1,111 @@
+.backgroundGradient {
+    position: relative;
+    background: linear-gradient(108deg, #3763FF 0%, #D052A5 25%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-attachment: fixed;
+}
+
+.mainWindow {
+    display: flex;
+    flex-direction: column;
+    padding-left: 15%;
+    padding-right: 15%;
+    overflow-y: auto;
+}
+
+.headerGradient {
+    padding: 0.75%;
+    background: linear-gradient(108deg, #FEDE6E 0%, #FA7800 33%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
+    z-index: 1000;
+    display: flexbox;
+    justify-content: space-between;
+}
+
+.GJrol {
+    color: white;
+    font-size: 1.7vi;
+    font-family: K2D;
+    font-weight: 400;
+    word-wrap: break-word
+}
+
+.dashButton {
+    display: flex;
+    width: fit-content;
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+img {
+    width: 3.7vi; /* Ancho del 50% del contenedor */
+    height: auto; /* Mantiene la proporción de la imagen */
+    max-width: 100%; /* Asegura que la imagen no se expanda más allá de su tamaño natural */
+}
+
+.logOutButton {
+    align-self: center;
+    max-width: fit-content;
+}
+
+.mainContainer {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-grow: 1;
+    background: white;
+    padding-top: 1rem;
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+.modal:target {
+    display: block;
+    pointer-events: auto;
+}
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: fit-content;
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    align-self: flex-start;
+    justify-self: flex-end;
+    display: flex;
+}
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.modal-header{
+    background: linear-gradient(108deg, #FEDE6E 0%, #FA7800 33%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
+}
+.modal-body{
+    background: white;
+    color: black;
+    font-size: 22px;
+    font-family: K2D;
+    font-weight: 400;
+    word-wrap: break-word;
+    display: block;
+}
+.modal-footer{
+    background: #D9D9D9;
+    justify-content: space-between;
+}

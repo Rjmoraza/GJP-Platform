@@ -1,0 +1,17 @@
+<div class="app-upload-csv">
+  <button class="custom-file-button" (click)="changeStatus()">Change Site Status</button>
+  <button class="custom-file-button" (click)="fileInput.click()">Upload CSV File</button>
+  <input #fileInput id="file-upload" type="file" (change)="onFileSelected($event)" accept=".csv" />
+
+  <ng-container *ngIf="file && file.name">
+    <button class="custom-file-button" (click)="uploadFile()">Save Users</button>
+  </ng-container>
+
+  <ul class="custom-list">
+    <li *ngFor="let result of registrationResults" [ngClass]="{'success': !errorLog.length}">{{ result }}</li>
+  </ul>
+
+  <ul class="custom-list">
+    <li *ngFor="let error of errorLog" [ngClass]="{'error': errorLog.length}">{{ error }}</li>
+  </ul>
+</div>

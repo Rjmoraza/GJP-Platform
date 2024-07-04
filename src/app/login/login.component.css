@@ -1,0 +1,91 @@
+.backgroundGradient{
+    position: relative;
+    background: linear-gradient(108deg, #FEDE6E 0%, #FA7800 33%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container2{
+    justify-content: center;
+    align-items: center;
+    max-width:500px;
+}
+
+.Card{
+    background: white;
+    border-radius: 10px;
+}
+
+.Card-heading{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #3EB9FF;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    width:100%;
+}
+
+.logo{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputContainer{
+    margin-top: 40px;
+    margin-bottom: 40px;
+    max-width: 425px;
+}
+
+.btn-default{
+    background: #3EB9FF;
+    border-radius: 15px;
+    margin-bottom: 35px;
+    max-width: 140px;
+}
+
+.btnText{
+    color: white;
+    font-size: 24px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.btn-default:hover{
+    background: white;
+    border-color: #3EB9FF;
+}
+
+.btn-default:hover .btnText{
+    color: #3EB9FF;
+}
+
+.popUp{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 300px; /* Ancho del popup */
+}
+
+.closePopUp-btn{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #888;
+}

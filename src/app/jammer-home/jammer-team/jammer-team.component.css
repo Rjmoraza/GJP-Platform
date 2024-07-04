@@ -1,0 +1,221 @@
+.card-body {
+    border-radius: 35px;
+    border: 1px black solid;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding: 5px;
+}
+
+.title {
+    text-align: center;
+    color: black;
+    font-size: 20px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.cardBackground {
+    background: #515151;
+    border-radius: 35px;
+    border: 1px black solid;
+    padding: 20px 40px;
+    margin: 15px;
+}
+
+.cardText {
+    color: white;
+    font-size: 12px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+/* New and updated styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.addMemberWindow {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    max-width: 600px;
+    width: 100%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.close-btn1 {
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
+
+.close-btn11, .close-btn12 {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: black;
+}
+
+.close-btn11 {
+    transform: rotate(45deg);
+}
+
+.close-btn12 {
+    transform: rotate(-45deg);
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-body-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+#name {
+    width: calc(100% - 32px);
+    padding-right: 30px;
+    border: none;
+    border-bottom: 1px solid black;
+    border-radius: 0;
+}
+
+.triangle {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid black;
+    cursor: pointer;
+}
+
+/* Adjustments for the dropdown list */
+.suggestion-ul {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: calc(100% - 20px);
+    max-width: 600px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 5px 0;
+    z-index: 1;
+    list-style: none;
+    margin: 0;
+    padding-inline-start: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.name-suggestions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.suggestion-li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-li:hover {
+    background-color: #eee;
+}
+
+#email, #discordUsername {
+    width: calc(100% - 20px);
+    padding-right: 30px;
+    border: none;
+    border-bottom: 1px solid black;
+    border-radius: 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.addBTN-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.addBTN {
+    background: #3EB9FF;
+    border-radius: 15px;
+    color: white;
+    font-size: 20px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    max-width: fit-content;
+}
+
+.leaveBTN-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: right;
+    align-items: flex-end;
+}
+
+.leaveBTN {
+    background: #FF3E3E;
+    border-radius: 15px;
+    color: white;
+    font-size: 12px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    max-width: fit-content;
+    margin-right: 40px;
+}

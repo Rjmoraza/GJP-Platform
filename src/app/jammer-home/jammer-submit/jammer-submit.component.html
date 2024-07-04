@@ -1,0 +1,120 @@
+<section *ngIf="!teamSubmission">
+    <div>
+        <form [formGroup]="myForm">
+            <div class="rectanguloEquipo">
+                <div class="spinner-border" role="status" *ngIf="loading">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                <div>
+                    <div>
+                        <label class="label" for="game"> Game: </label>
+                        <input class="textSpace" type="text" placeholder="Fortnite" formControlName="game" required>
+                    </div>
+                    <div>
+                        <label class="label" for="description"> Description </label>
+                        <textarea class="textSpace" placeholder="this is a game..." formControlName="description" required></textarea>
+                    </div>
+                    <div>
+                        <label class="label" for="itchio"> Itchi.io link </label>
+                        <input class="textSpace" type="url" placeholder="https://www.ejemplo.com" formControlName="itchio" required>
+                    </div>
+                    <div>
+                        <label class="label" for="pitch"> Pitch Link: </label>
+                        <input class="textSpace" type="url" placeholder="https://www.youtube.com..." formControlName="pitch" required>
+                    </div>
+                    <div>
+                        <label class="label" for="theme"> Theme: </label>
+                        <div class="button-container">
+                            <div *ngFor="let theme of gjThemes" class="button-wrapper">
+                                <button 
+                                    class="theme-button" 
+                                    [class.selected]="selectedTheme === theme" 
+                                    (click)="selectTheme(theme)"
+                                >
+                                    {{ theme.titleEN }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label" for="category"> Category: </label>
+                        <div class="button-container">
+                            <div *ngFor="let cat of gjCategories" class="button-wrapper">
+                                <button 
+                                    class="theme-button"
+                                    [class.selected]="cat === selectedCategory"
+                                    (click)="selectCategory(cat)">
+                                    {{ cat.titleEN }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="createButton" type="button" (click)="submitGame()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+  </section>
+  
+  <section *ngIf="teamSubmission">
+    <div>
+        <form [formGroup]="myForm">
+            <div class="rectanguloEquipo">
+                <div>
+                    <div>
+                        <label class="label" for="game"> Game: </label>
+                        <input class="textSpace" type="text" placeholder="Fortnite" formControlName="game" required>
+                    </div>
+                    <div>
+                        <label class="label" for="description"> Description </label>
+                        <textarea class="textSpace" placeholder="this is a game..." formControlName="description" required></textarea>
+
+                    </div>
+                    <div>
+                        <label class="label" for="itchio"> Itchi.io link </label>
+                        <input class="textSpace" type="url" placeholder="https://www.ejemplo.com" formControlName="itchio" required>
+                    </div>
+                    <div>
+                        <label class="label" for="pitch"> Pitch Link: </label>
+                        <input class="textSpace" type="url" placeholder="https://www.youtube.com..." formControlName="pitch" required>
+                    </div>
+                    <div>
+                        <label class="label" for="theme"> Theme: </label>
+                        <div class="button-container">
+                            <div *ngFor="let theme of gjThemes" class="button-wrapper">
+                                <button 
+                                    class="theme-button" 
+                                    [class.selected]="selectedTheme === theme" 
+                                    (click)="selectTheme(theme)"
+                                >
+                                    {{ theme.titleEN }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label" for="category"> Category: </label>
+                        <div class="button-container">
+                            <div *ngFor="let cat of gjCategories" class="button-wrapper">
+                                <button 
+                                    class="theme-button"
+                                    [class.selected]="cat === selectedCategory"
+                                    (click)="selectCategory(cat)">
+                                    {{ cat.titleEN }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="createButton" type="button" (click)="updateSubmit()">Update Submission</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+  </section>  
+
+
+  

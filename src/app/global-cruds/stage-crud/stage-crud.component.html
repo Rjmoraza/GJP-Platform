@@ -1,0 +1,290 @@
+<div class="card-body cardBackground">
+    <div class="table-responsive">
+        <div class="filters">
+            <select [(ngModel)]="selectedHeader">
+                <option value="name">Name</option>
+                <option value="startDate">Start Date</option>
+                <option value="endDate">End Date</option>
+                <option value="startDateEvaluation">Start Date Evaluation</option>
+                <option value="endDateEvaluation">End Date Evaluation</option>
+                <option value="gameJam.edition">Game Jam Edition</option>
+            </select>
+            
+            <div *ngIf="isDateFilterSelected()">
+                <input type="date" [(ngModel)]="filterValue" placeholder="Select Date">
+            </div>
+            
+            <input *ngIf="!isDateFilterSelected()" type="text" [(ngModel)]="filterValue" placeholder="Filter Value">
+            
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                Export info to PDF
+              </button>
+              <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Select Columns to export</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div *ngFor="let column of columnOptions">
+                        <input type="checkbox" [value]="column.value" [(ngModel)]="column.checked" (change)="toggleColumn(column.value, $event)" />
+                        {{ column.label }}
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary" (click)="exportToPDF()">Export to PDF</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">StartDate</th>
+                    <th scope="col">EndDate</th>
+                    <th scope="col">StartDateEvaluation</th>
+                    <th scope="col">EndDateEvaluation</th>
+                    <th scope="col">GameJamEdition</th>
+                    <th scope="col">Update</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of obtenerDatosPagina()">
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.startDate | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td>{{ row.endDate | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td>{{ row.startDateEvaluation | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td>{{ row.endDateEvaluation | date:'dd/MM/yyyy':'UTC' }}</td>                                 
+                    <td>{{ row.gameJam.edition }}</td>
+                    <td>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger" (click)="eliminar(row)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="navBarStyle">
+        <ul class="pagination">
+            <!-- Botón para ir a la primera página -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="cambiarPagina(1)" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <!-- Botón para ir a la página anterior -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="cambiarPagina(currentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <!-- Limitar el número de páginas mostradas -->
+            <ng-container *ngFor="let page of paginasMostradas">
+                <li class="page-item" *ngIf="page !== '...'">
+                    <a class="page-link" (click)="cambiarPagina(page)" [class.active]="currentPage === page">{{ page
+                        }}</a>
+                </li>
+            </ng-container>
+            <!-- Botón para ir a la página siguiente -->
+            <li class="page-item" [class.disabled]="currentPage === totalPaginas">
+                <a class="page-link" (click)="cambiarPagina(currentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <!-- Botón para ir a la última página -->
+            <li class="page-item" [class.disabled]="currentPage === totalPaginas">
+                <a class="page-link" (click)="cambiarPagina(totalPaginas)" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        </ul>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
+    </div>
+</div>
+
+<!-- Edit Window -->
+<div #editModal class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form (submit)="editar()" [formGroup]="myForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Update site</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row centerRow">
+
+                        <div class="formTitle">
+                            Gamejam</div>
+
+                        <div class="row centerRow">
+                            <select class="form-control formList" id="editGJInput" required formControlName="gameJam">
+                            <option value="" disabled selected hidden>Stage Gamejam</option>
+                            <option *ngFor="let gameJam of gameJams" [ngValue]="gameJam">{{ gameJam.edition }}</option>
+                            </select>
+                        </div>
+
+                        <div class="formTitle">
+                            Name</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input #editNameInput class="form-control" id="editNameInput" required
+                                    placeholder="Name" formControlName="name">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                            Start Date</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input type="date" class="form-control" id="editstartDateInput" required placeholder="startDate" formControlName="startDate">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                            End Date</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input type="date" class="form-control" id="editendDateInput" required placeholder="endDate" formControlName="endDate">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                        Start Date Evaluation</div>
+
+                    <div class="row centerRow">
+                        <div class="form-group formInput">
+                            <input type="date" class="form-control" id="editstartDateEvaluationInput" required placeholder="startDateEvaluation" formControlName="startDateEvaluation">
+                        </div>
+                    </div>
+
+                    <div class="formTitle">
+                    End Date Evaluation</div>
+
+                <div class="row centerRow">
+                    <div class="form-group formInput">
+                        <input type="date" class="form-control" id="editendDateEvaluationInput" required placeholder="endDateEvaluation" formControlName="endDateEvaluation">
+                    </div>
+                </div>
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div> 
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Fuera del modal principal -->
+<div *ngIf="successMessage || errorMessage" class="toast-overlay">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ successMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+      </div>
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ errorMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
+      </div>
+    </div>
+  </div>
+<!-- Create Window -->
+<div #createModal class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form (submit)="agregar()" [formGroup]="myForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Add site</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row centerRow">
+
+                        <div class="formTitle">
+                            Gamejam</div>
+
+                        <div class="row centerRow">
+                            <select class="form-control formList" id="editGJInput" required formControlName="gameJam">
+                            <option value="" disabled selected hidden>Stage Gamejam</option>
+                            <option *ngFor="let gameJam of gameJams" [ngValue]="gameJam">{{ gameJam.edition }}</option>
+                            </select>
+                        </div>
+
+                        <div class="formTitle">
+                            Name</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input #editNameInput class="form-control" id="editNameInput" required
+                                    placeholder="Name" formControlName="name">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                            Start Date</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input type="date" class="form-control" id="editstartDateInput" required placeholder="startDate" formControlName="startDate">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                            End Date</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input type="date" class="form-control" id="editendDateInput" required placeholder="endDate" formControlName="endDate">
+                            </div>
+                        </div>
+
+                        <div class="formTitle">
+                        Start Date Evaluation</div>
+
+                    <div class="row centerRow">
+                        <div class="form-group formInput">
+                            <input type="date" class="form-control" id="editstartDateEvaluationInput" required placeholder="startDateEvaluation" formControlName="startDateEvaluation">
+                        </div>
+                    </div>
+
+                    <div class="formTitle">
+                        End Date Evaluation</div>
+
+                    <div class="row centerRow">
+                        <div class="form-group formInput">
+                            <input type="date" class="form-control" id="editendDateEvaluationInput" required placeholder="endDateEvaluation" formControlName="endDateEvaluation">
+                        </div>
+                    </div>
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div> 
+            </div>
+        </form>
+    </div>
+</div>

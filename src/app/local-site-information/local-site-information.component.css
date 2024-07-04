@@ -1,0 +1,199 @@
+.siteName{
+    justify-content: center;
+    color: black;
+    font-size: 35px;
+    font-family: Kanit;
+    font-weight: 400;
+    word-wrap: break-word;
+
+}
+
+.optionBackground{
+    width: fit-content;
+    padding-bottom: 0.5%;
+    padding-right: 1%;
+    padding-left: 1%;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    background: #515151; 
+    border-top-left-radius: 1vi; 
+    border-top-right-radius: 1vi; 
+    text-align: center; 
+    z-index: 2
+}
+
+.optionFont{
+    color: white; 
+    font-size: 1vi; 
+    font-family: Inter; 
+    font-weight: 400; 
+    word-wrap: break-word; 
+    cursor: pointer;
+}
+
+.optionNavBar{
+    display: flex;
+    padding: 2rem;
+    padding-bottom: 0%;
+}
+
+.linea-negra {
+    border: none;
+    height: 2px;
+    background-color: black !important;
+    color: black !important;
+    margin-top: 0;
+}
+
+.title{
+    text-align: center;
+    color: black;
+    font-size: 28px;
+    font-family: Kanit;
+    font-weight: 400;
+    word-wrap: break-word;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mainWindow{
+    justify-content: flex-start;
+    align-items: flex-start;
+    background: white;
+    height: 100%;
+}
+
+.cardContainer{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.card{
+    background: #515151;
+    border-radius: 35px;
+    border: 1px black solid;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin: 15px;
+}
+
+.cardText{
+    color: white;
+    font-size: 16px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.someButtons{
+    justify-content: center;
+    align-items: center;
+    margin-top: 3%;
+}
+
+.cardBackground{
+    background: #515151;
+    border-radius: 35px;
+    border: 1px black solid;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin: 15px;
+}
+
+.siteless{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sitelessButtons{
+    padding: 1%;
+    max-width: fit-content;
+    display: flex;
+}
+
+.boton{
+    margin: 2%;
+}
+
+.centerRow{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formTitle{
+    margin-left: 50px;
+    text-align: left;
+    color: black;
+    font-size: 24px;
+    font-family: K2D;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.formList{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-radius: 44px;
+    max-width: 400px;
+}
+
+.formInput{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: 425px;
+}
+
+.messageSpacer{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.toast-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    z-index: 9998; /* Z-index menor que el del toast para que aparezca detrás */
+  }
+  
+  .custom-alert {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column; /* Establece la dirección de los elementos */
+    align-items: center; /* Centra los elementos horizontalmente */
+    z-index: 1002; /* Asegura que el toast esté por encima de otros elementos */
+  }
+  
+  
+  .ok-button {
+    background-color: #086cdc; 
+    color: rgb(250, 250, 250);
+    border-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .ok-button:hover {
+    background-color: #94b4d9e9;
+  }
+
+  .modal-body{
+    width: 60%;
+  }
+  

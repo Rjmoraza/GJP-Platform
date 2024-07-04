@@ -1,0 +1,81 @@
+.modalBodyFlex {
+
+    flex-direction: column;
+    justify-content: center; /* Centra verticalmente */
+    align-items: center; /* Centra horizontalmente */
+    flex: 1;
+    overflow-y: auto;
+}
+
+.cardBackground {
+    background: #515151;
+    border-radius: 35px;
+    border: 1px black solid;
+    width: 40%;
+    margin: 0 auto; /* Esto centra el componente horizontalmente */
+}
+
+
+.chatWindow{
+    background-color: white;
+    padding: 1.5%;
+    border-radius: 5px;
+}
+
+.msgHeader{
+    white-space: nowrap;
+    color: #8a8a8a;
+    font-size: 14px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    margin-left: 10%; /* Ajusta este valor según tu preferencia */
+}
+
+.cardText{
+    color: black;
+    font-size: 16px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+    margin-left: 10%; /* Ajusta este valor según tu preferencia */
+}
+
+
+.container{
+    display: flex;
+    padding: 1%;
+    align-items: center; 
+}
+
+form {
+    display: flex;
+    padding: 1%;
+    align-items: center; 
+}
+
+textarea {
+    resize: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    margin-right: 10px;
+    font-size: 16px;
+    width: 100%; /* Hacer que el textarea abarque todo el ancho disponible */
+}
+
+.btn {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    max-width: fit-content;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}

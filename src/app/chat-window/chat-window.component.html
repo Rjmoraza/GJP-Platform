@@ -1,0 +1,26 @@
+<div class="modal-content cardBackground">
+    <div class="spinner-border" role="status" *ngIf="loading">
+        <span class="sr-only">Loading...</span>
+      </div>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" class="MHText">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body modalBodyFlex">
+        <div *ngFor="let msg of chat?.messagesList" class="chatWindow">
+            <div class="row msgHeader" [style.color]="msg.senderType == 'Team' ? '#6a87fb' : '#ff66a8'">
+                {{ msg.senderType }} - {{ msg.sentDate | date: 'shortTime' }}
+            </div>
+            <div class="row cardText">
+                {{ msg.message }}
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <form (submit)="sendMSG()" [formGroup]="myForm">
+            <textarea class="col" id="msg" name="msg" formControlName="message" required></textarea>
+            <button class="btn col" type="submit">Send</button>
+        </form>
+    </div>
+</div>

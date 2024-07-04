@@ -1,0 +1,71 @@
+.miniWindow {
+    width: 80%;
+    height: 70%;
+    top: 15%;
+    left: 10%;
+    position: relative;
+    background: white;
+    border-radius: 30px;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    /*border: 2px black solid;*/
+}
+
+.miniWindow div {
+    margin: 2%; /* Agrega un margen de 20px en todos los lados de los elementos dentro de rectanguloEquipo */
+}
+.miniWindow label{
+    font-weight: bold;
+    font-family: K2D;
+
+}
+
+.theme-button {
+    /* Estilos para el botón */
+    padding: 16px 24px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    font-family: Kanit;
+    border-radius: 10px;
+}
+  
+.theme-button:hover {
+    background-color: #e0e0e0;
+}
+.theme-button.selected {
+    /* Estilos cuando el botón está seleccionado */
+    background: #515151; /* Cambia el color de fondo */
+    color: white; /* Cambia el color del texto */
+}
+
+.textSpace {
+    width: 100%; 
+    height: auto;
+    background: #D9D9D9; 
+    border-radius: 10px;
+    overflow-wrap: break-word; /* Para permitir el salto de línea dentro de las palabras */
+    word-wrap: break-word; /* Para navegadores más antiguos */
+    word-break: break-all;
+}
+
+.button-wrapper{
+    display: inline-block;
+}
+
+.evaluateButton{
+    display: flex;
+    align-self: center;
+    max-width: fit-content;
+    justify-self: flex-end;
+}
+
+.messageSpacer{
+    margin-left: 10px;
+    margin-right: 10px;
+}

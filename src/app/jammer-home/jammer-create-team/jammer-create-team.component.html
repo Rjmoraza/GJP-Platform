@@ -1,0 +1,26 @@
+<form [formGroup]="myForm" style="width: 100%;">
+  <div class="rectanguloEquipo">
+    <div>
+      <div>
+        <label class="label" for="studioName"> Studio Name: </label>
+        <input class="textSpace" type="text" placeholder="Enter your Studio Name" formControlName="studioName" required>
+      </div>
+      <div>
+        <label class="label" for="description"> Description: </label>
+        <input class="textSpace" type="text" placeholder="Enter your Description" formControlName="description" required>
+      </div>
+      <div>
+        <label class="label" for="gamejam"> Gamejam: {{ myForm.get('gameJam')?.value.edition }} </label>
+      </div>
+      <div>
+        <label class="label" for="site"> Site: {{ myForm.get('site')?.value.name }} </label>
+      </div>
+      <div>
+        <label class="label" for="region"> Region: {{ myForm.get('region')?.value.name }} </label>
+      </div>
+      <div>
+        <button class="createButton" type="button" (click)="createTeam()">Create Team</button>
+      </div>
+    </div>
+  </div>
+</form>

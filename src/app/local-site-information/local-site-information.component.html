@@ -1,0 +1,279 @@
+<div class="row siteName">
+    {{ site.name }}
+</div>
+
+<div *ngIf="site.name">
+    <div class="row optionNavBar">
+        <div class="optionBackground" [style.background]="inSubmissions ? '#3D3D3D' : '#D9D9D9'">
+            <div class="optionFont" [style.color]="inSubmissions ? 'white' : 'black'" (click)="moveToSubmissions()">
+            <span>Submissions</span>
+            </div>
+        </div>
+        
+        <div class="optionBackground" [style.background]="inTeams ? '#3D3D3D' : '#D9D9D9'">
+            <div class="optionFont" [style.color]="inTeams ? 'white' : 'black'" (click)="moveToTeams()">
+            <span>Teams</span>
+            </div>
+        </div>
+        
+        <div class="optionBackground" [style.background]="inJammers ? '#3D3D3D' : '#D9D9D9'">
+            <div class="optionFont" [style.color]="inJammers ? 'white' : 'black'" (click)="moveToJammers()">
+            <span>Jammers</span>
+            </div>
+        </div>
+
+        <div class="optionBackground" [style.background]="inStaff ? '#3D3D3D' : '#D9D9D9'">
+            <div class="optionFont" [style.color]="inStaff ? 'white' : 'black'" (click)="moveToStaff()">
+            <span>Staff</span>
+            </div>
+        </div>
+
+        <div class="optionBackground" [style.background]="inManagement ? '#3D3D3D' : '#D9D9D9'">
+            <div class="optionFont" [style.color]="inManagement ? 'white' : 'black'" (click)="moveToManagement()">
+            <span>Manage Site</span>
+            </div>
+        </div>
+    </div>
+
+    <hr class="linea-negra">
+            
+    <div class="row mainWindow">
+
+        <div *ngIf="inSubmissions">      
+            <div class="row title">
+                Submissions of {{ site.name }}:
+            </div>
+        
+            <div class="col cardContainer">
+                <div *ngFor="let game of games" class="btn btn-primary card" data-toggle="modal" [attr.data-target]="'#gameInfoModal-' + game.id">
+                    <div class="cardText">
+                        {{ game.name }}
+                    </div>
+                    <div class="cardText">
+                        {{ game.team }}
+                    </div>
+                </div>
+            </div>
+        
+            <div *ngFor="let game of games">
+                <div class="modal fade" [id]="'gameInfoModal-' + game.id" tabindex="-1" role="dialog" aria-labelledby="gameInfoModal" aria-hidden="true" data-backdrop="static" style="max-width: 100%;">
+                    <div class="modal-dialog" role="document" style="max-width: 85%;">
+                        <app-game-information [game]="game.id" [id]="true"></app-game-information>
+                    </div>
+                </div>
+            </div>
+        </div>
+                
+        <div *ngIf="inTeams">
+    <div class="row title">
+        Teams of {{ site.name }}:
+    </div>
+
+    <div class="col cardContainer">
+        <div *ngFor="let team of teams" class="btn btn-primary cardBackground">
+            <div class="cardText">
+                {{ team.studioName }}
+            </div>
+            <div *ngFor="let jammer of team.jammers" class="row">
+                <div class="col cardText">
+                    {{ jammer.name }}
+                </div>
+                <div class="col cardText">
+                    {{ jammer.discordUsername }}
+                </div>
+                <div class="col cardText">
+                    {{ jammer.email }}
+                </div>
+            </div>
+            <!-- Botón para abrir el chat -->
+            <button type="button" class="btn btn-secondary mt-2" data-toggle="modal" [attr.data-target]="'#teamChat-' + team._id" (click)="openChat()">
+                Open Chat
+            </button>
+        </div>
+    </div>
+        </div>
+    
+    <div *ngFor="let team of teams">
+        <div class="modal fade" [id]="'teamChat-' + team._id" tabindex="-1" role="dialog" aria-labelledby="teamChat" aria-hidden="true" data-backdrop="static" style="max-width: 100%;">
+            <div class="modal-dialog" role="document" style="max-width: 85%;">
+                <div *ngIf="showChat">
+                    <app-chat-window [team]="team._id" [localOrg]="this.site._id"></app-chat-window>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div *ngIf="inJammers">
+            <div class="row title">
+                Jammers of {{ site.name }}:
+            </div>
+            
+            <div *ngFor="let jammer of jammers" class="cardBackground">
+                <div class="cardText">
+                    {{ jammer.name }}
+                </div>
+                <div class="cardText">
+                    {{ jammer.discordUsername }}
+                </div>
+                <div class="cardText">
+                    {{ jammer.email }}
+                </div>
+            </div>
+        </div>
+        
+        <div *ngIf="inStaff">
+            <div class="row title">
+                Members of {{ site.name }}:
+            </div>
+            
+            <div *ngFor="let member of staff" class="cardBackground">
+                <div class="cardText">
+                    {{ member.rol }}
+                </div>
+                <div class="cardText">
+                    {{ member.name }}
+                </div>
+                <div class="cardText">
+                    {{ member.discordUsername }}
+                </div>
+                <div class="cardText">
+                    {{ member.email }}
+                </div>
+            </div>
+        
+        </div>
+        
+        <div *ngIf="inManagement">
+            <div class="row title">
+                Site status: <span [style.color]="currentStatus === 'Open' ? 'green' : 'red'">{{ currentStatus }}</span>
+            </div>   
+            <div class="row someButtons">
+                <div class="col text-center">
+                    <app-upload-csv></app-upload-csv>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div *ngIf="!site.name" class="row siteless">
+    <h3 class="row siteName">Welcome to GameJam+ platform</h3>
+    <div class="row sitelessButtons">
+        <button class="btn btn-primary col boton" data-toggle="modal" data-target="#createModal">Create your own site</button>
+        <button class="btn btn-primary col boton" data-toggle="modal" data-target="#joinModal">Join a site</button>
+    </div>
+</div>
+
+<!-- Fuera del modal principal -->
+<div *ngIf="successMessage || errorMessage" class="toast-overlay">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ successMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+      </div>
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ errorMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
+      </div>
+    </div>
+</div>
+
+<!-- Create Window -->
+<div #createModal class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form (submit)="agregar()" [formGroup]="myForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Create site</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row centerRow">
+
+                        <div class="formTitle">Region</div>
+                        <div class="row centerRow">
+                            <select class="form-control formList" id="regions" required formControlName="region">
+                              <option value="" disabled selected hidden>Region of the site</option>
+                              <option *ngFor="let region of regions" [ngValue]="region">{{ region.name }}</option>
+                            </select>
+                          </div>
+
+                          <div class="formTitle">Country</div>
+                         <div class="row centerRow">
+                             <select class="form-control formList" id="countries" required formControlName="country">
+                               <option value="" disabled selected hidden>Country of the site</option>
+                               <option *ngFor="let country of countries" [ngValue]="country">{{ country.name }}</option>
+                             </select>
+                           </div>
+
+                        <div class="formTitle">Site</div>
+
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <input #createSiteInput class="form-control" id="createSiteNameInput" required
+                                    placeholder="Name" formControlName="name">
+                            </div>
+                        </div>
+                    
+                        <div class="formTitle">Modality</div>
+                        
+                        <div class="row centerRow">
+                            <div class="form-group formInput">
+                                <select #createModalityInput class="form-control" id="createSiteModalityInput" formControlName="modality">
+                                    <option value="" disabled selected hidden>Modality</option>
+                                    <option value="in-person">In-person</option>
+                                    <option value="virtual">Virtual</option>
+                                    <option value="hybrid">Hybrid</option>                                    
+                                </select>
+                            </div>
+                        </div>                    
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>  
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Join Window -->
+<div #joinModal class="modal fade" id="joinModal" tabindex="-1" role="dialog" aria-labelledby="joinModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form (submit)="unirse()" [formGroup]="joinForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="joinModalLabel">Join site</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row centerRow">
+
+                        <div class="formTitle">Available sites</div>
+                        <div class="row centerRow">
+                            <select class="form-control formList" id="sites" required formControlName="site">
+                              <option value="" disabled selected hidden>Select a site</option>
+                              <option *ngFor="let site of sites" [ngValue]="site">{{ site.name }}</option>
+                            </select>
+                          </div>                   
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Join</button>
+                </div>  
+            </div>
+        </form>
+    </div>
+</div>

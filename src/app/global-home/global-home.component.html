@@ -1,0 +1,25 @@
+<div class="row background">
+
+    <!-- Tab -->
+    <div class="tabButton" [style.background]="inSites ? '#3D3D3D' : '#D9D9D9'">
+        <div class="btn btn-default tabFont" [style.color]="inSites ? 'white' : 'black'" (click)="moveToSites()">
+            Sites
+        </div>
+    </div>
+
+    <!-- Tab -->
+    <div class="tabButton" [style.background]="inData ? '#3D3D3D' : '#D9D9D9'">
+        <div class="btn btn-default tabFont" [style.color]="inData ? 'white' : 'black'" (click)="moveToCruds()">
+            Data Management
+        </div>
+    </div>
+
+</div>
+<div class="row h-100 tabBackground">
+    <div class="col centerCol">
+        <div class="Card tabCardBackground">
+            <app-global-sites *ngIf="inSites"></app-global-sites>
+            <app-global-cruds *ngIf="inData"></app-global-cruds>
+        </div>
+    </div>
+</div>

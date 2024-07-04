@@ -1,0 +1,41 @@
+.background {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    background: white;
+    padding-left: 35px;
+}
+
+.tabButton {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    width: fit-content;
+    margin-left: 15px;
+    margin-top: 20px;
+}
+
+.tabFont{
+    font-size: 18px;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.tabBackground {
+    justify-content: center;
+    align-items: flex-start;
+    background: white;
+}
+
+.tabCardBackground {
+    background: white;
+    border-radius: 35px;
+    border: 1px #3D3D3D solid;
+    padding: 40px;
+}
+
+.centerCol{
+    justify-content: center;
+    align-items: center;
+}

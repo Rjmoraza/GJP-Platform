@@ -1,0 +1,378 @@
+<div class="main-container">
+    <div class="header">
+        <div class="title">GJ+ Evaluation Dashboard</div>
+        <div class="welcome">Welcome, <span class="user">Judge</span></div>
+        <div class="instructions">
+            Click on a game to evaluate it. You may request additional games to evaluate once all current evaluations are Submitted.
+        </div>
+    </div>
+    <div class="center-column">
+        <div class="heading">
+            Time Remaining To Evaluate:
+        </div>
+        <div class="time-remaining">
+            {{ timeRemaining }}
+        </div>
+    </div>   
+    <div *ngIf="timeRemaining == '0d 0h 0m 0s' && games.length === 0" class="row button-container">
+        <div class="button-text">
+            Evaluation Period is Over
+        </div>
+    </div>
+    <div *ngIf="timeRemaining !== '0d 0h 0m 0s' && games.length === 0" class="row button-container">
+        <button class="evaluation-button" (click)="getNewEvaluation()">
+            <div class="button-text">
+                Get New Evaluation
+            </div>
+            <div class="spinner-border" role="status" *ngIf="loading">
+                <span class="sr-only">Loading...</span>
+              </div>
+        </button>
+    </div>
+    <div *ngIf="timeRemaining !== '0d 0h 0m 0s'" class="row games-evaluations-container">
+        <div class="evaluations-list">
+            <div *ngFor="let game of evaluations" class="game-card" (click)="selectGame(game.id)">
+                <div class="game-info">
+                    {{ game.name }}
+                </div>
+                <div class="game-info">
+                    {{ game.team }}
+                </div>
+                <span class="badge finished">Finished</span>
+            </div>
+        </div>
+        <div class="games-list">
+            <div *ngFor="let game of games" class="game-card" (click)="selectGame(game.id)">
+                <div class="game-info">
+                    {{ game.name }}
+                </div>
+                <div class="game-info">
+                    {{ game.team }}
+                </div>
+                <span class="badge partial">Partial</span>
+            </div>
+        </div>
+        <div *ngIf="dataSource && gameParameter" class="game-details-container modal-body">
+            <div class="cardRowFormat">
+                <div class="gameTitle">
+                    <span class="bold">{{ dataSource.name }}</span><br>
+                </div>
+                by {{ dataSource.team }}
+                <div class="styled-h"></div>
+                <div class="gameDescription">
+                    <div class="cardTitles">
+                        Description
+                    </div>{{ dataSource.description }}
+                </div>
+                <div class="styled-h"></div>
+            </div>
+            <div class="cardRowFormat">
+                <span class="bold">Game</span> <br>
+                <a [href]="dataSource.gameLink" target="_blank" class="gameLinks">
+                    <span class="blue-link">{{ dataSource.gameLink }}</span>
+                </a>
+                <div class="styled-h"></div>
+                <span class="bold">Pitch</span> <br>
+                <a [href]="dataSource.pitchLink" target="_blank" class="gameLinks">
+                    <span class="blue-link">{{ dataSource.pitchLink }}</span>
+                </a>
+                <div class="styled-h"></div>
+            </div>
+            <div class="cardRowFormat">
+                <div>
+                    <div class="cardTitles">
+                        Team members
+                    </div>
+                    <div *ngFor="let member of dataSource.teamMembers">
+                        <div class="cardFields">
+                            {{ member.name }} <span>by</span>
+                        </div>
+                        <div class="cardFields">
+                            {{ member.discordUsername }}
+                        </div>
+                        <div class="cardFields">
+                            {{ member.email }}
+                        </div>
+                        <div class="styled-h"></div>
+                    </div>
+                </div>
+
+                <div class="my-custom-margin"> 
+                    <div class="cardTitles">
+                        Genre
+                    </div>
+                    <div class="cardFields">
+                        {{ dataSource.categories.join(', ') }}
+                    </div>
+                    <div class="styled-h"></div>
+                </div>
+
+                <div class="my-custom-margin">
+                    <div class="cardTitles">
+                        Themes
+                    </div>
+                    <div class="cardFields">
+                        {{ dataSource.themes.join(', ') }}
+                    </div>
+                </div>
+            </div>
+            <div class="evaluation-form">
+                <div class="information section">
+                  <h3>Instructions</h3>
+                  <div class="left-align">
+                    <p>
+                      After reviewing the game details, pitch, and effectively playing it via the provided link, please fill the evaluation form below.
+                    </p>
+                    <ul>
+                      <li>Progress is saved automatically as you answer each question</li>
+                      <li>Items marked with an asterisk are mandatory</li>
+                      <li>Please check "Cannot Evaluate" in case you could not assess an item for any reason</li>
+                      <li>After finishing your evaluation, please Submit it using the button in the end of the form</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="section">
+                  <h2>Pitch Evaluation</h2>
+                  <div class="question">
+                    <div class="title"><strong>1. Market Positioning</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                        <div class="description">
+                            How mature and well planned is game's positioning in the market? Did the team identify and define a market category for the game? Were target platforms defined for publishing? Would you know how to express this product's place in the market?
+                        </div>
+                        <div class="rating">
+                            <span class="slider-value">{{ marketPositioningValue }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="marketPositioningValue">
+                        </div>  
+                    </div>
+                  </div>
+              
+                  <div class="question">
+                    <div class="title"><strong>2. Audience and Competitor Awareness</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                        <div class="description">Did the team know how to identify its competitors and similar companies? Price assessment and level of polishing of the final product. Did you feel that the team defined its target audience well and correctly?</div>
+                        <div class="rating">
+                            <span class="slider-value">{{ audienceCompetitorAwarenessValue }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="audienceCompetitorAwarenessValue">
+                        </div>  
+                    </div>
+                  </div>
+              
+                  <div class="question">
+                    <div class="title"><strong>3. Continuity Potential</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                      <div class="description">What the team presents from perspective. How much this game represents in terms of development possibilities. How convincingly did the team present one or more paths towards a finalized product?</div>
+                      <div class="rating">
+                        <div class="rating">
+                            <span class="slider-value">{{ continuityPotential }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="continuityPotential">
+                        </div>                      
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="question">
+                    <div class="title"><strong>4. Pitch Feedback</strong></div>
+                    <div class="content">
+                      <p>General feedback about the team's Pitch presentation and product vision. How can the team achieve 10 in all scores? What was spot on? What could be improved?</p>
+                      <div class="rating textarea">
+                        <textarea name="pitchFeedback" class="materialize-textarea" placeholder="Feedback" [(ngModel)]="pitchFeedback"></textarea>
+                        <div class="wordcount"><span>characters: </span><span class="textarea value-display">{{ pitchFeedback.length }}</span></div>
+                      </div>
+                    </div>
+                  </div>
+              
+                </div>
+              
+                <div class="section">
+                  <h2>Technical Evaluation</h2>
+              
+
+                  <div class="question">
+                    <div class="title"><strong>5. Game Design - Hook</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                        <div class="description">
+                            Is the game innovative and fun? Does the game look and feel fun and engaging? Do you want to keep playing the game? Does it make for a pleasant and engaging experience for the players?                        </div>
+                        <div class="rating">
+                            <span class="slider-value">{{ gameDesignHookValue }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="gameDesignHookValue">
+                        </div>  
+                    </div>
+                  </div>
+                  
+                  <div class="question">
+                    <div class="title"><strong>6. Game Design - Core Gameplay Loop</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                        <div class="description">
+                            Is the core gameplay loop easy to learn and clear from the start? Are the main mechanics and how to play the game clear to the player?
+                        </div>
+                        <div class="rating">
+                            <span class="slider-value">{{ gameDesignCoreLoopValue }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="gameDesignCoreLoopValue">
+                        </div>  
+                    </div>
+                  </div>
+              
+                  <div class="question">
+                    <div class="title"><strong>7. Game Design - Balance</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                        <div class="description">
+                            Is the difficulty of the game adjusted for the target audience? Is the level design interesting and challenging in a fun way?
+                        </div>
+                        <div class="rating">
+                            <span class="slider-value">{{ gameDesignBalanceValue }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="gameDesignBalanceValue">
+                        </div>  
+                    </div>
+                  </div>
+              
+                  <div class="question">
+                    <div class="title"><strong>8. Game Design - Feedback</strong></div>
+                    <div class="content">
+                      <p>General Game Design feedback. How can the team achieve 10 in all scores above? What was spot on? What could be improved?</p>
+                      <div class="rating textarea">
+                        <textarea name="gameDesignFeedback" class="materialize-textarea" placeholder="Feedback" [(ngModel)]="gameDesignFeedback"></textarea>
+                        <div class="wordcount"><span>characters: </span><span class="textarea value-display">{{ gameDesignFeedback.length }}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="question">
+                    <div class="title"><strong>9. Art &amp; Visuals - Coherence and Quality</strong><b class="asterisk">*</b></div>
+                    <div class="content">
+                        <div class="description">
+                            Does the visual composition of the game communicate a coherent message? Are the elements os the  game brought together in balance? How does the game look like, how does it use colors, characters, backgrounds and complementation with the overall composition?
+                        </div>
+                        <div class="rating">
+                            <span class="slider-value">{{ artVisualsCoherenceQualityValue }}</span>
+                            <input type="range" min="1" max="10" class="slider" [(ngModel)]="artVisualsCoherenceQualityValue">
+                        </div>  
+                    </div>
+                  </div>
+            
+                <div class="question">
+                  <div class="title"><strong>10. Art &amp; Visuals - Feedback</strong></div>
+                  <div class="content">
+                    <p>Does the visual composition of the game communicate a coherent message? Are the elements of the game brought together in balance?</p>
+                    <div class="rating textarea">
+                      <textarea name="artVisualsFeedback" class="materialize-textarea" placeholder="Feedback" [(ngModel)]="artVisualsFeedback"></textarea>
+                      <div class="wordcount"><span>characters: </span><span class="textarea value-display">{{ artVisualsFeedback.length }}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="question">
+                <div class="title"><strong>11. Audio Design - Coherence and Quality</strong><b class="asterisk">*</b></div>
+                <div class="content">
+                    <div class="description">
+                        Is the music and sound effects coherent with the game? Was there good use of audio to enhance the experience?
+                    </div>
+                    <div class="rating">
+                        <span class="slider-value">{{ audioDesignCoherenceQualityValue }}</span>
+                        <input type="range" min="1" max="10" class="slider" [(ngModel)]="audioDesignCoherenceQualityValue">
+                    </div>  
+                </div>
+              </div>
+        
+            <div class="question">
+              <div class="title"><strong>12. Audio Design - Feedback</strong></div>
+              <div class="content">
+                <p>
+                General Audio Design feedback. How can the team achieve 10 in all scores above? What was spot on? What could be improved?
+                </p>
+                <div class="rating textarea">
+                  <textarea name="audioDesignFeedback" class="materialize-textarea" placeholder="Feedback" [(ngModel)]="audioDesignFeedback"></textarea>
+                  <div class="wordcount"><span>characters: </span><span class="textarea value-display">{{ audioDesignFeedback.length }}</span></div>
+                </div>
+              </div>
+
+              <div class="question">
+                <div class="title"><strong>13. Build Quality</strong><b class="asterisk">*</b></div>
+                <div class="content">
+                    <div class="description">
+                        Is the build well constructed, with few or no apparent bugs? Does it run properly, without apparent framerate drops or any evident optimization issues?
+                    </div>
+                    <div class="rating">
+                        <span class="slider-value">{{ buildQualityValue }}</span>
+                        <input type="range" min="1" max="10" class="slider" [(ngModel)]="buildQualityValue">
+                    </div>  
+                </div>
+              </div>
+
+              <div class="question">
+                <div class="title"><strong>14. UI/UX Quality</strong><b class="asterisk">*</b></div>
+                <div class="content">
+                    <div class="description">
+                        Is the game's UI well-designed and clear to navigate? Are the icons/commands/controls clear and easy to understand? Are the controls responsive and predictable? Does the interface provide feedback to the user in a way that it's clear how to use it properly?
+                    </div>
+                    <div class="rating">
+                        <span class="slider-value">{{ UIUXQualityValue }}</span>
+                        <input type="range" min="1" max="10" class="slider" [(ngModel)]="UIUXQualityValue">
+                    </div>  
+                </div>
+              </div>
+
+              <div class="question">
+                <div class="title"><strong>15. Narrative and Worldbuilding</strong><b class="asterisk">*</b></div>
+                <div class="content">
+                    <div class="description">
+                        Does the game present a clear central conflict, engaging/relating characters, or a storyline with clear goals? Do you feel compelled to complete the story or to learn more about the game's universe? Do you feel the mechanics relate clearly to the story, conflict, or goals, without evident contradictions between the gameplay and the story?
+                    </div>
+                    <div class="rating">
+                        <span class="slider-value">{{ narrativeWorldBuildingValue }}</span>
+                        <input type="range" min="1" max="10" class="slider" [(ngModel)]="narrativeWorldBuildingValue">
+                    </div>  
+                </div>
+              </div>
+
+              <div class="question">
+                    <div class="title"><strong>16. Build, UI/UX &amp; Narrative Feedback</strong></div>
+                    <div class="content">
+                    <p>
+                        General Build, UI/UX, Narrative and Worldbuilding feedback. How can the team achieve 10 in all scores above? What was spot on? What could be improved?
+                    </p>
+                    <div class="rating buildFeedback">
+                        <textarea name="buildFeedback" class="materialize-textarea" placeholder="Feedback" [(ngModel)]="buildFeedback"></textarea>
+                        <div class="wordcount"><span>characters: </span><span class="textarea value-display">{{ buildFeedback.length }}</span></div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="title"><strong>17. Personal Feedback</strong></div>
+                    <div class="content">
+                    <p>
+                        Personal feedback about the game: How did you feel playing this game? Would you recommend this game to someone? Any specific thoughts that didn't fit in other feedback categories?
+                    </p>
+                    <div class="rating buildFeedback">
+                        <textarea name="personalFeedback" class="materialize-textarea" placeholder="Feedback" [(ngModel)]="personalFeedback"></textarea>
+                        <div class="wordcount"><span>characters: </span><span class="textarea value-display">{{ personalFeedback.length }}</span></div>
+                    </div>
+                </div>
+
+                <div class="submit" (click)="submitEvaluation()">
+                    <div>
+                        <a>Submit Evaluation</a>
+                    </div>
+                </div>                  
+            </div>
+                       
+        </div>
+        </div>
+</div>
+
+
+<!-- Fuera del modal principal -->
+<div *ngIf="successMessage || errorMessage" class="toast-overlay">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ successMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+      </div>
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="toast-message">{{ errorMessage }}</div>
+        <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
+      </div>
+    </div>
+  </div>

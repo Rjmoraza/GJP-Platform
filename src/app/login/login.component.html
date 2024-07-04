@@ -1,0 +1,44 @@
+<!-- Section para poner el fondo -->
+<section class="vh-100 backgroundGradient">
+  <!-- El container contiene todos los elementos de la interfaz -->
+  <div class="container">
+    <!-- Se divide en rows, todo debería ir en un row -->
+    <div class="row">
+      <!-- Cada row tiene cols, esto sirve dejelo así -->
+      <div class="col container2">
+        <!-- Una card es un panel -->
+        <div class="Card">
+
+          <div class="Card-heading">
+            <img src="/assets/Images/GJ-logo.png" alt="Lights" class="logo">
+          </div>
+
+          <div class="Card-body">
+            <!-- En el form están los espacios o datos que van para el ts -->
+            <form (submit)="handleSubmit($event)">
+              <!-- Input -->
+              <div class="row">
+                <div class="form-group inputContainer">
+                  <input #emailInput type="email" class="form-control" id="emailInput" required placeholder="Email">
+                </div>
+              </div>
+              <!-- boton -->
+              <div class="row">
+                <button type="submit" class="btn btn-default">
+                  <div class="btnText">
+                    Send link
+                  </div>
+                </button>
+              </div>
+            </form>
+            <!-- PopUp para mostrar mensaje de verificación -->
+            <div *ngIf="showSuccessMessage" class="popUp">
+              <span class="closePopUp-btn" (click)="closePopup()">&times;</span>
+              <div>{{ successMessage }}</div> <!--style="color: #333;"-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> 

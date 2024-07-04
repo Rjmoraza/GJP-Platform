@@ -1,0 +1,81 @@
+<div class="Card-heading flexToStart">
+    <div class="regionName">
+        <img class="btn btn-default" (click)="moveToRegionSites(regionParameter)" *ngIf="regionParameter != 'Regions'"
+            src="/assets/Images/back_arrow.png" alt="Lights">
+        {{ regionParameter }} - {{ siteParameter }}
+    </div>
+</div>
+
+<div class="Card-body">
+
+    <div class="row">
+        <div class="col flexToCenter">
+            <div class="colTitles">
+                Staff
+            </div>
+        </div>
+        <div class="col flexToCenter">
+            <div class="colTitles">
+                Jammers
+            </div>
+        </div>
+        <div class="col flexToCenter">
+            <div class="colTitles">
+                Games
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="align-items: flex-start;">
+        <div class="col flexWrapCenter">
+            <div *ngFor="let member of staff" class="cardBackground">
+                <div class="cardText">
+                    {{ member.roles }}
+                </div>
+                <div class="cardText">
+                    {{ member.name }}
+                </div>
+                <div class="cardText">
+                    {{ member.email }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col flexWrapCenter">
+            <div *ngFor="let jammer of jammers" class="cardBackground">
+                <div class="cardText">
+                    {{ jammer.roles }}
+                </div>
+                <div class="cardText">
+                    {{ jammer.name }}
+                </div>
+                <div class="cardText">
+                    {{ jammer.email }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col flexWrapCenter">
+            <div *ngFor="let game of games" class="btn btn-primary cardBackground" data-toggle="modal"
+                [attr.data-target]="'#gameInfoModal-' + game.id">
+                <div class="cardText">
+                    {{ game.name }}
+                </div>
+                <div class="cardText">
+                    {{ game.team }}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <div *ngFor="let game of games">
+        <div class="modal fade w-100" [id]="'gameInfoModal-' + game.id" tabindex="-1" role="dialog"
+            aria-labelledby="gameInfoModal" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog w-85" role="document">
+                <app-game-information [game]="game.name"></app-game-information>
+            </div>
+        </div>
+    </div>
+
+</div>
