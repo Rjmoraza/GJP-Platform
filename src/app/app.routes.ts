@@ -30,7 +30,4 @@ export const routes: Routes = [
     {path: 'Jammer/team/createTeam', component: JammerCreateTeamComponent},
     {path: 'Jammer/team/submit', component: JammerSubmitComponent},
     {path: 'home', component: HomeComponent},
-
-
-    
 ];

@@ -33,7 +33,7 @@ export class UserCrudComponent implements OnInit{
   indexUser = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
-  selectedColumns: (keyof User)[] = []; 
+  selectedColumns: (keyof User)[] = [];
   columnOptions = [
     { label: 'Name', value: 'name' as keyof User, checked: false },
     { label: 'Email', value: 'email' as keyof User, checked: false },
@@ -53,15 +53,41 @@ export class UserCrudComponent implements OnInit{
       site: ['', Validators.required],
       discordUsername: ['', Validators.required]
     });
+
     const url = `http://${environment.apiUrl}:3000/api/user/get-users`;
     this.userService.getUsers(url).subscribe(
       (users: any[]) => {
-        this.dataSource = users.map(user => ({ _id: user._id, name: user.name, email: user.email, region: user.region, site: user.site, roles: user.roles, coins: user.coins, discordUsername: user.discordUsername }));
+        console.log("Users listed");
+
+        var empty = {
+          name: "None"
+        };
+
+        var map = users.map(user => ({ _id: user._id,
+          name: user.name,
+          email: user.email,
+          region: (user.region)?user.region:empty,
+          site: (user.site)?user.site:empty,
+          roles: user.roles,
+          coins: user.coins,
+          discordUsername: user.discordUsername }));
+
+        console.log(map);
+
+        this.dataSource = users.map(user => ({ _id: user._id,
+          name: user.name,
+          email: user.email,
+          region: (user.region)?user.region:empty,
+          site: (user.site)?user.site:empty,
+          roles: user.roles,
+          coins: user.coins,
+          discordUsername: user.discordUsername }));
       },
       error => {
         console.error('Error al obtener usuarios:', error);
       }
     );
+
     this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`)
     .subscribe(
       regions => {
@@ -79,6 +105,7 @@ export class UserCrudComponent implements OnInit{
       this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${selectedValue._id}`)
         .subscribe(
           sites => {
+            console.log(sites);
             this.sites = sites;
 
             if (this.sites.length > 0) {
@@ -100,14 +127,14 @@ export class UserCrudComponent implements OnInit{
     const selectedSite = this.sites.find(site => site._id === elemento.site._id);
     this.myForm.patchValue({
       name: elemento.name,
-      region: selectedRegion, 
+      region: selectedRegion,
       email: elemento.email,
       discordUsername: elemento.discordUsername
     });
 
     if (selectedSite) {
       this.myForm.patchValue({
-        site: selectedSite 
+        site: selectedSite
       });
     }
     if (elemento.roles && elemento.roles.length > 0) {
@@ -117,7 +144,7 @@ export class UserCrudComponent implements OnInit{
       });
     }
   }
-  
+
 
   editar() {
     if (this.myForm.valid) {
@@ -170,9 +197,9 @@ export class UserCrudComponent implements OnInit{
 
     eliminar(elemento: any) {
       const id = elemento._id;
-  
+
       const url = `http://${environment.apiUrl}:3000/api/user/delete-user/${id}`;
-  
+
       this.userService.deleteUser(url).subscribe({
           next: (data) => {
               console.log('Usuario eliminado correctamente:', data);
@@ -190,9 +217,9 @@ export class UserCrudComponent implements OnInit{
       if (this.myForm.valid) {
         console.log('Formulario válido');
         const { email, name, region, site, discordUsername} = this.myForm.value;
-        const rolesString = this.myForm.get('rol')?.value; 
-        const roles = rolesString.split(','); 
-        
+        const rolesString = this.myForm.get('rol')?.value;
+        const roles = rolesString.split(',');
+
         this.userService.registerUser(`http://${environment.apiUrl}:3000/api/user/register-user`, {
           name: name,
           email: email,
@@ -204,7 +231,7 @@ export class UserCrudComponent implements OnInit{
             _id: site._id,
             name: site.name
           },
-          roles: roles, 
+          roles: roles,
           coins: 0,
           discordUsername: discordUsername,
         }).subscribe({
@@ -227,15 +254,15 @@ export class UserCrudComponent implements OnInit{
     }
     successMessage: string = '';
     errorMessage: string = '';
-    
+
     showSuccessMessage(message: string) {
       this.successMessage = message;
     }
-    
+
     showErrorMessage(message: string) {
       this.errorMessage = message;
     }
-    
+
   get totalPaginas(): number {
     return Math.ceil(this.dataSource.length / this.pageSize);
   }
@@ -380,11 +407,11 @@ exportToPDF() {
     for (let i = inicio; i <= fin; i++) {
       paginasMostradas.push(i);
     }
-  
+
     if (currentPage - inicio > rango) {
       paginasMostradas.unshift('...');
     }
-    
+
     if (fin < totalPaginas - 1) {
       paginasMostradas.push('...');
     }

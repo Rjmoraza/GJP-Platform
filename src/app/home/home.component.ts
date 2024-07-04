@@ -51,12 +51,12 @@ export class HomeComponent {
           this.name = user.name;
           this.discordName = user.discordUsername;
           this.email = user.email;
-          this.site = user.site.name;
-          this.region = user.region.name;
+
+          if(user.site) this.site = user.site.name;
+          if(user.region) this.region = user.region.name;
         },
         error => {
           this.router.navigate(['/login']);
-          
         }
       );
   }
