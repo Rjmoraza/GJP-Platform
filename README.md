@@ -30,9 +30,33 @@ sudo apt update
 sudo apt install mongodb-org-database mongodb-org-database-tools-extra
 ```
 
+Enable and start the MongoDB service
+
+```bash
+sudo systemctl enable mongod
+sudo systemctl start mongod
+```
+
 ### NodeJS
 
-NodeJS packages are supported by default on Ubuntu 22.04
+https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-22-04 
+
+NodeJS packages supported by the default repositories in Ubuntu 22.04 are obsolete. To install a newer version of NodeJS a new repository must be added. First make sure that curl is installed
+
+```bash
+sudo apt install curl
+```
+
+Then download the installer for the NodeJS repository
+
+```bash
+cd ~
+curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+chmod a+x nodesource_setup.sh
+sudo ./nodesource_setup.sh
+```
+
+This will add the new repository into the repository lists in Ubuntu. The new repository will be installed in `/etc/apt/sources.list.d/nodesource.list`. If everything is correct, now NodeJS can be installed normally with APT:
 
 ```bash
 apt install nodejs npm
@@ -42,13 +66,15 @@ apt install nodejs npm
 
 ### Backend
 
-Run the following command in the backend root folder:
+Download the code into a folder in your system. This folder will be referred to as `[PLATFORM_ROOT]`
+
+Run the following command in the `[PLATFORM_ROOT]` folder:
 
 ```bash
 sudo npm install
 ```
 
-This will install all the packages and dependencies required by the project. Then create a `.env` file in the backend root folder with the following variables:
+This will install all the packages and dependencies required by the project. Then create a file with the route  `[PLATFORM_ROOT].env` with the following values:
 
 ```bash
 EMAIL=[email address of the system]
@@ -60,7 +86,7 @@ The system requires an email account to send emails through SMTP
 
 ### Frontend
 
-
+Find the file `[PLATFORM_ROOT]/dist/browser/main-[Serial].js`. Within it find and replace the only instance of `localhost` by the server's IP or FQDN.
 
 
 
