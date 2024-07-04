@@ -77,12 +77,15 @@ sudo npm install
 This will install all the packages and dependencies required by the project. Then create a file with the route  `[PLATFORM_ROOT].env` with the following values:
 
 ```bash
-EMAIL=[email address of the system]
-EMAILPASSWORD=[email password of the system]
-PORT=[IP Address of the system]
+EMAIL=[email address for the SMTP service]
+EMAILPASSWORD=[email password for the SMTP service]
+URL=[Full URL of the system]
+TARGET=[DEV|PROD]
 ```
 
-The system requires an email account to send emails through SMTP 
+The system requires a functioning email account to send files through SMTP.
+
+The `TARGET` value defines if the system is in production (uses static frontend) or in development (uses dynamic frontend).
 
 ### Frontend
 
