@@ -15,30 +15,34 @@ const port = 3000; // Establecer el puerto en el que el servidor escuchará las 
 
 // Conexión a MongoDB
 mongoose.connect("mongodb://localhost:27017/GameJamDB");
+var root = "";
 
-/*
-// Configuración de CORS - Permite solicitudes desde un origen específico
-const corsOptions = {
-    origin: function(origin, callback) {
-        if (!origin) return callback(null, true);
+if(process.env.TARGET == "DEV")
+{
+    console.log("Target is DEV");
+    // Configuración de CORS - Permite solicitudes desde un origen específico
+    const corsOptions = {
+        origin: function(origin, callback) {
+            if (!origin) return callback(null, true);
 
-        const allowedOrigins = ['http://localhost:3000/', 'http://localhost:4200','http://149.130.176.112'];
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            // El origen está en la lista de orígenes permitidos
-            callback(null, true);
-        } else {
-            // El origen no está en la lista de orígenes permitidos
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    optionsSuccessStatus: 204, // Devolver un código de éxito 204
-    methods: "GET, POST, PUT, DELETE", // Permitir estos métodos HTTP
-    credentials: true, // Permite enviar cookies de forma segura
-};
+            const allowedOrigins = ['http://localhost:3000/', 'http://localhost:4200','http://149.130.176.112'];
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                // El origen está en la lista de orígenes permitidos
+                callback(null, true);
+            } else {
+                // El origen no está en la lista de orígenes permitidos
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        optionsSuccessStatus: 204, // Devolver un código de éxito 204
+        methods: "GET, POST, PUT, DELETE", // Permitir estos métodos HTTP
+        credentials: true, // Permite enviar cookies de forma segura
+    };
 
-app.use(cors(corsOptions)); // Usar el middleware CORS
+    app.use(cors(corsOptions)); // Usar el middleware CORS
 
-*/
+    root = "http://localhost:4200";
+}
 
 // Middleware para analizar solicitudes JSON y cookies
 app.use(express.json());
@@ -90,22 +94,30 @@ app.use('/api/submission', submission_route);
 const theme_route = require('./routes/themeRoute');
 app.use('/api/theme', theme_route);
 
-// Definir el archivo raíz para servir los archivos
-const root = path.join(__dirname, 'dist/gj-platform/browser');
+if(process.env.TARGET == "PROD")
+{
+    // Definir el archivo raíz para servir los archivos
+    root = path.join(__dirname, 'dist/gj-platform/browser');
 
-// Servir los archivos estáticos
-app.use(express.static(root));
+    // Servir los archivos estáticos
+    app.use(express.static(root)); 
 
-// Manejar todas las rutas
-app.get('*', function (req, res) {
-    fs.stat(path.join(root, req.path), function (err) {
-        if (err) {
-            res.sendFile('index.html', { root });
-        } else {
-            res.sendFile(req.path, { root });
-        }
+    // Manejar todas las rutas
+    app.get('*', function (req, res) {
+        fs.stat(path.join(root, req.path), function (err) {
+            if (err) {
+                res.sendFile('index.html', { root });
+            } else {
+                res.sendFile(req.path, { root });
+            }
+        });
     });
+}
+
+app.get("*", function(req, res) {
+    
 });
+
 
 // Iniciar el servidor y escuchar en el puerto especificado
 app.listen(port, () => {
@@ -121,15 +133,12 @@ const { sendScore } = require('./services/mailer');
 async function sendEvaluations() {
     var currentStage;
     const currentDatee = new Date();
-   //const currentDatee = new Date(Date.UTC(2024, 4, 31, 0, 0, 1, 0));
    const currentDate = currentDatee.toISOString().slice(0, 10);
    
     const allGameJams = await GameJam.find({});
 
     for (const gameJam of allGameJams) {
         for (const stage of gameJam.stages) {
-            //console.log(currentDate)
-            //console.log(stage.endDateEvaluation.toISOString().slice(0, 10));
             if (currentDate === stage.endDateEvaluation.toISOString().slice(0, 10)) {
                 currentStage = stage;
                 break;
@@ -137,7 +146,6 @@ async function sendEvaluations() {
         }
     }
     if (currentStage) {
-        //console.log("hoyyyy")
         const submissions = await Submission.find({ "stageId": currentStage._id });
         for (const sub of submissions) {
             const criteriaAverages = {};
@@ -178,11 +186,6 @@ async function sendEvaluations() {
             await Promise.all(promises);
         }
     }
-
-
-
-
-
 };
 
 cron.schedule('0 0 * * *', () => {

@@ -138,7 +138,7 @@ const loginUser = async (req, res) => {
     let userId;
 
     if (!existingUser) {
-        const registerLink = `http://${process.env.PORT}:3000/register`;
+        const registerLink = `http://${process.env.URL}/register`;
         const subject = 'Login in GameJam Platform';
         const message = `Hi, click on this link to create an account:`;
         const link = registerLink;
@@ -151,7 +151,7 @@ const loginUser = async (req, res) => {
         userId = existingUser._id;
     
         const token = jwt.sign({ userId, roles }, 'MY_JWT_SECRET', { expiresIn: 600000 });
-        const magicLink = `http://${process.env.PORT}:3000/api/user/magic-link/${token}`;
+        const magicLink = `http://${process.env.URL}/api/user/magic-link/${token}`;
         const subject = 'Login in GameJam Platform';
         const message = `Hi, click on this link to continue to the app:`;
         const link = magicLink;
@@ -173,13 +173,13 @@ const magicLink = async (req, res) => {
             httpOnly: false
         });
         let redirectUrl
-        redirectUrl = `http://${process.env.PORT}:3000/home`;
+        redirectUrl = `http://${process.env.URL}/home`;
 
         const rolesToCheck = ["LocalOrganizer", "GlobalOrganizer","Judge","Jammer"];
         const hasAnyRole = rolesToCheck.some(role => roles.includes(role));
 
         if(!hasAnyRole){
-            return res.clearCookie('token').redirect(`http://${process.env.PORT}:3000/login`);
+            return res.clearCookie('token').redirect(`http://${process.env.URL}/login`);
         }
         return res.redirect(redirectUrl);
     } catch (error) {
