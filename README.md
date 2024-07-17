@@ -91,5 +91,33 @@ The `TARGET` value defines if the system is in production (uses static frontend)
 
 Find the file `[PLATFORM_ROOT]/dist/browser/main-[Serial].js`. Within it find and replace the only instance of `localhost` by the server's IP or FQDN.
 
+### Service
 
+Create a file in `/etc/systemd/system` called `gjp-platform.service` with the following content:
 
+```bash
+[Unit]
+Description=Service for the GameJam+ platform
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+User=ubuntu
+RestartSec=3
+WorkingDirectory=[PLATFORM_ROOT]
+ExecStart=/usr/bin/node [PLATFORM_ROOT]/index.js
+StandardOutput=[PLATFORM_ROOT]/platform.log
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Make sure to replace `[PLATFORM_ROOT]` for the absolute path where the platform is installed. After the service unit is create, run the following lines:
+
+```bash
+sudo systemctl enable gjp-platform.service
+sudo systemctl start gjp-platform.service
+```
+
+This will create a self-starting service that will boot with the system and run independent from any terminal.
