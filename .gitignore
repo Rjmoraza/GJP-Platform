@@ -23,7 +23,7 @@ yarn-error.log
 
 # Environment Files - Check readme to see how to build the .env file
 .env
-
+platform.log
 
 # System files
 .DS_Store
