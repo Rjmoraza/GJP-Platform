@@ -107,7 +107,6 @@ User=ubuntu
 RestartSec=3
 WorkingDirectory=[PLATFORM_ROOT]
 ExecStart=/usr/bin/node [PLATFORM_ROOT]/index.js
-StandardOutput=[PLATFORM_ROOT]/platform.log
 
 [Install]
 WantedBy=multi-user.target
