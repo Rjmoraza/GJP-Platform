@@ -74,7 +74,7 @@ Run the following command in the `[PLATFORM_ROOT]` folder:
 sudo npm install
 ```
 
-This will install all the packages and dependencies required by the project. Then create a file with the route  `[PLATFORM_ROOT].env` with the following values:
+This will install all the packages and dependencies required by the project. Then create a file with the route  `[PLATFORM_ROOT]/.env` with the following values:
 
 ```bash
 EMAIL=[email address for the SMTP service]
