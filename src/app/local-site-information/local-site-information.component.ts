@@ -147,19 +147,19 @@ export class LocalSiteInformationComponent implements OnInit{
               console.log(jammers);
               this.jammers = jammers;
             }
-          )
+          );
 
           this.userService.getLocalsSite(`http://${environment.apiUrl}:3000/api/user/get-localPerSite/` + user.site._id).subscribe(
             staff => {
               this.staff = staff;
             }
-          )
+          );
 
           this.teamService.getTeamsSite(`http://${environment.apiUrl}:3000/api/team/get-teams/` + user.site.name).subscribe(
             teams => {
               this.teams = teams;
             }
-          )
+          );
         },
         error => {
           console.error('Error al obtener usuario actual:', error);
@@ -335,6 +335,25 @@ export class LocalSiteInformationComponent implements OnInit{
 
   showErrorMessage(message: string) {
     this.errorMessage = message;
+  }
+
+  updateJammers(value: string)
+  {
+    console.log("Updating Jammers");
+
+    this.userService.getJammersSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + this.siteID).subscribe(
+      jammers => {
+        console.log(jammers);
+        this.jammers = jammers;
+      }
+    );
+
+    this.teamService.getTeamsSite(`http://${environment.apiUrl}:3000/api/team/get-teams/` + this.site.name).subscribe(
+      teams => {
+        this.teams = teams;
+      }
+    );
+
   }
 
 }

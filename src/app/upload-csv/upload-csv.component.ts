@@ -1,9 +1,8 @@
-import { Component, Input, Output } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../environments/environment.prod';
 import { UserService } from '../services/user.service';
-import { EventEmitter } from 'stream';
 
 @Component({
   selector: 'app-upload-csv',
@@ -15,7 +14,7 @@ import { EventEmitter } from 'stream';
   styleUrl : './upload-csv.component.css'
 })
 export class UploadCsvComponent {
-  //@Output() updateJammers = new EventEmitter();
+  @Output() updateJammers = new EventEmitter();
 
   file: File | null = null;
   fileRecords: any[] = [];
@@ -78,21 +77,6 @@ export class UploadCsvComponent {
     }
   }
 
-  // TODO DELETE THIS FUNCTION
-  changeStatus() {
-    this.http.get<any>(`http://${environment.apiUrl}:3000/api/site/change-status`, { withCredentials: true })
-      .subscribe(
-        response => {
-          if (response && response.success) {
-            window.location.reload();
-          }
-        },
-        error => {
-          console.error('Error changing site status:', error);
-        }
-      );
-  }
-
   uploadFile(): void {
     if (this.file) {
       this.UserService.uploadUsersFromCSV(this.fileRecords).subscribe(
@@ -100,7 +84,7 @@ export class UploadCsvComponent {
           if (response.success) {
             this.registrationResults = response.registrationResults;
             this.errorLog = response.errorLog;
-            //this.updateJammers.emit("");
+            this.updateJammers.emit("");
           } else {
             console.error('Error:', response.error);
           }

@@ -108,7 +108,7 @@
                 Jammers of {{ site.name }}:
             </div>
 
-            <app-upload-csv></app-upload-csv>
+            <app-upload-csv (updateJammers)="updateJammers($event)"></app-upload-csv>
 
             <div *ngFor="let jammer of jammers" class="cardBackground">
                 <div class="cardText">
