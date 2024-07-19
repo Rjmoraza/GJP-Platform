@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const Team = require('../models/teamModel');
 const Site = require('../models/siteModel');
 const GameJam = require('../models/gameJamEventModel');
+const gamejamController = require('../controllers/gameJamController');
 const { sendEmail } = require('../services/mailer');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
@@ -303,115 +304,126 @@ const deleteUser = async (req, res) => {
 
 const registerUsersFromCSV = async (req, res) => {
     try {
-        if (!req.file || !req.file.originalname.endsWith('.csv')) {
-            return res.status(400).json({ success: false, error: 'Please upload a CSV file.' });
-        }
-
-        const evaluatorId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
-        const creatorUser = await User.findById(evaluatorId);
-        if (!creatorUser) {
-            return res.status(401).json({ success: false, error: 'Invalid user' });
-        }
-
-        const users = [];
-        const fileData = req.file.buffer.toString('utf8');
-        const lines = fileData.split('\n').filter(line => line.trim() !== ''); // Filtra líneas vacías
-
-        lines.forEach(line => {
-            const [name, email, role, discordUsername, studioName] = line.split(',');
-            const roles = role ? [role] : ['Jammer'];
-            users.push({ name, email, roles, discordUsername, studioName });
-        });
-
         const registrationResults = [];
         const errorLog = [];
         const currentDate = new Date();
 
-        const allGameJams = await GameJam.find({});
-        const currentGameJam = allGameJams.find(gameJam => {
-            return gameJam.stages.some(stage => {
-                return currentDate >= stage.startDate && currentDate <= stage.endDate;
+        const evaluatorId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
+        const creatorUser = await User.findById(evaluatorId);
+
+        if (!creatorUser) {
+            return res.status(401).json({ success: false, error: 'Invalid user' });
+        }
+
+        if(req.body.data)
+        {
+            const users = [];
+            req.body.data.forEach(record =>{
+                users.push({
+                    name: record.name,
+                    email: record.email,
+                    roles: ['Jammer'],
+                    discordUsername: record.discord,
+                    team: record.team
+                });
             });
-        });
 
-        if (!currentGameJam) {
-            errorLog.push('No active game jam found');
-            return res.status(200).json({ success: false, errorLog });
-        }
+            const site = await Site.findById(creatorUser.site._id);
+            const region = creatorUser.region;            
 
-        const site = await Site.findById(creatorUser.site._id);
-        if (site.open === 1) {
-            errorLog.push('Site is currently closed');
-            return res.status(200).json({ success: false, errorLog });
-        }
-
-        for (const userData of users) {
-            const { name, email, roles, discordUsername, studioName } = userData;
-            const region = creatorUser.region;
-            const site = creatorUser.site;
-
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                errorLog.push(`Invalid email address for user: ${name} (${email}, ${discordUsername})`);
-                continue;
+            // TODO REFACTOR GAMEJAM CONTROLLER AND CREATE A FIND CURRENT GAMEJAM FUNCTION
+            // Find the current gamejam
+            const currentGameJam = await gamejamController.findCurrentGameJam();
+            if (!currentGameJam) {
+                errorLog.push('No active game jam found');
+                return res.status(200).json({ success: false, error: errorLog });
             }
 
-            const existingEmail = await User.findOne({ email });
-            if (existingEmail) {
-                errorLog.push(`The email is already in use for user: ${name} (${email}, ${discordUsername})`);
-                continue;
-            }
+            // Add users to the jam
+            for (const userData of users){
+                // Check if the email is correct
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
+                    errorLog.push(`Invalid email address for user: ${userData.name} (${userData.email}, ${userData.discordUsername})`);
+                    continue;
+                }
 
-            const existingDiscordUsername = await User.findOne({ discordUsername });
-            if (existingDiscordUsername) {
-                errorLog.push(`The Discord Username is already in use for user: ${name} (${email}, ${discordUsername})`);
-                continue;
-            }
+                // Check if this user's email already exists
+                const existingEmail = await User.findOne({ email: userData.email });
+                if (existingEmail) {
+                    errorLog.push(`The email is already in use for user: ${userData.name} (${userData.email}, ${userData.discordUsername})`);
+                    continue;
+                }
 
-            let team = await Team.findOne({ studioName });
-            if (!team) {
-                team = new Team({
-                    studioName,
-                    description: 'Description...',
+                console.log("Email does not exist");
+
+                // Check if this user's discord already exists
+                let userDiscord = userData.discordUsername;
+                const existingDiscordUsername = await User.findOne({ discordUsername: userData.discordUsername });
+                if (existingDiscordUsername) {
+                    errorLog.push(`The Discord Username is already in use for user: ${userData.name} (${userData.email}, ${userData.discordUsername})`);
+                    continue;
+                }
+
+                console.log("Discord does not exist");
+
+                // Find the team or create a new one
+                let team = null;
+                if(userData.team != "None") 
+                {
+                    team = await Team.findOne({ studioName: userData.team });
+                    if (!team) {
+                        team = new Team({
+                            studioName: userData.team,
+                            description: 'No Description',
+                            stage: 0,
+                            region: { _id: region._id, name: region.name },
+                            site: { _id: site._id, name: site.name },
+                            linkTree: [],
+                            gameJam: { _id: currentGameJam._id, edition: currentGameJam.edition },
+                            creatorUser: {
+                                userId: creatorUser._id,
+                                name: creatorUser.name,
+                                email: creatorUser.email
+                            },
+                            jammers: [],
+                            creationDate: new Date(),
+                            lastUpdateDate: new Date()
+                        });
+                        await team.save();
+                    } else if (team.site._id.toString() !== site._id.toString()) {
+                        errorLog.push(`The team is in a different site for user: ${name} (${email}, ${discordUsername})`);
+                        continue;
+                    }
+                }
+                
+                const jammer = await User.create({
+                    name: userData.name,
+                    email: userData.email,
                     region: { _id: region._id, name: region.name },
                     site: { _id: site._id, name: site.name },
-                    linkTree: [],
-                    gameJam: { _id: currentGameJam._id, edition: currentGameJam.edition },
-                    creatorUser: {
-                        userId: creatorUser._id,
-                        name: creatorUser.name,
-                        email: creatorUser.email
-                    },
-                    creationDate: new Date(),
-                    lastUpdateDate: new Date()
+                    roles: ["Jammer"],
+                    coins: 0,
+                    discordUsername: userData.discordUsername,
+                    creationDate: new Date()
                 });
-                await team.save();
-            } else if (team.site._id.toString() !== site._id.toString()) {
-                errorLog.push(`The team is in a different site for user: ${name} (${email}, ${discordUsername})`);
-                continue;
+    
+                if (team.region._id.toString() === region._id.toString()) {
+                    team.jammers.push({ 
+                        _id: jammer._id, 
+                        name: jammer.name, 
+                        email: jammer.email, 
+                        discordUsername: jammer.discordUsername 
+                    });
+                    await team.save();
+                }
+
+                registrationResults.push(`Registered successfully for user: ${userData.name} (${userData.email}, ${userData.discordUsername})`);
             }
-
-            const jammer = await User.create({
-                name,
-                email,
-                region: { _id: region._id, name: region.name },
-                site: { _id: site._id, name: site.name },
-                roles,
-                coins: 0,
-                discordUsername,
-                creationDate: new Date()
-            });
-
-            if (team.region._id.toString() === region._id.toString()) {
-                team.jammers.push({ _id: jammer._id, name, email, discordUsername });
-                await team.save();
-            }
-
-            registrationResults.push(`Registered successfully for user: ${name} (${email}, ${discordUsername})`);
+            console.log("End of user registration");
         }
-
-        res.status(200).json({ success: true, msg: 'User registration completed.', registrationResults, errorLog });
+        return res.status(200).json({ success: true, msg: 'User registration completed.', registrationResults, errorLog });
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        return res.status(500).json({ success: false, error: error.message });
     }
 };
 

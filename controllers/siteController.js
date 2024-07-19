@@ -47,6 +47,7 @@ const createSite = async (req, res) => {
                 name: region.name
             },
             open: 0,
+            description: "",
             creatorUser: {
                 userId: creatorUser._id,
                 name: creatorUser.name,
@@ -74,13 +75,14 @@ const updateSite = async (req, res) => {
         const countryName = req.body.country;
         const open = req.body.open;
         const modality = req.body.modality;
+        const description = req.body.description;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'El ID de site proporcionado no es válido.' });
+            return res.status(400).json({ success: false, error: 'Site not found (Site ID invalid)' });
         } else {
             const existingRegion = await Site.findById(id);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Ese site no existe" });
+                return res.status(404).json({ success: false, error: 'Site not found' });
             }
         }
         let changed = 0;
@@ -122,7 +124,7 @@ const updateSite = async (req, res) => {
     
             const country = countriesData.find(country => country.name === countryName);
             if (!country) {
-                return res.status(400).json({ success: false, error: "El país proporcionado no es válido" });
+                return res.status(400).json({ success: false, error: "The country is not valid" });
             }
             updateFields.country = {
                 name: country.name,
@@ -152,6 +154,12 @@ const updateSite = async (req, res) => {
 
         if (modality) {
             updateFields.modality = modality;
+            changed++;
+        }
+
+        if(description)
+        {
+            updateFields.description = description;
             changed++;
         }
 
@@ -204,6 +212,23 @@ const changeStatus = async (req, res) => {
         
         await site.save(); 
         res.status(200).json({ success: true, msg: 'Site status updated successfully'});
+    } catch (error) {
+        res.status(400).json({ success: false, msg: error.message });
+    }
+};
+
+const updateDescription = async (req, res) => {
+    try {
+        const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
+        const creatorUser = await User.findById(userId);
+
+        const site = await Site.findById(creatorUser.site._id);
+
+        const description = req.params.description;
+
+        site.description = description;
+        await site.save();
+        res.status(200).json({ success: true, msg: 'Description updated successfully' });
     } catch (error) {
         res.status(400).json({ success: false, msg: error.message });
     }
@@ -324,5 +349,6 @@ module.exports = {
     getSitesPerRegion,
     getSitesPerRegionOpen,
     deleteSite,
-    changeStatus
+    changeStatus,
+    updateDescription
 };

@@ -14,6 +14,10 @@ const siteSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        required: false
+    },
     region:  {
         _id: { 
             type: mongoose.Schema.Types.ObjectId,

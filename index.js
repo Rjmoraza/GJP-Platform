@@ -17,12 +17,15 @@ const port = 3000; // Establecer el puerto en el que el servidor escuchará las 
 mongoose.connect("mongodb://localhost:27017/GameJamDB");
 var root = "";
 
-// Redirigir la salida estándar y la salida del error
-var access = fs.createWriteStream(path.join(__dirname, 'platform.log'));
-process.stdout.write = process.stderr.write = access.write.bind(access);
-process.on('uncaughtException', function(err){
-    console.error((err & err.stack) ? err.stack : err);
-});
+if(process.env.TARGET == "PROD")
+{
+    // Redirigir la salida estándar y la salida del error
+    var access = fs.createWriteStream(path.join(__dirname, 'platform.log'));
+    process.stdout.write = process.stderr.write = access.write.bind(access);
+    process.on('uncaughtException', function(err){
+        console.error((err & err.stack) ? err.stack : err);
+    });
+}
 
 if(process.env.TARGET == "DEV")
 {
