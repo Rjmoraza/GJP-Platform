@@ -15,19 +15,19 @@
     padding-left: 1%;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
-    background: #515151; 
-    border-top-left-radius: 1vi; 
-    border-top-right-radius: 1vi; 
-    text-align: center; 
+    background: #515151;
+    border-top-left-radius: 1vi;
+    border-top-right-radius: 1vi;
+    text-align: center;
     z-index: 2
 }
 
 .optionFont{
-    color: white; 
-    font-size: 1vi; 
-    font-family: Inter; 
-    font-weight: 400; 
-    word-wrap: break-word; 
+    color: white;
+    font-size: 1vi;
+    font-family: Inter;
+    font-weight: 400;
+    word-wrap: break-word;
     cursor: pointer;
 }
 
@@ -166,7 +166,7 @@
     background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
     z-index: 9998; /* Z-index menor que el del toast para que aparezca detrás */
   }
-  
+
   .custom-alert {
     background-color: #ffffff;
     color: rgb(0, 0, 0);
@@ -178,17 +178,17 @@
     align-items: center; /* Centra los elementos horizontalmente */
     z-index: 1002; /* Asegura que el toast esté por encima de otros elementos */
   }
-  
-  
+
+
   .ok-button {
-    background-color: #086cdc; 
+    background-color: #086cdc;
     color: rgb(250, 250, 250);
     border-color: #007bff;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
   }
-  
+
   .ok-button:hover {
     background-color: #94b4d9e9;
   }
@@ -196,4 +196,9 @@
   .modal-body{
     width: 60%;
   }
-  
+
+  .local-form{
+    width: 60%;
+    margin-left: 20%;
+    margin-right: 20%;
+  }

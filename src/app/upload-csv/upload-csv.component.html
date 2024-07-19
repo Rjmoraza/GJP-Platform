@@ -1,10 +1,51 @@
 <div class="app-upload-csv">
-  <button class="custom-file-button" (click)="changeStatus()">Change Site Status</button>
+  <div class="text-center formTitle">
+    Bulk Registration
+  </div>
+
+  <div class="">
+    <p>Use this option if you have an alternative registration form. This tool accepts .CSV format with no header, one jammer per line, with the following format:</p>
+    <pre><code>
+      Full Name,Email,Discord Handle,Team Name
+    </code></pre>
+  </div>
+
   <button class="custom-file-button" (click)="fileInput.click()">Upload CSV File</button>
   <input #fileInput id="file-upload" type="file" (change)="onFileSelected($event)" accept=".csv" />
 
   <ng-container *ngIf="file && file.name">
     <button class="custom-file-button" (click)="uploadFile()">Save Users</button>
+  </ng-container>
+
+  <ng-container *ngIf="fileRecords.length > 0">
+    <div class="text-center formTitle">
+      Review users to submit
+    </div>
+    <div class="text-center">
+      Correct records: {{correctRecords}} | Faulty records: {{faultyRecords}} | Total records: {{fileRecords.length}}
+    </div>
+    <table class="table table-striped" >
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Discord</th>
+          <th scope="col">Team</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (record of fileRecords; track record.name; let i = $index) {
+          <tr>
+            <th scope="row">{{ i + 1 }}</th>
+            <td>{{ record.name }}</td>
+            <td>{{ record.email }}</td>
+            <td>{{ record.discord }}</td>
+            <td>{{ record.team }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ng-container>
 
   <ul class="custom-list">

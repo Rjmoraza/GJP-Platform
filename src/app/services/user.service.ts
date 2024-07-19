@@ -27,15 +27,15 @@ export class UserService {
     return this.http.get(url, { withCredentials: true });
   }
 
-  getUsers(url: string): Observable<User[]> { 
-    return this.http.get<any>(url).pipe( 
+  getUsers(url: string): Observable<User[]> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }
-  
-  getCurrentUser(url: string): Observable<User> { 
+
+  getCurrentUser(url: string): Observable<User> {
     return this.http.get<any>(url, { withCredentials: true }).pipe(
-      map(response => response.data) 
+      map(response => response.data)
     );
   }
 
@@ -43,14 +43,14 @@ export class UserService {
     return this.http.delete(url);
   }
 
-  getLocalsSite(url: string): Observable<User[]> { 
-    return this.http.get<any>(url).pipe( 
+  getLocalsSite(url: string): Observable<User[]> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }
 
-  getJammersSite(url: string): Observable<User[]> { 
-    return this.http.get<any>(url).pipe( 
+  getJammersSite(url: string): Observable<User[]> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }
@@ -58,10 +58,9 @@ export class UserService {
   updateUserSite(url: string, siteId: string): Observable<any> {
     return this.http.put(url, siteId);
   }
-  uploadUsersFromCSV(file: File): Observable<any> {
-    const formData: FormData = new FormData();
-    formData.append('csvFile', file, file.name);
-    return this.http.post<any>(`http://${environment.apiUrl}:3000/api/user/register-users-from-csv`, formData);
+
+  uploadUsersFromCSV(data: any): Observable<any> {
+    return this.http.post<any>(`http://${environment.apiUrl}:3000/api/user/register-users-from-csv`, {data: data}, { withCredentials: true });
   }
 }
 

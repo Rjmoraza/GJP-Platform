@@ -53,6 +53,7 @@ export interface Site {
     name: string;
     open?: number;
     modality?: string;
+    description?: string,
     region: {
       _id: string;
       name: string;
@@ -175,8 +176,8 @@ export interface Submission {
   pitch: string;
   game: string;
   teamId: string;
-  categoryId: string; 
-  stageId?: string; 
+  categoryId: string;
+  stageId?: string;
   themeId: string;
   score: number;
   evaluators?: {

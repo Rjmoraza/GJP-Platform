@@ -97,8 +97,6 @@ export class UserCrudComponent implements OnInit{
           if(siteId != "None")
           {
             const selectedSite = this.sites.find(site => site._id === siteId);
-            console.log(selectedSite);
-
             if (selectedSite) {
               this.myForm.patchValue({
                 site: selectedSite
@@ -126,12 +124,14 @@ export class UserCrudComponent implements OnInit{
   }
 
   seleccionarElemento(elemento: any) {
-    console.log("Usuario seleccionado");
 
-    console.log(elemento);
+    // Clean the sites dropdown
+    this.myForm.get('site')?.setValue(undefined);
 
     this.userToEdit = elemento;
     this.indexUser = this.dataSource.indexOf(elemento);
+
+    // Get the selected region for this user
     const selectedRegion = this.regions.find(region => region._id === elemento.region._id);
     this.myForm.patchValue({
       name: elemento.name,
@@ -140,6 +140,7 @@ export class UserCrudComponent implements OnInit{
       discordUsername: elemento.discordUsername
     });
 
+    // List the sites for the selected region or clean the sites dropdown if no region is selected
     if(selectedRegion && selectedRegion._id)
     {
       this.listSites(selectedRegion._id, elemento.site._id);
@@ -150,6 +151,7 @@ export class UserCrudComponent implements OnInit{
       this.myForm.get('site')?.setValue(undefined);
     }
 
+    // Assign the role for the selected user
     if (elemento.roles && elemento.roles.length > 0) {
       const rolesString = elemento.roles.join(',');
       this.myForm.patchValue({

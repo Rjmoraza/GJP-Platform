@@ -28,7 +28,8 @@ import { environment } from '../../environments/environment.prod';
   styleUrl: './local-site-information.component.css'
 })
 export class LocalSiteInformationComponent implements OnInit{
-  myForm!: FormGroup;
+  createSiteForm!: FormGroup;
+  updateSiteForm!: FormGroup;
   joinForm!: FormGroup;
   sites: Site[] = [];
   regions: Region[] = [];
@@ -40,7 +41,7 @@ export class LocalSiteInformationComponent implements OnInit{
     { label: 'Region Name', value: 'region.name' as keyof Site, checked: false },
     { label: 'Country Name', value: 'country.name' as keyof Site, checked: false },
   ];
-  
+
   constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private teamService: TeamService){}
   site: Site = {
     name: '',
@@ -52,7 +53,8 @@ export class LocalSiteInformationComponent implements OnInit{
       name: '',
       code: ''
     }
-  }; 
+  };
+  siteID : string = "";
   currentStatus: string = "";
   games: any[] = [];
   teams: Team[] = [];
@@ -65,14 +67,22 @@ export class LocalSiteInformationComponent implements OnInit{
   inManagement: boolean = false; //4
   actualWindow: number = 0;
   showChat: boolean = false;
-  
+
   ngOnInit(): void {
-    this.myForm = this.fb.group({
+    this.createSiteForm = this.fb.group({
       name: ['', Validators.required],
-      modality: ['', Validators.required], 
+      modality: ['', Validators.required],
       country: ['', Validators.required],
       region: ['', Validators.required]
     });
+
+    this.updateSiteForm = this.fb.group({
+      name: ['', Validators.required],
+      status: [],
+      modality: [''],
+      description: ['']
+    });
+
     this.joinForm = this.fb.group({
       site: ['', Validators.required]
     });
@@ -106,6 +116,7 @@ export class LocalSiteInformationComponent implements OnInit{
     this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
       .subscribe(
         user => {
+          this.siteID = user.site._id;
           this.siteService.getSite(`http://${environment.apiUrl}:3000/api/site/get-site/${user.site._id}`)
             .subscribe(
               site => {
@@ -133,6 +144,7 @@ export class LocalSiteInformationComponent implements OnInit{
 
           this.userService.getJammersSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + user.site._id).subscribe(
             jammers => {
+              console.log(jammers);
               this.jammers = jammers;
             }
           )
@@ -163,17 +175,25 @@ export class LocalSiteInformationComponent implements OnInit{
   }
 
   agregar() {
-    if (this.myForm.valid) {
+    if (this.createSiteForm.valid) {
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, {
-        name: this.myForm.value["name"],
-        modality: this.myForm.value["modality"], 
-        region: this.myForm.value["region"],
-        country: this.myForm.value["country"].name
+        name: this.createSiteForm.value["name"],
+        modality: this.createSiteForm.value["modality"],
+        region: this.createSiteForm.value["region"],
+        country: this.createSiteForm.value["country"].name,
+        description: ""
       }).subscribe({
         next: (data) => {
           if (data.success) {
             const siteId = data.siteId;
-            this.site = { _id: siteId, name: this.myForm.value["name"], modality: this.myForm.value["modality"], region: this.myForm.value["region"], country: this.myForm.value["country"]}
+            this.site = {
+              _id: siteId,
+              name: this.createSiteForm.value["name"],
+              modality: this.createSiteForm.value["modality"],
+              region: this.createSiteForm.value["region"],
+              country: this.createSiteForm.value["country"],
+              description: ""
+            }
             this.sites.push(this.site);
 
             this.userService.updateUserSite(`http://${environment.apiUrl}:3000/api/user/update-user-site/${this.userId}`, siteId).subscribe({
@@ -212,7 +232,7 @@ export class LocalSiteInformationComponent implements OnInit{
             /*
             this.siteService.getSite('http://${environment.apiUrl}:3000/api/site/get-site/' + this.joinForm.value["site"]._id).subscribe(
               site => {
-                
+
               },
               error => {
                 console.error('Error al obtener su site, por favor recargue:', error);
@@ -228,6 +248,38 @@ export class LocalSiteInformationComponent implements OnInit{
         error: (error) => {
           this.showErrorMessage(error.error.error);
         },
+      });
+    } else {
+      this.showErrorMessage('Please fill in all fields of the form');
+    }
+  }
+
+  updateSite()
+  {
+    if (this.updateSiteForm.valid) {
+      const open = (this.updateSiteForm.value["status"] === "Open") ? 0 : 1;
+
+      let countryName: any;
+      countryName = this.site.country.name;
+
+      const siteId = this.site._id;
+      const url = `http://${environment.apiUrl}:3000/api/site/update-site/${siteId}`;
+      this.siteService.updateSite(url, {
+        name: this.updateSiteForm.value["name"],
+        modality: this.updateSiteForm.value["modality"],
+        region: this.site.region,
+        country: countryName,
+        open: open,
+        description: this.updateSiteForm.value["description"]
+      }).subscribe({
+        next: (data) => {
+          console.log('Respuesta del servidor:', data);
+          this.showSuccessMessage('Site updated successfully!');
+        },
+        error: (error) => {
+          console.error('Error al actualizar el site:', error);
+          this.showErrorMessage(error.error.error);
+        }
       });
     } else {
       this.showErrorMessage('Please fill in all fields of the form');
@@ -264,18 +316,25 @@ export class LocalSiteInformationComponent implements OnInit{
   }
 
   moveToManagement() {
+    this.updateSiteForm.setValue({
+      name: this.site.name,
+      modality: this.site.modality,
+      status: (this.site.open == 0) ? "Open" : "Closed",
+      description: this.site.description
+    });
+
     this.moveToWindow(4);
   }
-  
+
   successMessage: string = '';
   errorMessage: string = '';
-  
+
   showSuccessMessage(message: string) {
     this.successMessage = message;
   }
-  
+
   showErrorMessage(message: string) {
     this.errorMessage = message;
   }
-    
+
 }
