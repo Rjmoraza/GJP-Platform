@@ -316,12 +316,18 @@ export class LocalSiteInformationComponent implements OnInit{
   }
 
   moveToManagement() {
+    console.log("Updating Form...");
+
+    let siteDescription = (this.site.description) ? this.site.description : "";
+
     this.updateSiteForm.setValue({
       name: this.site.name,
       modality: this.site.modality,
       status: (this.site.open == 0) ? "Open" : "Closed",
-      description: this.site.description
+      description: siteDescription
     });
+
+    console.log("Moving to Management...")
 
     this.moveToWindow(4);
   }
