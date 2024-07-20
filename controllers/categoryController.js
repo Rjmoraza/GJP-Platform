@@ -7,13 +7,16 @@ const fs = require('fs');
  
 const createCategory = async (req, res) => {
     try {
+        console.log("Reading data...");
         const { titleSP, titleEN, titlePT, descriptionSP, descriptionEN, descriptionPT } = req.body;
         const { manualSP, manualEN, manualPT } = req.files;
 
         // Lee los datos binarios de los archivos PDF
-        const manualSPBuffer = manualSP[0].buffer;
-        const manualENBuffer = manualEN[0].buffer;
-        const manualPTBuffer = manualPT[0].buffer;
+        const manualSPBuffer = (manualSP) ? manualSP[0].buffer : null;
+        const manualENBuffer = (manualEN) ? manualEN[0].buffer : null;
+        const manualPTBuffer = (manualPT) ? manualPT[0].buffer : null;
+
+        console.log("Files read or null...");
 
         // Accede al ID del usuario creador
         const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
@@ -22,7 +25,7 @@ const createCategory = async (req, res) => {
         // Verifica si la categoría ya existe
         const existingCategory = await Category.findOne({ titleEN: titleEN });
         if (existingCategory) {
-            return res.status(409).json({ success: false, error: "La categoría ya existe" });
+            return res.status(409).json({ success: false, error: "This category already exists" });
         }
 
         // Crea un nuevo documento de categoría con los datos binarios de los archivos PDF
@@ -47,7 +50,7 @@ const createCategory = async (req, res) => {
         // Guarda el documento de categoría en la base de datos
         await category.save();
 
-        res.status(200).json({ success: true, msg: 'Categoría creada exitosamente', categoryId: category._id });
+        res.status(200).json({ success: true, msg: 'Category created successfully', categoryId: category._id });
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
     }
@@ -62,21 +65,31 @@ const updateCategory = async (req, res) => {
         const updateFields = {};
         const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
         const lastUpdateUser = await User.findById(userId);
-        const manualSPBuffer = manualSP[0].buffer;
-        const manualENBuffer = manualEN[0].buffer;
-        const manualPTBuffer = manualPT[0].buffer;
+
+        let manualSPBuffer = null; 
+        let manualENBuffer = null; 
+        let manualPTBuffer = null; 
+        
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, error: 'Provided category ID is not valid.' });
         } else {
             const existingCategory = await Category.findById(id);
-            if (!existingCategory) {
+            if (existingCategory) 
+            {
+                manualSPBuffer = (manualSP) ? manualSP[0].buffer : existingCategory.manualSP;
+                manualENBuffer = (manualSP) ? manualEN[0].buffer : existingCategory.manualEN;
+                manualPTBuffer = (manualPT) ? manualPT[0].buffer : existingCategory.manualPT;
+            }
+            else 
+            {
                 return res.status(404).json({ success: false, error: "Category does not exist" });
             }
         }
         if (titleEN) {
-            const existingCategory = await Category.findOne({ titleEN: titleEN });
-            if (existingCategory) {
-                return res.status(409).json({ success: false, error: "Category with this name already exists" });
+            let query = { titleEN: titleEN , _id:{'$ne' : id}};
+            const existingCategory = await Category.findOne(query);
+            if (existingCategory && existingCategory._id != id) {
+                return res.status(409).json({ success: false, error: "Another category with this name already exists" });
             }
 
             updateFields.titleSP = titleSP;
