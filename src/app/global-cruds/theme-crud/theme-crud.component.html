@@ -12,7 +12,7 @@
               <option value="manualEN">Manual (EN)</option>
               <option value="manualPT">Manual (PT-BR)</option>
             </select>
-          
+
             <input type="text" [(ngModel)]="filterValue" placeholder="Filter Value">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
               Export info to PDF
@@ -42,86 +42,79 @@
               </div>
             </div>
           </div>
-          
-    
+
+
         <div class="table-responsive">
             <table class="table">
               <thead>
                 <tr>
-                  <th scope="col">Title (ESP)</th>
-                  <th scope="col">Description (ESP)</th>
-                  <th scope="col">Manual (ESP)</th>
-                  <th scope="col">Title (EN)</th>
-                  <th scope="col">Description (EN)</th>
-                  <th scope="col">Manual (EN)</th>
-                  <th scope="col">Title (PT-BR)</th>
-                  <th scope="col">Description (PT-BR)</th>
-                  <th scope="col">Manual (PT-BR)</th>
-                  <th scope="col">Update</th>
-                  <th scope="col">Delete</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Description (PT)</th>
+                  <th scope="col">Manual</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let row of obtenerDatosPagina()">
-                  <td>{{ row.titleSP }}</td>
-                  <td>{{ row.descriptionSP }}</td>
-                  <td class="pdf"><a (click)="getPdf(row._id!, 'SP')" >Load PDF</a></td>
-                  <td>{{ row.titleEN }}</td>
-                  <td>{{ row.descriptionEN }}</td>
-                  <td class="pdf"><a (click)="getPdf(row._id!, 'EN')">Load PDF</a></td>
-                  <td>{{ row.titlePT }}</td>
-                  <td>{{ row.descriptionPT }}</td>
-                  <td class="pdf"><a (click)="getPdf(row._id!, 'PT')" >Load PDF</a></td>
+                  <td>PT: {{ row.titlePT }}<br>SP: {{ row.titleSP }}<br>EN: {{ row.titleEN }}</td>
+                  <td><p>{{ row.descriptionPT }}</p></td>
                   <td>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
+                    PT: <a [ngClass]="{'btn btn-outline-primary btn-sm' : true, 'disabled' : !row.manualPT }" (click)="row.manualPT ? getPdf(row._id!, 'PT') : null">{{ row.manualPT ? 'Load PDF' : 'No File'}}</a><br>
+                    SP: <a [ngClass]="{'btn btn-outline-primary btn-sm' : true, 'disabled' : !row.manualPT }" (click)="row.manualSP ? getPdf(row._id!, 'SP') : null">{{ row.manualSP ? 'Load PDF' : 'No File'}}</a><br>
+                    EN: <a [ngClass]="{'btn btn-outline-primary btn-sm' : true, 'disabled' : !row.manualPT }" (click)="row.manualEN ? getPdf(row._id!, 'EN') : null">{{ row.manualEN ? 'Load PDF' : 'No File'}}</a>
                   </td>
                   <td>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
                     <button class="btn btn-danger" (click)="eliminar(row)">Delete</button>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          
+
     </div>
-    
-        <div class="navBarStyle">
-            <ul class="pagination">
-                <!-- Botón para ir a la primera página -->
-                <li class="page-item" [class.disabled]="currentPage === 1">
-                    <a class="page-link" (click)="cambiarPagina(1)" aria-label="First">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
+
+    <div class="navBarStyle">
+        <ul class="pagination">
+            <!-- Botón para ir a la primera página -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="cambiarPagina(1)" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <!-- Botón para ir a la página anterior -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="cambiarPagina(currentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <!-- Limitar el número de páginas mostradas -->
+            <ng-container *ngFor="let page of paginasMostradas">
+                <li class="page-item" *ngIf="page !== '...'">
+                    <a class="page-link" (click)="cambiarPagina(page)" [class.active]="currentPage === page">{{ page }}</a>
                 </li>
-                <!-- Botón para ir a la página anterior -->
-                <li class="page-item" [class.disabled]="currentPage === 1">
-                    <a class="page-link" (click)="cambiarPagina(currentPage - 1)" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <!-- Limitar el número de páginas mostradas -->
-                <ng-container *ngFor="let page of paginasMostradas">
-                    <li class="page-item" *ngIf="page !== '...'">
-                        <a class="page-link" (click)="cambiarPagina(page)" [class.active]="currentPage === page">{{ page }}</a>
-                    </li>
-                </ng-container>
-                <!-- Botón para ir a la página siguiente -->
-                <li class="page-item" [class.disabled]="currentPage === totalPaginas">
-                    <a class="page-link" (click)="cambiarPagina(currentPage + 1)" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <!-- Botón para ir a la última página -->
-                <li class="page-item" [class.disabled]="currentPage === totalPaginas">
-                    <a class="page-link" (click)="cambiarPagina(totalPaginas)" aria-label="Last">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-            <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
+            </ng-container>
+            <!-- Botón para ir a la página siguiente -->
+            <li class="page-item" [class.disabled]="currentPage === totalPaginas">
+                <a class="page-link" (click)="cambiarPagina(currentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <!-- Botón para ir a la última página -->
+            <li class="page-item" [class.disabled]="currentPage === totalPaginas">
+                <a class="page-link" (click)="cambiarPagina(totalPaginas)" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        </ul>
+        <div>
+          <label>Elements per page:</label>
+          <input type="number" class="form-control-sm" value="{{pageSize}}" (change)="changePageSize($event)">
+        </div>
+          <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
         </div>
     </div>
-    
+
     <!-- Edit Window -->
     <div #editModal class="modal fade" id="editModal" role="dialog" aria-labelledby="editModalLabel"
         aria-hidden="true">
@@ -162,7 +155,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Fuera del modal principal -->
     <div *ngIf="successMessage || errorMessage" class="toast-overlay">
         <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
@@ -178,14 +171,14 @@
           </div>
         </div>
       </div>
-      
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
     <!-- Create Window -->
     <div #createModal class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel"
         aria-hidden="true">
@@ -225,6 +218,5 @@
                 </div>
             </form>
         </div>
-    </div>  
-     
-    
+    </div>
+

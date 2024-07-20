@@ -9,13 +9,13 @@
                 <option value="endDateEvaluation">End Date Evaluation</option>
                 <option value="gameJam.edition">Game Jam Edition</option>
             </select>
-            
+
             <div *ngIf="isDateFilterSelected()">
                 <input type="date" [(ngModel)]="filterValue" placeholder="Select Date">
             </div>
-            
+
             <input *ngIf="!isDateFilterSelected()" type="text" [(ngModel)]="filterValue" placeholder="Filter Value">
-            
+
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                 Export info to PDF
               </button>
@@ -41,7 +41,7 @@
                   </div>
                 </div>
               </div>
-        </div>        
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -61,7 +61,7 @@
                     <td>{{ row.startDate | date:'dd/MM/yyyy':'UTC' }}</td>
                     <td>{{ row.endDate | date:'dd/MM/yyyy':'UTC' }}</td>
                     <td>{{ row.startDateEvaluation | date:'dd/MM/yyyy':'UTC' }}</td>
-                    <td>{{ row.endDateEvaluation | date:'dd/MM/yyyy':'UTC' }}</td>                                 
+                    <td>{{ row.endDateEvaluation | date:'dd/MM/yyyy':'UTC' }}</td>
                     <td>{{ row.gameJam.edition }}</td>
                     <td>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
@@ -107,6 +107,10 @@
                 </a>
             </li>
         </ul>
+        <div>
+          <label>Elements per page:</label>
+          <input type="number" class="form-control-sm" value="{{pageSize}}" (change)="changePageSize($event)">
+        </div>
         <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
     </div>
 </div>
@@ -181,13 +185,13 @@
                         <input type="date" class="form-control" id="editendDateEvaluationInput" required placeholder="endDateEvaluation" formControlName="endDateEvaluation">
                     </div>
                 </div>
-                        
+
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>
-                </div> 
+                </div>
             </div>
         </form>
     </div>
@@ -277,13 +281,13 @@
                             <input type="date" class="form-control" id="editendDateEvaluationInput" required placeholder="endDateEvaluation" formControlName="endDateEvaluation">
                         </div>
                     </div>
-                        
+
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>
-                </div> 
+                </div>
             </div>
         </form>
     </div>

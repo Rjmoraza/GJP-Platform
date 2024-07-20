@@ -29,7 +29,7 @@ export class ThemeCrudComponent implements OnInit{
   indexTheme = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
-  selectedColumns: (keyof Theme)[] = []; 
+  selectedColumns: (keyof Theme)[] = [];
   columnOptions = [
     { label: 'Title (ESP)', value: 'titleSP' as keyof Theme, checked: false },
     { label: 'Title (EN)', value: 'titleEN' as keyof Theme, checked: false },
@@ -76,6 +76,7 @@ export class ThemeCrudComponent implements OnInit{
           console.error('Error al obtener categorías:', error);
         }
       );
+      this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
   seleccionarElemento(elemento: any) {
@@ -109,7 +110,7 @@ export class ThemeCrudComponent implements OnInit{
         manualEN: this.fileMap.get('EN') || null,
         manualPT: this.fileMap.get('PT') || null,
       };
-  
+
       const formData = new FormData();
       formData.append('titleSP', updatedTheme.titleSP);
       formData.append('titleEN', updatedTheme.titleEN);
@@ -117,7 +118,7 @@ export class ThemeCrudComponent implements OnInit{
       formData.append('descriptionSP', updatedTheme.descriptionSP);
       formData.append('descriptionEN', updatedTheme.descriptionEN);
       formData.append('descriptionPT', updatedTheme.descriptionPT);
-  
+
       if (updatedTheme.manualSP) {
         formData.append('manualSP', updatedTheme.manualSP, updatedTheme.manualSP.name);
       }
@@ -127,7 +128,7 @@ export class ThemeCrudComponent implements OnInit{
       if (updatedTheme.manualPT) {
         formData.append('manualPT', updatedTheme.manualPT, updatedTheme.manualPT.name);
       }
-  
+
       this.themeService.updateTheme(url, formData).subscribe({
         next: (data) => {
           console.log('Respuesta del servidor:', data);
@@ -210,7 +211,7 @@ export class ThemeCrudComponent implements OnInit{
             if (data.success) {
               const newThemeWithId: Theme = {
                 ...newTheme,
-                _id: data.themeId 
+                _id: data.themeId
               };
               this.dataSource.push(newThemeWithId);
               this.showSuccessMessage(data.msg);
@@ -247,20 +248,20 @@ export class ThemeCrudComponent implements OnInit{
     );
   }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////  
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-successMessage: string = '';
-errorMessage: string = '';
+  successMessage: string = '';
+  errorMessage: string = '';
 
-showSuccessMessage(message: string) {
-  this.successMessage = message;
-}
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+  }
 
-showErrorMessage(message: string) {
-  this.errorMessage = message;
-}
-  
+  showErrorMessage(message: string) {
+    this.errorMessage = message;
+  }
+
   get totalPaginas(): number {
     return Math.ceil(this.dataSource.length / this.pageSize);
   }
@@ -273,16 +274,23 @@ showErrorMessage(message: string) {
     this.currentPage = page;
   }
 
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
   // Función para obtener los datos de la página actual
   obtenerDatosPagina() {
     let filteredData = this.dataSource;
-  
+
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
       const filterText = this.filterValue.trim().toLowerCase();
       filteredData = filteredData.filter(item => {
         const header = this.selectedHeader as keyof Theme;
         const value = item[header];
-  
+
         switch (header) {
           case '_id':
             return typeof value === 'string' && value.toLowerCase().startsWith(filterText);
@@ -305,7 +313,6 @@ showErrorMessage(message: string) {
         }
       });
     }
-  
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
 }
@@ -313,7 +320,7 @@ showErrorMessage(message: string) {
 
   exportToPDF() {
     const doc = new jsPDF();
-  
+
     const url = `http://${environment.apiUrl}:3000/api/theme/get-themes`;
     this.themeService.getThemes(url).subscribe(
       (themes: any[]) => {
@@ -329,28 +336,28 @@ showErrorMessage(message: string) {
           manualEN: theme.manualEN,
           manualPT: theme.manualPT
         }));
-  
+
         const selectedData = data.map(row => {
           const rowData: any[] = [];
           this.selectedColumns.forEach(column => {
             if (column === '_id') {
-              rowData.push(row[column] || ''); 
+              rowData.push(row[column] || '');
             } else {
-              rowData.push(row[column] || ''); 
+              rowData.push(row[column] || '');
             }
           });
           return rowData;
         });
-  
+
         const headers = this.selectedColumns.map(column => {
             return column.replace(/[A-Z]/g, ' $&').toUpperCase();
         });
-  
+
         autoTable(doc, {
           head: [headers],
           body: selectedData
         });
-  
+
         doc.save('themes.pdf');
       },
       error => {
@@ -363,24 +370,24 @@ showErrorMessage(message: string) {
     const totalPaginas = this.totalPaginas;
     const currentPage = this.currentPage;
     const paginasMostradas: (number | '...')[] = [];
-  
+
     const rango = 2; // Cambia esto para ajustar el número de páginas mostradas
-  
+
     let inicio = Math.max(1, currentPage - rango);
     let fin = Math.min(totalPaginas, currentPage + rango);
-  
+
     for (let i = inicio; i <= fin; i++) {
       paginasMostradas.push(i);
     }
-  
+
     if (currentPage - inicio > rango) {
       paginasMostradas.unshift('...');
     }
-    
+
     if (fin < totalPaginas - 1) {
       paginasMostradas.push('...');
     }
-  
+
     return paginasMostradas;
   }
 

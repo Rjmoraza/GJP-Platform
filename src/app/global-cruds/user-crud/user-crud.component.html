@@ -11,7 +11,7 @@
                 <option value="team.name">Team Name</option>
                 <option value="rol">Role</option>
             </select>
-        
+
             <input type="text" [(ngModel)]="filterValue" placeholder="Filter Value">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                 Export info to PDF
@@ -38,8 +38,8 @@
                   </div>
                 </div>
               </div>
-        
-        </div>        
+
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -105,6 +105,10 @@
                 </a>
             </li>
         </ul>
+        <div>
+          <label>Elements per page:</label>
+          <input type="number" class="form-control-sm" value="{{pageSize}}" (change)="changePageSize($event)">
+        </div>
         <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
     </div>
 </div>
@@ -159,7 +163,7 @@
                                     placeholder="Name" formControlName="name">
                             </div>
                         </div>
-                        
+
                         <div class="formTitle">
                             Discord Username</div>
 
@@ -179,13 +183,13 @@
                                     placeholder="Email" formControlName="email">
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>
-                </div> 
+                </div>
             </div>
         </form>
     </div>
@@ -205,7 +209,7 @@
       </div>
     </div>
   </div>
-  
+
 <!-- Create Window -->
 <div #createModal class="modal fade" id="createModal" tabindex="-1" rol="dialog" aria-labelledby="createModalLabel"
     aria-hidden="true">
@@ -275,7 +279,7 @@
                                     placeholder="Email" formControlName="email">
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="modal-footer">

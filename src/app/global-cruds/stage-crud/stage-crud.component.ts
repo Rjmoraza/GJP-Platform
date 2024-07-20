@@ -31,7 +31,7 @@ export class StageCrudComponent implements OnInit{
   indexStage = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
-  selectedColumns: (keyof Stage)[] = []; 
+  selectedColumns: (keyof Stage)[] = [];
   columnOptions = [
     { label: 'Name', value: 'name' as keyof Stage, checked: false },
     { label: 'Start Date', value: 'startDate' as keyof Stage, checked: false },
@@ -70,25 +70,27 @@ export class StageCrudComponent implements OnInit{
         console.error('Error al obtener fases:', error);
       }
     );
+
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
-  
+
   seleccionarElemento(elemento: any) {
     this.stageToEdit = elemento;
     this.indexStage = this.dataSource.indexOf(elemento);
     const selectedGameJam = this.gameJams.find(gameJam => gameJam._id === elemento.gameJam._id);
-    
+
     const startDate = new Date(elemento.startDate);
     const endDate = new Date(elemento.endDate);
 
     const startDateEvaluation = new Date(elemento.startDateEvaluation);
     const endDateEvaluation = new Date(elemento.endDateEvaluation);
-  
+
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
 
     const formattedStartDateEvaluation = startDateEvaluation.toISOString().split('T')[0];
     const formattedEndDateEvaluation = endDateEvaluation.toISOString().split('T')[0];
-  
+
     this.myForm.patchValue({
       name: elemento.name,
       startDate: formattedStartDate,
@@ -157,11 +159,11 @@ export class StageCrudComponent implements OnInit{
       this.showErrorMessage('Please fill in all fields of the form');
     }
   }
-  
+
   agregar() {
     if (this.myForm.valid) {
       console.log('Formulario válido');
-      
+
       const { name, startDate, endDate, gameJam, startDateEvaluation, endDateEvaluation} = this.myForm.value;
       this.stageService.createStage(`http://${environment.apiUrl}:3000/api/stage/create-stage`, {
         name: name,
@@ -177,7 +179,7 @@ export class StageCrudComponent implements OnInit{
         next: (data) => {
           if (data.success) {
             const stageId = data.stageId;
-            this.dataSource.push({ _id: stageId, name: name, startDate: startDate, endDate: endDate, 
+            this.dataSource.push({ _id: stageId, name: name, startDate: startDate, endDate: endDate,
             startDateEvaluation: startDateEvaluation,
             endDateEvaluation: endDateEvaluation,
             gameJam: {
@@ -199,20 +201,20 @@ export class StageCrudComponent implements OnInit{
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////  
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-successMessage: string = '';
-errorMessage: string = '';
+  successMessage: string = '';
+  errorMessage: string = '';
 
-showSuccessMessage(message: string) {
-  this.successMessage = message;
-}
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+  }
 
-showErrorMessage(message: string) {
-  this.errorMessage = message;
-}
-  
+  showErrorMessage(message: string) {
+    this.errorMessage = message;
+  }
+
   get totalPaginas(): number {
     return Math.ceil(this.dataSource.length / this.pageSize);
   }
@@ -225,10 +227,17 @@ showErrorMessage(message: string) {
     this.currentPage = page;
   }
 
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
   // Función para obtener los datos de la página actual
   obtenerDatosPagina() {
     let filteredData = this.dataSource;
-  
+
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
       const filterText = this.filterValue.trim().toLowerCase();
       filteredData = filteredData.filter(item => {
@@ -247,11 +256,11 @@ showErrorMessage(message: string) {
         }
       });
     }
-  
+
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
   }
-  
+
   getPropertyValue(obj: any, key: string) {
     if (!obj || !key) return '';
     const keys = key.split('.');
@@ -271,7 +280,7 @@ showErrorMessage(message: string) {
   }
   exportToPDF() {
     const doc = new jsPDF();
-  
+
     const url = `http://${environment.apiUrl}:3000/api/stage/get-stages`;
     this.stageService.getStages(url).subscribe(
       (stages: Stage[]) => {
@@ -286,7 +295,7 @@ showErrorMessage(message: string) {
               _id: stage.gameJam._id || '',
               edition: stage.gameJam.edition || ''
           }
-      }));      
+      }));
         const selectedData = data.map(row => {
           const rowData: any[] = [];
           this.selectedColumns.forEach(column => {
@@ -299,7 +308,7 @@ showErrorMessage(message: string) {
           });
           return rowData;
         });
-  
+
         const headers = this.selectedColumns.map((column: string) => {
           if (column === '_id') return 'ID';
           if (column === 'name') return 'Name';
@@ -311,19 +320,19 @@ showErrorMessage(message: string) {
           if (column === 'gameJam.edition') return 'GJ Edition';
           return column.replace(/[A-Z]/g, ' $&').toUpperCase();
         });
-  
+
         autoTable(doc, {
           head: [headers],
           body: selectedData
         });
-  
+
         doc.save('stages.pdf');
       },
       error => {
         console.error('Error al obtener los escenarios:', error);
       }
     );
-  }  
+  }
 
   isDateFilterSelected(): boolean {
     return this.selectedHeader === 'startDate' || this.selectedHeader === 'endDate' || this.selectedHeader === 'startDateEvaluation' || this.selectedHeader === 'endDateEvaluation';
@@ -342,11 +351,11 @@ showErrorMessage(message: string) {
     for (let i = inicio; i <= fin; i++) {
       paginasMostradas.push(i);
     }
-  
+
     if (currentPage - inicio > rango) {
       paginasMostradas.unshift('...');
     }
-    
+
     if (fin < totalPaginas - 1) {
       paginasMostradas.push('...');
     }

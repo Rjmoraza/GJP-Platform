@@ -30,7 +30,7 @@ export class RegionCRUDComponent implements OnInit{
   indexRegion = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
-  selectedColumns: (keyof Region)[] = []; 
+  selectedColumns: (keyof Region)[] = [];
   constructor(private fb: FormBuilder, private regionService: RegionService){
   }
   ngOnInit(): void {
@@ -46,6 +46,8 @@ export class RegionCRUDComponent implements OnInit{
         console.error('Error al obtener regiones:', error);
       }
     );
+
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
   seleccionarElemento(elemento:any){
@@ -58,9 +60,9 @@ export class RegionCRUDComponent implements OnInit{
   editar() {
     if (this.myForm.valid) {
       const regionId = this.regionToEdit['_id'];
-  
+
       const url = `http://${environment.apiUrl}:3000/api/region/update-region/${regionId}`;
-  
+
       this.regionService.updateRegion(url, {
         name: this.myForm.value['region']
       }).subscribe({
@@ -68,7 +70,7 @@ export class RegionCRUDComponent implements OnInit{
           console.log('Respuesta del servidor:', data);
           this.dataSource[this.indexRegion] = {
             _id: regionId,
-            name: this.myForm.value['region'] 
+            name: this.myForm.value['region']
           };
           this.showSuccessMessage('Region updated successfully!');
         },
@@ -131,7 +133,7 @@ export class RegionCRUDComponent implements OnInit{
     doc.save('regions.pdf');
   }
 
-  
+
   agregar() {
     if (this.myForm.valid) {
       var regionName = this.myForm.value["region"];
@@ -141,7 +143,7 @@ export class RegionCRUDComponent implements OnInit{
         next: (data) => {
           console.log(data);
           if (data.success) {
-            const regionId = data.regionId; 
+            const regionId = data.regionId;
             this.dataSource.push({ _id: regionId, name: this.myForm.value["region"] });
             this.showSuccessMessage(data.msg);
           } else {
@@ -156,11 +158,11 @@ export class RegionCRUDComponent implements OnInit{
     } else {
       this.showErrorMessage('Please fill in all fields of the form');
     }
-  }  
+  }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////  
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   successMessage: string = '';
   errorMessage: string = '';
@@ -185,10 +187,17 @@ export class RegionCRUDComponent implements OnInit{
     this.currentPage = page;
   }
 
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
   // Función para obtener los datos de la página actual
   obtenerDatosPagina() {
     let filteredData = this.dataSource;
-  
+
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
       const filterText = this.filterValue.trim().toLowerCase();
       filteredData = filteredData.filter(item => {
@@ -202,34 +211,34 @@ export class RegionCRUDComponent implements OnInit{
         }
       });
     }
-  
+
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
   }
-  
+
 
   get paginasMostradas(): (number | '...')[] {
     const totalPaginas = this.totalPaginas;
     const currentPage = this.currentPage;
     const paginasMostradas: (number | '...')[] = [];
-  
+
     const rango = 2; // Cambia esto para ajustar el número de páginas mostradas
-  
+
     let inicio = Math.max(1, currentPage - rango);
     let fin = Math.min(totalPaginas, currentPage + rango);
-  
+
     for (let i = inicio; i <= fin; i++) {
       paginasMostradas.push(i);
     }
-  
+
     if (currentPage - inicio > rango) {
       paginasMostradas.unshift('...');
     }
-    
+
     if (fin < totalPaginas - 1) {
       paginasMostradas.push('...');
     }
-  
+
     return paginasMostradas;
   }
 

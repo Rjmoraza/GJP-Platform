@@ -42,7 +42,7 @@ export class TeamCrudComponent implements OnInit {
     { label: 'Region Name', value: 'region.name' as keyof Team, checked: false },
     { label: 'Site Name', value: 'site.name' as keyof Team, checked: false },
     { label: 'Edition', value: 'gameJam.edition' as keyof Team, checked: false }
-  ]; 
+  ];
   constructor(private fb: FormBuilder, private teamService: TeamService, private userService: UserService, private regionService: RegionService, private siteService: SiteService, private gamejamService: GamejamService){
   }
 
@@ -85,7 +85,10 @@ export class TeamCrudComponent implements OnInit {
         console.error('Error al obtener equipos:', error);
       }
     );
+
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
+
   onRegionSelection() {
     const selectedValue = this.myForm.get('region')?.value;
     (this.myForm.get('jammers') as FormArray).clear();
@@ -153,15 +156,15 @@ export class TeamCrudComponent implements OnInit {
     } else {
         console.log("Form or selectedUser is null.");
     }
-}
-
-removeJammer(jammer: User) {
-  const jammersArray = this.myForm.get('jammers') as FormArray;
-  const index = jammersArray.controls.findIndex(control => control.value._id === jammer._id);
-  if (index !== -1) {
-      jammersArray.removeAt(index);
   }
-}
+
+  removeJammer(jammer: User) {
+    const jammersArray = this.myForm.get('jammers') as FormArray;
+    const index = jammersArray.controls.findIndex(control => control.value._id === jammer._id);
+    if (index !== -1) {
+        jammersArray.removeAt(index);
+    }
+  }
 
 
   seleccionarElemento(elemento: any) {
@@ -182,7 +185,7 @@ removeJammer(jammer: User) {
         console.error('Error al obtener sitios:', error);
       }
     );
-    
+
     const selectedSite = this.sites.find(site => site._id === elemento.site._id);
     this.userService.getUsers(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${elemento.site._id}`)
     .subscribe(
@@ -204,7 +207,7 @@ removeJammer(jammer: User) {
     (this.myForm.get('jammers') as FormArray).clear();
     elemento.linkTree.forEach((link: string) => {
       (this.myForm.get('linkTrees') as FormArray).push(this.fb.control(link));
-    });    
+    });
     elemento.jammers.forEach((jammer: User) => {
       (this.myForm.get('jammers') as FormArray).push(this.fb.group({
         _id: jammer._id,
@@ -215,48 +218,48 @@ removeJammer(jammer: User) {
   }
   editar() {
     if (this.myForm.valid) {
-    const teamId = this.teamToEdit['_id'];
-    const { studioName, description, gameJam, linkTrees, jammers, site, region } = this.myForm.value;
-    this.teamService.updateTeam(`http://${environment.apiUrl}:3000/api/team/update-team/${teamId}`, {
-      studioName: studioName,
-      description: description,
-      gameJam: {
-        _id: gameJam._id,
-        edition: gameJam.edition
-      },
-      linkTree: linkTrees,
-      jammers: jammers.map((jammer: { _id: string; name: string; email: string; discordUsername: string; }) => ({
-          _id: jammer._id,
-          name: jammer.name,
-          email: jammer.email,
-          discordUsername: jammer.discordUsername
-        })),
-        site: {
-          _id: site._id,
-          name: site.name
-        },
-        region: {
-          _id: region._id,
-          name: region.name
-        }
-      }).subscribe({
-        next: (data) => {
-          if (data.success) {
-            this.dataSource[this.dataSource.findIndex(team => team._id === data.team._id)] = data.team;
-            this.showSuccessMessage(data.msg);
-          } else {
-            this.showErrorMessage(data.error);
-       }
-       },
-       error: (error) => {
-         this.showErrorMessage(error.error.error);
-       }
-       });
-      } else {
+      const teamId = this.teamToEdit['_id'];
+      const { studioName, description, gameJam, linkTrees, jammers, site, region } = this.myForm.value;
+      this.teamService.updateTeam(`http://${environment.apiUrl}:3000/api/team/update-team/${teamId}`, {
+        studioName: studioName,
+        description: description,
+        gameJam: {
+          _id: gameJam._id,
+          edition: gameJam.edition
+        },
+        linkTree: linkTrees,
+        jammers: jammers.map((jammer: { _id: string; name: string; email: string; discordUsername: string; }) => ({
+            _id: jammer._id,
+            name: jammer.name,
+            email: jammer.email,
+            discordUsername: jammer.discordUsername
+        })),
+        site: {
+          _id: site._id,
+          name: site.name
+        },
+        region: {
+          _id: region._id,
+          name: region.name
+        }
+      }).subscribe({
+        next: (data) => {
+          if (data.success) {
+            this.dataSource[this.dataSource.findIndex(team => team._id === data.team._id)] = data.team;
+            this.showSuccessMessage(data.msg);
+          } else {
+            this.showErrorMessage(data.error);
+          }
+        },
+        error: (error) => {
+          this.showErrorMessage(error.error.error);
+        }
+      });
+    } else {
       this.showErrorMessage('Please fill in all fields of the form');
-      }
-}
-  
+    }
+  }
+
 
   eliminar(elemento: any) {
     const id = elemento._id;
@@ -275,7 +278,7 @@ removeJammer(jammer: User) {
         }
     });
   }
-  
+
   agregar() {
           if (this.myForm.valid) {
           const { studioName, description, gameJam, linkTrees, jammers, site, region } = this.myForm.value;
@@ -304,7 +307,7 @@ removeJammer(jammer: User) {
           }).subscribe({
             next: (data) => {
               if (data.success) {
-                this.dataSource.push(data.team); 
+                this.dataSource.push(data.team);
                 this.showSuccessMessage(data.msg);
               } else {
                 this.showErrorMessage(data.error);
@@ -318,8 +321,8 @@ removeJammer(jammer: User) {
             this.showErrorMessage('Please fill in all fields of the form');
             }
   }
-    
-  
+
+
   addLinkTree() {
     const linkTreeControl = this.myForm.get('linkTree');
     if (linkTreeControl) {
@@ -336,63 +339,62 @@ removeJammer(jammer: User) {
     }
 }
 
-removeLinkTree(link: string) {
+  removeLinkTree(link: string) {
     const linkTreesArray = this.myForm.get('linkTrees') as FormArray;
     const index = linkTreesArray.value.indexOf(link);
     if (index !== -1) {
         linkTreesArray.removeAt(index);
     }
-}
+  }
 
+  successMessage: string = '';
+  errorMessage: string = '';
 
-    successMessage: string = '';
-    errorMessage: string = '';
-    
-    showSuccessMessage(message: string) {
-      this.successMessage = message;
-    }
-    
-    showErrorMessage(message: string) {
-      this.errorMessage = message;
-    }
-  
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+  }
+
+  showErrorMessage(message: string) {
+    this.errorMessage = message;
+  }
+
   get totalPaginas(): number {
     return Math.ceil(this.dataSource.length / this.pageSize);
   }
 
   pageSize = 5; // Número de elementos por página
   currentPage = 1; // Página actual
-    // Función para cambiar de página
-    cambiarPagina(page: number) {
-      this.currentPage = page;
-    }
-  
-    // Función para obtener los datos de la página actual
-    obtenerDatosPagina() {
-      let filteredData = this.dataSource;
-    
-      if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
-        const filterText = this.filterValue.trim().toLowerCase();
-        filteredData = filteredData.filter(item => {
-          switch (this.selectedHeader) {
-            case '_id':
-            case 'studioName':
-            case 'description':
-            case 'region.name':
-            case 'site.name':
-            case 'gameJam._id':
-            case 'gameJam.edition':
-              return this.getPropertyValue(item, this.selectedHeader).toLowerCase().startsWith(filterText);
-            default:
-              return false;
-          }
-        });
-      }
-    
-      const startIndex = (this.currentPage - 1) * this.pageSize;
-      return filteredData.slice(startIndex, startIndex + this.pageSize);
+  // Función para cambiar de página
+  cambiarPagina(page: number) {
+    this.currentPage = page;
   }
-  
+
+  // Función para obtener los datos de la página actual
+  obtenerDatosPagina() {
+    let filteredData = this.dataSource;
+
+    if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
+      const filterText = this.filterValue.trim().toLowerCase();
+      filteredData = filteredData.filter(item => {
+        switch (this.selectedHeader) {
+          case '_id':
+          case 'studioName':
+          case 'description':
+          case 'region.name':
+          case 'site.name':
+          case 'gameJam._id':
+          case 'gameJam.edition':
+            return this.getPropertyValue(item, this.selectedHeader).toLowerCase().startsWith(filterText);
+          default:
+            return false;
+        }
+      });
+    }
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return filteredData.slice(startIndex, startIndex + this.pageSize);
+  }
+
   getPropertyValue(obj: any, key: string) {
       if (!obj || !key) return '';
       const keys = key.split('.');
@@ -416,7 +418,7 @@ removeLinkTree(link: string) {
   }
   exportToPDF() {
     const doc = new jsPDF();
-  
+
     const url = `http://${environment.apiUrl}:3000/api/team/get-teams`;
     this.teamService.getTeams(url).subscribe(
         (teams: Team[]) => {
@@ -443,7 +445,7 @@ removeLinkTree(link: string) {
                     discordUsername: jammer.discordUsername || ''
                 }))
             }));
-  
+
             const selectedData = data.map(row => {
               const rowData: any[] = [];
               this.selectedColumns.forEach(column => {
@@ -462,8 +464,8 @@ removeLinkTree(link: string) {
                   }
               });
               return rowData;
-          });          
-  
+          });
+
             const headers = this.selectedColumns.map((column: string) => {
                 if (column === '_id') return 'ID';
                 if (column === 'studioName') return 'Name';
@@ -473,69 +475,50 @@ removeLinkTree(link: string) {
                 if (column === 'gameJam.edition') return 'GJ Edition';
                 return column.replace(/[A-Z]/g, ' $&').toUpperCase();
             });
-  
+
             autoTable(doc, {
                 head: [headers],
                 body: selectedData
             });
-  
+
             doc.save('teams.pdf');
         },
         error => {
             console.error('Error al obtener los equipos:', error);
         }
     );
-}
-  
-    get paginasMostradas(): (number | '...')[] {
-      const totalPaginas = this.totalPaginas;
-      const currentPage = this.currentPage;
-      const paginasMostradas: (number | '...')[] = [];
-  
-      const rango = 2; // Cambia esto para ajustar el número de páginas mostradas
-  
-      let inicio = Math.max(1, currentPage - rango);
-      let fin = Math.min(totalPaginas, currentPage + rango);
-  
-      for (let i = inicio; i <= fin; i++) {
-        paginasMostradas.push(i);
-      }
-  
-      if (currentPage - inicio > rango) {
-        paginasMostradas.unshift('...');
-      }
-      
-      if (fin < totalPaginas - 1) {
-        paginasMostradas.push('...');
-      }
-      /*
-  
-      if (inicio == 1){
-        switch(fin - inicio){
-          case 2:
-            paginasMostradas.push(4);
-            paginasMostradas.push(5);
-            break;
-          case 3:
-            paginasMostradas.push(5);
-            break;
-          default: break;
-        }
-      }
-      if (fin == totalPaginas){
-        switch(fin - inicio){
-          case 2:
-            paginasMostradas.unshift(totalPaginas-4, totalPaginas-3);
-            break;
-          case 3:
-            paginasMostradas.unshift(totalPaginas-4);
-            break;
-          default: break;
-        }
-      }
-      */
-      return paginasMostradas;
   }
-  
+
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
+  get paginasMostradas(): (number | '...')[] {
+    const totalPaginas = this.totalPaginas;
+    const currentPage = this.currentPage;
+    const paginasMostradas: (number | '...')[] = [];
+
+    const rango = 2; // Cambia esto para ajustar el número de páginas mostradas
+
+    let inicio = Math.max(1, currentPage - rango);
+    let fin = Math.min(totalPaginas, currentPage + rango);
+
+    for (let i = inicio; i <= fin; i++) {
+      paginasMostradas.push(i);
+    }
+
+    if (currentPage - inicio > rango) {
+      paginasMostradas.unshift('...');
+    }
+
+    if (fin < totalPaginas - 1) {
+      paginasMostradas.push('...');
+    }
+    return paginasMostradas;
+  }
+
     ventanaAgregar: boolean = false;
 }

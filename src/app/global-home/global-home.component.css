@@ -3,7 +3,6 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
-    background: white;
     padding-left: 35px;
 }
 
@@ -25,11 +24,9 @@
 .tabBackground {
     justify-content: center;
     align-items: flex-start;
-    background: white;
 }
 
 .tabCardBackground {
-    background: white;
     border-radius: 35px;
     border: 1px #3D3D3D solid;
     padding: 40px;

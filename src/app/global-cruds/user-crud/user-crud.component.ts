@@ -84,6 +84,8 @@ export class UserCrudComponent implements OnInit{
         console.error('Error al obtener regiones:', error);
       }
     );
+
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
   listSites(regionId: string, siteId: string)
@@ -290,6 +292,13 @@ export class UserCrudComponent implements OnInit{
     this.currentPage = page;
   }
 
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
   // Función para obtener los datos de la página actual
   obtenerDatosPagina() {
     let filteredData = this.dataSource;
@@ -315,30 +324,31 @@ export class UserCrudComponent implements OnInit{
 
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
-}
+  }
 
-getPropertyValue(obj: any, key: string) {
-  if (!obj || !key) return '';
-  const keys = key.split('.');
-  let value = obj;
-  for (const k of keys) {
-      if (Array.isArray(value)) {
-          value = value.map((item: any) => item[k]);
-      } else {
-          value = value[k];
-      }
-      if (value === undefined || value === null) return '';
+  getPropertyValue(obj: any, key: string) {
+    if (!obj || !key) return '';
+    const keys = key.split('.');
+    let value = obj;
+    for (const k of keys) {
+        if (Array.isArray(value)) {
+            value = value.map((item: any) => item[k]);
+        } else {
+            value = value[k];
+        }
+        if (value === undefined || value === null) return '';
+    }
+    return Array.isArray(value) ? value.join(', ') : value;
   }
-  return Array.isArray(value) ? value.join(', ') : value;
-}
-toggleColumn(column: keyof User, event: any) {
-  if (event.target.checked) {
-    this.selectedColumns.push(column);
-  } else {
-    this.selectedColumns = this.selectedColumns.filter(c => c !== column);
+  toggleColumn(column: keyof User, event: any) {
+    if (event.target.checked) {
+      this.selectedColumns.push(column);
+    } else {
+      this.selectedColumns = this.selectedColumns.filter(c => c !== column);
+    }
   }
-}
-exportToPDF() {
+
+  exportToPDF() {
     const doc = new jsPDF();
 
     const url = `http://${environment.apiUrl}:3000/api/user/get-users`;
@@ -406,7 +416,7 @@ exportToPDF() {
             console.error('Error fetching teams:', error);
         }
     );
-}
+  }
 
 
   get paginasMostradas(): (number | '...')[] {
@@ -431,7 +441,7 @@ exportToPDF() {
       paginasMostradas.push('...');
     }
     return paginasMostradas;
-}
+  }
 
   ventanaAgregar: boolean = false;
 }

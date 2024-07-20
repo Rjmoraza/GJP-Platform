@@ -5,11 +5,6 @@
 }
 
 .regionName{
-    color: black;
-    font-size: 30px;
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 700;
     word-wrap: break-word;
     margin-top: -20px;
     margin-bottom: 20px;
@@ -35,10 +30,6 @@
 
 .cardText {
     text-align: center;
-    color: black;
-    font-size: 18px;
-    font-family: Inter;
-    font-weight: 400;
     word-wrap: break-word
 }
 
@@ -67,9 +58,6 @@
 
 .cardTextSite{
     color: white;
-    font-size: 14px;
-    font-family: Inter;
-    font-weight: 400;
     word-wrap: break-word;
 }
 
@@ -80,10 +68,6 @@
     padding-bottom: 10px;
     padding-left: 20px;
     padding-right: 20px;
-    color: black;
-    font-size: 18px;
-    font-family: Inter; 
-    font-weight: 400; 
     word-wrap: break-word;
 }
 

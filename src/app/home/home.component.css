@@ -1,6 +1,5 @@
 .backgroundGradient {
     position: relative;
-    background: linear-gradient(108deg, #3763FF 0%, #D052A5 25%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -53,7 +52,7 @@ img {
     justify-content: flex-start;
     align-items: flex-start;
     flex-grow: 1;
-    background: white;
+    background: #f9f9f9;
     padding-top: 1rem;
 }
 
@@ -72,7 +71,7 @@ img {
     pointer-events: auto;
 }
 .modal-content {
-    background-color: #fff;
+    background-color: #f9f9f9;
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;

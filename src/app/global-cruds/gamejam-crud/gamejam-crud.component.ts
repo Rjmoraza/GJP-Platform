@@ -25,7 +25,7 @@ export class GamejamCrudComponent implements OnInit {
   myForm!: FormGroup;
   dataSource: GameJam[] = [];
   gthemes: Theme[] = [];
-  selectedColumns: (keyof GameJam)[] = []; 
+  selectedColumns: (keyof GameJam)[] = [];
   columnOptions = [
     { label: 'Edition', value: 'edition' as keyof GameJam, checked: false },
     { label: 'Themes', value: 'themes.titleEN' as keyof GameJam, checked: false },
@@ -35,7 +35,7 @@ export class GamejamCrudComponent implements OnInit {
   indexUser = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
-  
+
   constructor(private fb: FormBuilder, private gamejamService: GamejamService, private themeService: ThemeService) {}
 
   ngOnInit(): void {
@@ -62,9 +62,11 @@ export class GamejamCrudComponent implements OnInit {
         console.error('Error al obtener temas:', error);
       }
     );
+
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
-  
+
 
   toggleColumn(column: keyof GameJam, event: any) {
     if (event.target.checked) {
@@ -73,7 +75,7 @@ export class GamejamCrudComponent implements OnInit {
       this.selectedColumns = this.selectedColumns.filter(c => c !== column);
     }
   }
-  
+
   addTheme() {
     const selectedTheme = this.myForm.get('selectedTheme');
     if(selectedTheme && selectedTheme.value){
@@ -84,8 +86,8 @@ export class GamejamCrudComponent implements OnInit {
       }
     }
   }
-  
-  
+
+
   removeTheme(theme: Theme) {
     const themesArray = this.myForm.get('themes') as FormArray;
     const index = themesArray.controls.findIndex(control => control.value._id === theme._id);
@@ -93,10 +95,10 @@ export class GamejamCrudComponent implements OnInit {
       themesArray.removeAt(index);
     }
   }
-  
+
   exportToPDF() {
     const doc = new jsPDF();
-  
+
     // Obtener datos filtrados
     const selectedData = this.obtenerDatosPagina().map(row => {
       const rowData: any[] = [];
@@ -111,7 +113,7 @@ export class GamejamCrudComponent implements OnInit {
       });
       return rowData;
     });
-  
+
     // Crear encabezados
     const headers = this.selectedColumns.map((column: string) => {
       if (column === '_id') return 'ID';
@@ -120,17 +122,17 @@ export class GamejamCrudComponent implements OnInit {
       if (column === 'themes.titleEN') return 'Theme Title';
       return column.replace(/\b\w/g, char => char.toUpperCase()).replace(/[A-Z]/g, ' $&').trim();
     });
-  
+
     // Generar tabla en el PDF
     autoTable(doc, {
       head: [headers],
       body: selectedData
     });
-  
+
     // Guardar el PDF
     doc.save('gameJams.pdf');
   }
-  
+
 
   seleccionarElemento(elemento: any) {
     this.userToEdit = elemento;
@@ -152,7 +154,7 @@ export class GamejamCrudComponent implements OnInit {
     if (this.myForm.valid) {
       const gamejamId = this.userToEdit['_id'];
       const { edition, themes } = this.myForm.value;
-  
+
       this.gamejamService.updateGameJam(`http://${environment.apiUrl}:3000/api/game-jam/update-game-jam/${gamejamId}`, {
         edition,
         themes: themes.map((t: Theme) => ({ _id: t._id, titleEN: t.titleEN }))
@@ -197,7 +199,7 @@ export class GamejamCrudComponent implements OnInit {
   agregar() {
     if (this.myForm.valid) {
       console.log('Formulario válido');
-      
+
       const { edition, themes } = this.myForm.value;
       this.gamejamService.createGameJam(`http://${environment.apiUrl}:3000/api/game-jam/create-game-jam`, {
         edition: edition,
@@ -223,7 +225,7 @@ export class GamejamCrudComponent implements OnInit {
       this.showErrorMessage('Please fill in all fields of the form');
     }
   }
-  
+
 
   successMessage: string = '';
   errorMessage: string = '';
@@ -240,12 +242,20 @@ export class GamejamCrudComponent implements OnInit {
     return Math.ceil(this.dataSource.length / this.pageSize);
   }
 
-  pageSize = 5; 
-  currentPage = 1; 
+  pageSize = 5;
+  currentPage = 1;
 
   cambiarPagina(page: number) {
     this.currentPage = page;
   }
+
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
   getPropertyValue(obj: any, key: string) {
     if (!obj || !key) return '';
     const keys = key.split('.');

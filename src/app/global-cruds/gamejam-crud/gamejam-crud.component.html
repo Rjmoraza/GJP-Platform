@@ -33,7 +33,7 @@
                 </div>
               </div>
         </div>
-        
+
     </div>
     <table class="table">
         <thead>
@@ -48,11 +48,11 @@
             <tr *ngFor="let row of obtenerDatosPagina()">
                 <td>{{ row.edition }}</td>
                 <td>
-                    <ul>
-                        <li *ngFor="let theme of row.themes">
-                            <a theme>{{ theme?.titleEN }}</a>
-                        </li>
-                    </ul>
+                  <ul>
+                    <li *ngFor="let theme of row.themes">
+                        <a theme>{{ theme?.titleEN }}</a>
+                    </li>
+                  </ul>
                 </td>
                 <td>
                     <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
@@ -61,7 +61,7 @@
                     <button class="btn btn-danger" (click)="eliminar(row)">Delete</button>
                 </td>
             </tr>
-            
+
         </tbody>
     </table>
     <div class="navBarStyle">
@@ -98,6 +98,10 @@
                 </a>
             </li>
         </ul>
+        <div>
+          <label>Elements per page:</label>
+          <input type="number" class="form-control-sm" value="{{pageSize}}" (change)="changePageSize($event)">
+        </div>
         <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
     </div>
 </div>
@@ -141,7 +145,7 @@
                                 </div>
                                 <button class="btn btn-danger" (click)="removeTheme(theme)">Remove</button>
                             </div>
-                            
+
                         </div>
                         <div class="formTitle">Edition</div>
                         <div class="row centerRow">
@@ -183,15 +187,15 @@
                         </div>
                         <div class="row centerRow">
 
-                            <ng-container formArrayName="theme">
-                                <div *ngFor="let theme of myForm.get('themes')?.value" class="row formLinks">
-                                    <div class="col">
-                                        <label>Theme:</label>
-                                        <p>{{theme?.titleEN}}</p>
-                                    </div>
-                                    <button class="btn btn-danger" (click)="removeTheme(theme)">Remove</button>
+                        <ng-container formArrayName="themes">
+                            <div *ngFor="let theme of myForm.get('themes')?.value" class="row formLinks">
+                                <div class="col">
+                                    <label>Theme:</label>
+                                    <p>{{theme?.titleEN}}</p>
                                 </div>
-                            </ng-container>
+                                <button class="btn btn-danger" (click)="removeTheme(theme)">Remove</button>
+                            </div>
+                        </ng-container>
 
                         </div>
                         <div class="formTitle">Edition</div>
@@ -199,7 +203,7 @@
                             <div class="form-group formInput">
                                 <input #createEditionInput class="form-control" id="createEditionInput" required placeholder="Edition" formControlName="edition">
                             </div>
-                        </div> 
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

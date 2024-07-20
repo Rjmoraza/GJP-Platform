@@ -37,12 +37,12 @@ export class SiteCrudComponent implements OnInit {
   indexSite = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
-  selectedColumns: (keyof Site)[] = []; 
+  selectedColumns: (keyof Site)[] = [];
   constructor(private fb: FormBuilder, private siteService: SiteService, private regionService: RegionService){}
   ngOnInit(): void {
     this.myForm = this.fb.group({
       name: ['', Validators.required],
-      modality: ['', Validators.required], 
+      modality: ['', Validators.required],
       country: ['', Validators.required],
       region: ['', Validators.required]
     });
@@ -73,34 +73,36 @@ export class SiteCrudComponent implements OnInit {
         console.error('Error al obtener sitios:', error);
       }
     );
+
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
-  
+
   seleccionarElemento(elemento: any) {
     this.siteToEdit = elemento;
     this.indexSite = this.dataSource.indexOf(elemento);
-  
+
     const selectedRegion = this.regions.find(region => region._id === elemento.region._id);
     const selectedCountry = this.countries.find(country => country.name === elemento.country.name);
-  
+
     this.myForm.patchValue({
       name: elemento.name,
-      modality: elemento.modality, 
-      region: selectedRegion, 
-      country: selectedCountry 
+      modality: elemento.modality,
+      region: selectedRegion,
+      country: selectedCountry
     });
   }
-  
+
   editar() {
     if (this.myForm.valid) {
-      
+
       const siteId = this.siteToEdit['_id'];
-      
+
       const url = `http://${environment.apiUrl}:3000/api/site/update-site/${siteId}`;
-      
+
       console.log(this.myForm.value["country"].name);
       this.siteService.updateSite(url, {
         name: this.myForm.value["name"],
-        modality: this.myForm.value["modality"], 
+        modality: this.myForm.value["modality"],
         region: this.myForm.value["region"],
         country: this.myForm.value["country"].name
       }).subscribe({
@@ -147,7 +149,7 @@ export class SiteCrudComponent implements OnInit {
     if (this.myForm.valid) {
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, {
         name: this.myForm.value["name"],
-        modality: this.myForm.value["modality"], 
+        modality: this.myForm.value["modality"],
         region: this.myForm.value["region"],
         country: this.myForm.value["country"].name
       }).subscribe({
@@ -168,23 +170,23 @@ export class SiteCrudComponent implements OnInit {
       this.showErrorMessage('Please fill in all fields of the form');
     }
   }
-  
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////  
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-successMessage: string = '';
-errorMessage: string = '';
+  successMessage: string = '';
+  errorMessage: string = '';
 
-showSuccessMessage(message: string) {
-  this.successMessage = message;
-}
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+  }
 
-showErrorMessage(message: string) {
-  this.errorMessage = message;
-}
-  
+  showErrorMessage(message: string) {
+    this.errorMessage = message;
+  }
+
   get totalPaginas(): number {
     return Math.ceil(this.dataSource.length / this.pageSize);
   }
@@ -197,10 +199,17 @@ showErrorMessage(message: string) {
     this.currentPage = page;
   }
 
+  changePageSize(e: any)
+  {
+    this.pageSize = e.srcElement.value;
+    this.cambiarPagina(1);
+    localStorage.setItem("PageSize", `${this.pageSize}`);
+  }
+
   // Función para obtener los datos de la página actual
   obtenerDatosPagina() {
     let filteredData = this.dataSource;
-  
+
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
       const filterText = this.filterValue.trim().toLowerCase();
       filteredData = filteredData.filter(item => {
@@ -216,11 +225,11 @@ showErrorMessage(message: string) {
         }
       });
     }
-  
+
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
   }
-  
+
   getPropertyValue(obj: any, key: string) {
     if (!obj || !key) return '';
     const keys = key.split('.');
@@ -240,7 +249,7 @@ showErrorMessage(message: string) {
   }
   exportToPDF() {
     const doc = new jsPDF();
-  
+
     const url = `http://${environment.apiUrl}:3000/api/site/get-sites`;
     this.siteService.getSites(url).subscribe(
       (sites: Site[]) => {
@@ -257,7 +266,7 @@ showErrorMessage(message: string) {
             code: site.country.code || ''
           }
         }));
-  
+
         const selectedData = data.map(row => {
           const rowData: any[] = [];
           this.selectedColumns.forEach(column => {
@@ -273,7 +282,7 @@ showErrorMessage(message: string) {
           });
           return rowData;
         });
-  
+
         const headers = this.selectedColumns.map((column: string) => {
           if (column === '_id') return 'ID';
           if (column === 'modality') return 'Modality';
@@ -283,12 +292,12 @@ showErrorMessage(message: string) {
           if (column === 'country.code') return 'Country Code';
           return column.replace(/[A-Z]/g, ' $&').toUpperCase();
         });
-  
+
         autoTable(doc, {
           head: [headers],
           body: selectedData
         });
-  
+
         doc.save('sites.pdf');
       },
       error => {
@@ -296,7 +305,7 @@ showErrorMessage(message: string) {
       }
     );
   }
-  
+
   get paginasMostradas(): (number | '...')[] {
     const totalPaginas = this.totalPaginas;
     const currentPage = this.currentPage;
@@ -314,7 +323,7 @@ showErrorMessage(message: string) {
     if (currentPage - inicio > rango) {
       paginasMostradas.unshift('...');
     }
-    
+
     if (fin < totalPaginas - 1) {
       paginasMostradas.push('...');
     }
