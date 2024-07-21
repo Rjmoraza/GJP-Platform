@@ -88,6 +88,10 @@ app.use('/api/category', category_route);
 const game_jam_route = require('./routes/gameJamRoute');
 app.use('/api/game-jam', game_jam_route);
 
+// Rutas de Jams
+const jam_route = require('./routes/jamRoute');
+app.use('/api/jam', jam_route);
+
 // Rutas de fases
 const stage_route = require('./routes/stageRoute');
 app.use('/api/stage', stage_route);

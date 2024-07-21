@@ -427,7 +427,6 @@ const registerUsersFromCSV = async (req, res) => {
     }
 };
 
-
 const addRol = async (req, res) => {
     const userId = req.params.id;
     const {rol} = req.body;
@@ -468,7 +467,15 @@ const deleteRol = async (req, res) => {
     }
 };
 
-
+const validateUser = async (req) => {
+    try{
+        const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
+        const user = await User.findById(userId);
+        return user;
+    } catch (error) {
+        return null;
+    }
+};
 
 
 module.exports = {
@@ -487,5 +494,6 @@ module.exports = {
     getStaffPerSite,
     registerUsersFromCSV,
     addRol,
-    deleteRol
+    deleteRol,
+    validateUser
 };
