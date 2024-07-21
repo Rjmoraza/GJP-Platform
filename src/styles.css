@@ -38,3 +38,35 @@ h2, h3, h4, h5, h6
 .headerGradient {
   background: linear-gradient(108deg, #FEDE6E 0%, #FA7800 33%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
 }
+
+.container{
+  border-radius: 25px;
+  background-color: #00000011;
+}
+
+.containerLarge{
+  width: 90%;
+  margin: auto;
+  padding: 30px;
+}
+
+.containerPlaceholder{
+  border-style: dashed;
+  border-color: #999999;
+  background-color: #77777722;
+  text-align: center;
+}
+
+.warning{
+  border-style: dashed;
+  border-radius: 10px;
+  border-color: #FFAA0055;
+  background-color: #FFDD0022;
+}
+
+.info{
+  border-style: dashed;
+  border-radius: 10px;
+  border-color: #DDDDDD;
+  background-color: #FFFFFF;
+}

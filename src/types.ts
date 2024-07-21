@@ -97,6 +97,54 @@ export interface GameJam {
   }[];
 }
 
+export interface Jam {
+  _id?: string,
+  title: string,
+  open: boolean,
+  public: boolean,
+  sites: {
+    _id: string,
+    name: string,
+    region: string
+  }[],
+  jammers: {
+    _id: string,
+    team: string,
+    site: string,
+    name: string,
+    email: string
+  }[],
+  toolbox?: string,
+  themes: {
+    titlePT: string,
+    titleES: string,
+    titleEN: string,
+    descriptionPT: string,
+    descriptionES: string,
+    descriptionEN: string,
+    manualPT: string,
+    manualES: string,
+    manualEN: string
+  }[],
+  categories: {
+    titlePT: string,
+    titleES: string,
+    titleEN: string,
+    descriptionPT: string,
+    descriptionES: string,
+    descriptionEN: string,
+    manualPT: string,
+    manualES: string,
+    manualEN: string
+  }[],
+  deadlineStage1?: Date,
+  deadlineStage2?: Date,
+  deadlineStage3?: Date,
+  deadlineEvaluation1?: Date,
+  deadlineEvaluation2?: Date,
+  deadlineEvaluation3?: Date,
+}
+
 export interface Stage {
   _id?: string;
   name: string;

@@ -1,0 +1,177 @@
+<div class="p-3 mb-2 bg-danger d-block text-white">WORK IN PROGRESS</div>
+
+<div *ngIf="!activeJam" class="container containerLarge containerPlaceholder">
+  <p>No active game jam found.</p>
+  <button class="btn btn-primary" (click)="createJam()">Create New Jam</button>
+</div>
+
+<div *ngIf="activeJam" class="container containerLarge">
+  <form (ngSubmit)="editJam()" [formGroup]="editJamForm" enctype="multipart/form-data">
+    <div class="row">
+
+      <!-- Left Side -->
+      <div class="col">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" class="form-control" id="title" placeholder="Enter title" formControlName="title">
+        </div>
+        <div class="form-group">
+          <label for="toolbox">Toolbox URL</label>
+          <input type="text" class="form-control" id="toolbox" placeholder="Enter the URL for this edition's toolbox" formControlName="toolbox">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-sm-4">
+            <label for="deadlineS1">Deadline Stage 1</label>
+            <input type="date" class="form-control" id="deadlineS1" placeholder="" formControlName="deadlineS1">
+          </div>
+          <div class="form-group col-sm-4">
+            <label for="deadlineS2">Deadline Stage 2</label>
+            <input type="date" class="form-control" id="deadlineS2" placeholder="" formControlName="deadlineS2">
+          </div>
+          <div class="form-group col-sm-4">
+            <label for="deadlineS3">Deadline Stage 3</label>
+            <input type="date" class="form-control" id="deadlineS3" placeholder="" formControlName="deadlineS3">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-sm-4">
+            <label for="deadlineS1">Deadline Evaluation 1</label>
+            <input type="date" class="form-control" id="deadlineS1" placeholder="" formControlName="deadlineS1">
+          </div>
+          <div class="form-group col-sm-4">
+            <label for="deadlineS2">Deadline Evaluation 2</label>
+            <input type="date" class="form-control" id="deadlineS2" placeholder="" formControlName="deadlineS2">
+          </div>
+          <div class="form-group col-sm-4">
+            <label for="deadlineS3">Deadline Evaluation 3</label>
+            <input type="date" class="form-control" id="deadlineS3" placeholder="" formControlName="deadlineS3">
+          </div>
+        </div>
+
+        <div>
+          Themes
+          <button class="btn btn-primary btn-sm float-right">Add new theme</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Description (PT)</th>
+                <th scope="col">Manual</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of activeJam.themes">
+                <td>PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
+                <td><p>{{ row.descriptionPT }}</p></td>
+                <td>
+                  Manual
+                </td>
+                <td>
+                  <button class="btn btn-primary">Update</button>
+                  <button class="btn btn-danger">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          Categories
+          <button class="btn btn-primary btn-sm float-right">Add new category</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Description (PT)</th>
+                <th scope="col">Manual</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of activeJam.themes">
+                <td>PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
+                <td><p>{{ row.descriptionPT }}</p></td>
+                <td>
+                  Manual
+                </td>
+                <td>
+                  <button class="btn btn-primary">Update</button>
+                  <button class="btn btn-danger">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Right Side -->
+
+      <div class="col">
+        <div>
+          Participants
+        </div>
+        <div class="info p-2">
+          Venues: {{activeJam.sites.length}}<br>
+          Jammers: {{activeJam.jammers.length}}
+        </div>
+
+        <hr>
+
+        <div class="form-group">
+          <label for="jamOpen">
+            Jam Status
+          </label>
+          <div class="btn-group btn-group-toggle form-row d-block" data-toggle="buttons">
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.open}">
+              <input type="radio" name="open" formControlName="open" id="jamOpen" (checked)="activeJam.open"> Open
+            </label>
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.open}">
+              <input type="radio" name="open" formControlName="open" id="jamClosed" (checked)="!activeJam.open"> Closed
+            </label>
+          </div>
+        </div>
+
+        <small class="form-text text-muted">
+          If the Jam is Open it will be visible for Local Organizers and Jammers.<br>
+          The Jam must be Open for venues to register.<br>
+        </small>
+        <small class="warning form-text p-2">
+          WARNING: <br>
+          Closing the Jam will sever its references with Venues and Jammers<br>
+          Only close the jam after the event is finished<br>
+          Proceed with caution
+        </small>
+
+        <hr>
+
+        <div class="form-group">
+          <label for="jamPublic">
+            Jam Visibility
+          </label>
+          <div class="btn-group btn-group-toggle form-row d-block" data-toggle="buttons">
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.public}">
+              <input type="radio" name="public" formControlName="public" id="jamPublic" (checked)="activeJam.public"> Public
+            </label>
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.public}">
+              <input type="radio" name="public" formControlName="public" id="jamSecret" (checked)="!activeJam.public"> Secret
+            </label>
+          </div>
+        </div>
+
+        <small class="form-text text-muted">
+          Themes and Categories will remain hidden from Local Organizers and Jammers while the Jam is Secret.
+          Mark the Jam as Public to reveal this information to Local Organizers and Jammers.
+        </small>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block btn-lg p-2 mt-4">Update Jam</button>
+  </form>
+</div>
