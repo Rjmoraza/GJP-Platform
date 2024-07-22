@@ -6,7 +6,7 @@
 </div>
 
 <div *ngIf="activeJam" class="container containerLarge">
-  <form (ngSubmit)="editJam()" [formGroup]="editJamForm" enctype="multipart/form-data">
+  <form (ngSubmit)="updateJam()" [formGroup]="jamForm" enctype="multipart/form-data">
     <div class="row">
 
       <!-- Left Side -->
@@ -23,57 +23,59 @@
         <div class="form-row">
           <div class="form-group col-sm-4">
             <label for="deadlineS1">Deadline Stage 1</label>
-            <input type="date" class="form-control" id="deadlineS1" placeholder="" formControlName="deadlineS1">
+            <input type="date" class="form-control" id="deadlineS1" formControlName="deadlineS1">
           </div>
           <div class="form-group col-sm-4">
             <label for="deadlineS2">Deadline Stage 2</label>
-            <input type="date" class="form-control" id="deadlineS2" placeholder="" formControlName="deadlineS2">
+            <input type="date" class="form-control" id="deadlineS2" formControlName="deadlineS2">
           </div>
           <div class="form-group col-sm-4">
             <label for="deadlineS3">Deadline Stage 3</label>
-            <input type="date" class="form-control" id="deadlineS3" placeholder="" formControlName="deadlineS3">
+            <input type="date" class="form-control" id="deadlineS3" formControlName="deadlineS3">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group col-sm-4">
-            <label for="deadlineS1">Deadline Evaluation 1</label>
-            <input type="date" class="form-control" id="deadlineS1" placeholder="" formControlName="deadlineS1">
+            <label for="deadlineE1">Deadline Evaluation 1</label>
+            <input type="date" class="form-control" id="deadlineE1" formControlName="deadlineE1">
           </div>
           <div class="form-group col-sm-4">
-            <label for="deadlineS2">Deadline Evaluation 2</label>
-            <input type="date" class="form-control" id="deadlineS2" placeholder="" formControlName="deadlineS2">
+            <label for="deadlineE2">Deadline Evaluation 2</label>
+            <input type="date" class="form-control" id="deadlineE2" formControlName="deadlineE2">
           </div>
           <div class="form-group col-sm-4">
-            <label for="deadlineS3">Deadline Evaluation 3</label>
-            <input type="date" class="form-control" id="deadlineS3" placeholder="" formControlName="deadlineS3">
+            <label for="deadlineE3">Deadline Evaluation 3</label>
+            <input type="date" class="form-control" id="deadlineE3" formControlName="deadlineE3">
           </div>
         </div>
 
         <div>
           Themes
-          <button class="btn btn-primary btn-sm float-right">Add new theme</button>
+          <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#themeModal" (click)="patchThemeForm(-1)">Add new theme</button>
         </div>
-        <div class="table-responsive">
+        <div class="table table-striped table-sm">
           <table class="table">
-            <thead>
+            <thead class="text-sm">
               <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Description (PT)</th>
-                <th scope="col">Manual</th>
-                <th scope="col">Actions</th>
+                <th scope="col" class="th-40">Title</th>
+                <th scope="col" class="th-20">Desc.(PT)</th>
+                <th scope="col" class="th-20">Manual</th>
+                <th scope="col" class="th-20">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr *ngFor="let row of activeJam.themes">
+            <tbody class="text-xs">
+              <tr *ngFor="let row of activeJam.themes; index as i">
                 <td>PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
                 <td><p>{{ row.descriptionPT }}</p></td>
                 <td>
-                  Manual
+                  <a href="{{ row.manualPT }}">Manual PT</a><br>
+                  <a href="{{ row.manualES }}">Manual ES</a><br>
+                  <a href="{{ row.manualEN }}">Manual EN</a>
                 </td>
                 <td>
-                  <button class="btn btn-primary">Update</button>
-                  <button class="btn btn-danger">Delete</button>
+                  <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#themeModal" (click)="patchThemeForm(i)">Update</button>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="deleteTheme(i)">Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -82,28 +84,30 @@
 
         <div>
           Categories
-          <button class="btn btn-primary btn-sm float-right">Add new category</button>
+          <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#categoryModal" (click)="patchCategoryForm(-1)">Add new category</button>
         </div>
-        <div class="table-responsive">
+        <div class="table table-striped table-sm">
           <table class="table">
-            <thead>
+            <thead class="text-sm">
               <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Description (PT)</th>
-                <th scope="col">Manual</th>
-                <th scope="col">Actions</th>
+                <th scope="col" class="th-40">Title</th>
+                <th scope="col" class="th-20">Desc.(PT)</th>
+                <th scope="col" class="th-20">Manual</th>
+                <th scope="col" class="th-20">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr *ngFor="let row of activeJam.themes">
-                <td>PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
+            <tbody class="text-xs">
+              <tr *ngFor="let row of activeJam.categories; index as i">
+                <td>{{ i }} PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
                 <td><p>{{ row.descriptionPT }}</p></td>
                 <td>
-                  Manual
+                  <a href="{{ row.manualPT }}">Manual PT</a><br>
+                  <a href="{{ row.manualES }}">Manual ES</a><br>
+                  <a href="{{ row.manualEN }}">Manual EN</a>
                 </td>
                 <td>
-                  <button class="btn btn-primary">Update</button>
-                  <button class="btn btn-danger">Delete</button>
+                  <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#categoryModal" (click)="patchCategoryForm(i)">Update</button>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="deleteCategory(i)">Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -127,14 +131,14 @@
 
         <div class="form-group">
           <label for="jamOpen">
-            Jam Status
+            Jam Status: {{ (activeJam.open) ? 'Open' : 'Closed'}}
           </label>
           <div class="btn-group btn-group-toggle form-row d-block" data-toggle="buttons">
-            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.open}">
-              <input type="radio" name="open" formControlName="open" id="jamOpen" (checked)="activeJam.open"> Open
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.open}" (click)="setOpenValue(true)">
+              <input type="radio" name="open" id="jamOpen" (checked)="activeJam.open" (click)="setOpenValue(true)"> Open
             </label>
-            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.open}">
-              <input type="radio" name="open" formControlName="open" id="jamClosed" (checked)="!activeJam.open"> Closed
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.open}" (click)="setOpenValue(false)">
+              <input type="radio" name="open" id="jamClosed" (checked)="!activeJam.open" (click)="setOpenValue(false)"> Closed
             </label>
           </div>
         </div>
@@ -154,14 +158,14 @@
 
         <div class="form-group">
           <label for="jamPublic">
-            Jam Visibility
+            Jam Visibility: {{ (activeJam.public) ? 'Public' : 'Secret'}}
           </label>
           <div class="btn-group btn-group-toggle form-row d-block" data-toggle="buttons">
-            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.public}">
-              <input type="radio" name="public" formControlName="public" id="jamPublic" (checked)="activeJam.public"> Public
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.public}" (click)="setPublicValue(false)">
+              <input type="radio" name="public" id="jamPublic" (checked)="activeJam.public" (click)="setPublicValue(false)"> Public
             </label>
-            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.public}">
-              <input type="radio" name="public" formControlName="public" id="jamSecret" (checked)="!activeJam.public"> Secret
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.public}" (click)="setPublicValue(false)">
+              <input type="radio" name="public" id="jamSecret" (checked)="!activeJam.public" (click)="setPublicValue(false)"> Secret
             </label>
           </div>
         </div>
@@ -170,8 +174,118 @@
           Themes and Categories will remain hidden from Local Organizers and Jammers while the Jam is Secret.
           Mark the Jam as Public to reveal this information to Local Organizers and Jammers.
         </small>
+
       </div>
     </div>
     <button type="submit" class="btn btn-primary btn-block btn-lg p-2 mt-4">Update Jam</button>
   </form>
+</div>
+
+<!-- MODALS -->
+
+<!-- Message Modal -->
+<div *ngIf="successMessage || errorMessage" class="toast-overlay">
+  <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+      <div class="toast-message p-3">{{ successMessage }}</div>
+      <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+    </div>
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+      <div class="toast-message p-3">{{ errorMessage }}</div>
+      <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div *ngIf="confirmationMessage" class="toast-overlay">
+  <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+    <div *ngIf="confirmationMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+      <div class="toast-message p-3">{{ confirmationMessage }}</div>
+      <button type="button" class="ok-button btn btn-success btn-sm m-2" data-dismiss="toast" (click)="confirmMessage(true)">Accept</button>
+      <button type="button" class="ok-button btn btn-danger btn-sm m-2" data-dismiss="toast"  (click)="confirmMessage(false)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Theme Modal -->
+<div #themeModal class="modal fade" id="themeModal" tabindex="-1" role="dialog" aria-labelledby="themeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <form [formGroup]="themeForm" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="themeModalLabel">Edit Theme</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body container no-radius">
+            <div class="row">
+              <div class="col-sm" *ngFor="let language of ['PT', 'ES', 'EN']">
+                <label for="title{{language}}">Title ({{language}})</label>
+                <input type="text" class="form-control" id="title{{language}}" placeholder="Enter title" formControlName="title{{language}}">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm" *ngFor="let language of ['PT', 'ES', 'EN']">
+                <label for="description{{language}}">Description ({{language}})</label>
+                <textarea class="form-control" rows="5" id="description{{language}}" placeholder="Enter description" formControlName="description{{language}}"></textarea>
+              </div>
+            </div>
+          <div class="row">
+            <div class="col-sm" *ngFor="let language of ['PT', 'ES', 'EN']">
+              <label for="manual{{language}}">Manual ({{language}})</label>
+              <input type="text" class="form-control" id="manual{{language}}" placeholder="Manual public URL" formControlName="manual{{language}}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" data-dismiss="modal" (click)="saveTheme()">Save changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div #themeModal class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <form [formGroup]="categoryForm" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="categoryModalLabel">Edit Category</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body container no-radius">
+            <div class="row">
+              <div class="col-sm" *ngFor="let language of ['PT', 'ES', 'EN']">
+                <label for="title{{language}}">Title ({{language}})</label>
+                <input type="text" class="form-control" id="title{{language}}" placeholder="Enter title" formControlName="title{{language}}">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm" *ngFor="let language of ['PT', 'ES', 'EN']">
+                <label for="description{{language}}">Description ({{language}})</label>
+                <textarea class="form-control" rows="5" id="description{{language}}" placeholder="Enter description" formControlName="description{{language}}"></textarea>
+              </div>
+            </div>
+          <div class="row">
+            <div class="col-sm" *ngFor="let language of ['PT', 'ES', 'EN']">
+              <label for="manual{{language}}">Manual ({{language}})</label>
+              <input type="text" class="form-control" id="manual{{language}}" placeholder="Manual public URL" formControlName="manual{{language}}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" data-dismiss="modal" (click)="saveCategory()">Save changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

@@ -15,6 +15,9 @@ export class JamService {
     return this.http.post(url, jam, {withCredentials: true});
   }
 
+  updateJam(url: string, jam: Jam): Observable<any>{
+    return this.http.put(url, jam, {withCredentials: true});
+  }
 
   getCurrentJam(url: string): Observable<Jam> {
     return this.http.get<any>(url).pipe(

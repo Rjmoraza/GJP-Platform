@@ -158,19 +158,19 @@
 
     <!-- Fuera del modal principal -->
     <div *ngIf="successMessage || errorMessage" class="toast-overlay">
-        <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
-          <!-- Mensaje de éxito -->
-          <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
-            <div class="toast-message">{{ successMessage }}</div>
-            <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
-          </div>
-          <!-- Mensaje de error -->
-          <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
-            <div class="toast-message">{{ errorMessage }}</div>
-            <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
-          </div>
+      <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+        <!-- Mensaje de éxito -->
+        <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
+          <div class="toast-message">{{ successMessage }}</div>
+          <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
+        </div>
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
+          <div class="toast-message">{{ errorMessage }}</div>
+          <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
         </div>
       </div>
+    </div>
 
 
 
