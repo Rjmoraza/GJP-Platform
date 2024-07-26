@@ -1,38 +1,27 @@
 <nav class="navbar">
     <div class="tabButton">
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showCategories }" 
-             (click)="toggleCategories()">Categories</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showRegions }" 
-             (click)="toggleRegions()">Regions</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showSites }" 
-             (click)="toggleSites()">Sites</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showStage }" 
-             (click)="toggleStage()">Stages</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showTeams }" 
-             (click)="toggleTeams()">Team</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showThemes }" 
-             (click)="toggleThemes()">Themes</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showUser }" 
-             (click)="toggleUser()">Users</div>
-        <div class="btn btn-default crudButton" 
-             [ngClass]="{ 'active': showJam }" 
-             (click)="toggleJam()">GameJams</div>
+      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='jams' }" (click)="selectPage('jams')">GameJams</div>
+      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='regions' }" (click)="selectPage('regions')">Regions</div>
+      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='sites' }" (click)="selectPage('sites')">Sites</div>
+      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='teams' }" (click)="selectPage('teams')">Teams</div>
+      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='users' }" (click)="selectPage('users')">Users</div>
+<!--
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': showThemes }" (click)="toggleThemes()">Themes</div>
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': showStage }" (click)="toggleStage()">Stages</div>
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': showCategories }" (click)="toggleCategories()">Categories</div>
+-->
     </div>
 </nav>
 <div class="content">
-    <div *ngIf="showCategories" class="card crudContent"><app-category-crud></app-category-crud></div>
-    <div *ngIf="showRegions" class="card crudContent"><app-region-crud></app-region-crud></div>
-    <div *ngIf="showSites" class="card crudContent"><app-site-crud></app-site-crud></div>
-    <div *ngIf="showStage" class="card crudContent"><app-stage-crud></app-stage-crud></div>
-    <div *ngIf="showTeams" class="card crudContent"><app-team-crud></app-team-crud></div>
-    <div *ngIf="showThemes" class="card crudContent"><app-theme-crud></app-theme-crud></div>
-    <div *ngIf="showUser" class="card crudContent"><app-user-crud></app-user-crud></div>
-    <div *ngIf="showJam" class="card crudContent"><app-gamejam-crud></app-gamejam-crud></div>
+  <div *ngIf="page=='jams'" class="card crudContent"><app-gamejam-crud></app-gamejam-crud></div>
+  <div *ngIf="page=='regions'" class="card crudContent"><app-region-crud></app-region-crud></div>
+  <div *ngIf="page=='sites'" class="card crudContent"><app-site-crud></app-site-crud></div>
+  <div *ngIf="page=='teams'" class="card crudContent"><app-team-crud></app-team-crud></div>
+  <div *ngIf="page=='users'" class="card crudContent"><app-user-crud></app-user-crud></div>
+<!--
+  <div *ngIf="page=='categories'" class="card crudContent"><app-category-crud></app-category-crud></div>
+  <div *ngIf="page=='stages'" class="card crudContent"><app-stage-crud></app-stage-crud></div>
+  <div *ngIf="page=='themes'" class="card crudContent"><app-theme-crud></app-theme-crud></div>
+-->
+
 </div>

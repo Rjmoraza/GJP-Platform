@@ -1,13 +1,15 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RegionService } from '../../services/region.service';
 import { Region } from '../../../types';
-declare var $: any;
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { jsPDF }  from 'jspdf';
+import { MessagesComponent } from '../../messages/messages.component';
 import autoTable from 'jspdf-autotable';
 import { environment } from '../../../environments/environment.prod';
+declare var $: any;
 
 @Component({
   selector: 'app-region-crud',
@@ -15,14 +17,17 @@ import { environment } from '../../../environments/environment.prod';
   imports: [
     FormsModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MessagesComponent
   ],
   templateUrl: './region-crud.component.html',
-  styleUrl: './region-crud.component.css'
+  styleUrl: './region-crud.component.css',
+  providers: [BsModalService, MessagesComponent]
 })
 export class RegionCRUDComponent implements OnInit{
-  myForm!: FormGroup;
-  dataSource: Region[] = [];
+  regionForm!: FormGroup;
+  regions: Region[] = [];
+  selectedRegion?: Region;
   columnOptions = [
     { label: 'name', value: 'name' as keyof Region, checked: false },
   ];
@@ -31,57 +36,129 @@ export class RegionCRUDComponent implements OnInit{
   selectedHeader: string | undefined;
   filterValue: string = '';
   selectedColumns: (keyof Region)[] = [];
-  constructor(private fb: FormBuilder, private regionService: RegionService){
-  }
+  ventanaAgregar: boolean = false;
+  @ViewChild('modalRegion', {static: true}) modalRegion? : TemplateRef<any>;
+  @ViewChild(MessagesComponent) message!: MessagesComponent;
+  modalRef?: BsModalRef;
+  modalError: string = "";
+
+  constructor(private fb: FormBuilder, private regionService: RegionService, private modalService: BsModalService){}
+
   ngOnInit(): void {
-    this.myForm = this.fb.group({
+    this.regionForm = this.fb.group({
       region: ['', Validators.required]
     });
-    const url = `http://${environment.apiUrl}:3000/api/region/get-regions`;
-    this.regionService.getRegions(url).subscribe(
-      (regions: any[]) => {
-        this.dataSource = regions.map(region => ({ _id: region._id, name: region.name }));
-      },
-      error => {
-        console.error('Error al obtener regiones:', error);
-      }
-    );
+    this.listRegions();
 
     this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
-  seleccionarElemento(elemento:any){
-    let regionEditInput = document.getElementById('regionEditInput') as HTMLInputElement;
-    this.regionToEdit = elemento
-    this.indexRegion =this.dataSource.indexOf(elemento)
-    regionEditInput.value = this.regionToEdit["name"];
+  listRegions()
+  {
+    const url = `http://${environment.apiUrl}:3000/api/region/get-regions`;
+    this.regionService.getRegions(url).subscribe({
+      next: (regions: any[]) => {
+        this.regions = regions.map(region => ({ _id: region._id, name: region.name }));
+      },
+      error: (error) => {
+        console.error('Error al obtener regiones:', error);
+      }
+    });
   }
 
-  editar() {
-    if (this.myForm.valid) {
-      const regionId = this.regionToEdit['_id'];
+  selectRegion(region: Region){
+    this.selectedRegion = region;
+    this.regionForm.patchValue({
+      region: region.name
+    });
+    this.openModal();
+  }
+
+  saveRegion()
+  {
+    if(this.selectedRegion)
+    {
+      this.editRegion();
+    }
+    else
+    {
+      this.addRegion();
+    }
+  }
+
+  addRegion() {
+    if (this.regionForm.valid) {
+      var regionName = this.regionForm.value["region"];
+      this.regionService.createRegion(`http://${environment.apiUrl}:3000/api/region/create-region`, {
+        name: regionName,
+      }).subscribe({
+        next: (data) => {
+          console.log(data);
+          if (data.success) {
+            const regionId = data.regionId;
+            this.regions.push({ _id: regionId, name: this.regionForm.value["region"] });
+            this.message.showMessage("Success", data.message);
+            this.closeModal();
+            this.listRegions();
+          } else {
+            this.modalError = data.error;
+            //this.showErrorMessage(data.error);
+          }
+        },
+        error: (error) => {
+          console.log(error);
+          this.modalError = error.error.message;
+          //this.showErrorMessage(error.error.error); // Mostrar el mensaje de error del backend
+        },
+      });
+    } else {
+      this.modalError = 'Please fill in all fields of the form';
+      //this.showErrorMessage('Please fill in all fields of the form');
+    }
+  }
+
+  editRegion() {
+    if (this.regionForm.valid) {
+      const regionId = this.selectedRegion!._id;
+
+      const region: Region = {
+        name: this.regionForm.value['region']
+      };
 
       const url = `http://${environment.apiUrl}:3000/api/region/update-region/${regionId}`;
 
       this.regionService.updateRegion(url, {
-        name: this.myForm.value['region']
+        name: this.regionForm.value['region']
       }).subscribe({
         next: (data) => {
           console.log('Respuesta del servidor:', data);
-          this.dataSource[this.indexRegion] = {
+          this.regions[this.indexRegion] = {
             _id: regionId,
-            name: this.myForm.value['region']
+            name: this.regionForm.value['region']
           };
-          this.showSuccessMessage('Region updated successfully!');
+          this.message.showMessage('Success', 'Region updated successfully!');
+          this.selectedRegion = undefined;
+          this.clearForm();
+          this.closeModal();
+          this.listRegions();
         },
         error: (error) => {
-          console.error('Error al actualizar la región:', error);
-          this.showErrorMessage(error.error.error);
+          //console.error('Error al actualizar la región:', error);
+          //this.showErrorMessage(error.error.message);
+          this.modalError = error.error.message;
         }
       });
     } else {
-      this.showErrorMessage('Please fill in all fields of the form');
+      this.modalError = 'Please fill in all fields of the form';
+      //this.showErrorMessage('Please fill in all fields of the form');
     }
+  }
+
+  clearForm()
+  {
+    this.regionForm.setValue({
+      region: ''
+    });
   }
 
   eliminar(elemento: any) {
@@ -92,15 +169,16 @@ export class RegionCRUDComponent implements OnInit{
     this.regionService.deleteRegion(url).subscribe({
         next: (data) => {
             console.log('Region eliminada correctamente:', data);
-            this.dataSource = this.dataSource.filter(item => item !== elemento);
-            this.showSuccessMessage(data.msg);
+            this.message.showMessage("Success", data.message);
+            this.listRegions();
         },
         error: (error) => {
             console.error('Error al eliminar el elemento:', error);
-            this.showErrorMessage(error.error.msg);
+            this.message.showMessage("Error", error.error.message);
         }
     });
   }
+
   toggleColumn(column: keyof Region, event: any) {
     if (event.target.checked) {
       this.selectedColumns.push(column);
@@ -108,10 +186,11 @@ export class RegionCRUDComponent implements OnInit{
       this.selectedColumns = this.selectedColumns.filter(c => c !== column);
     }
   }
+
   exportToPDF() {
     const doc = new jsPDF();
 
-    const selectedData = this.dataSource.map(row => {
+    const selectedData = this.regions.map(row => {
       const rowData: any[] = [];
       this.selectedColumns.forEach(column => {
         rowData.push(row[column] || '');
@@ -134,49 +213,13 @@ export class RegionCRUDComponent implements OnInit{
   }
 
 
-  agregar() {
-    if (this.myForm.valid) {
-      var regionName = this.myForm.value["region"];
-      this.regionService.createRegion(`http://${environment.apiUrl}:3000/api/region/create-region`, {
-        name: regionName,
-      }).subscribe({
-        next: (data) => {
-          console.log(data);
-          if (data.success) {
-            const regionId = data.regionId;
-            this.dataSource.push({ _id: regionId, name: this.myForm.value["region"] });
-            this.showSuccessMessage(data.msg);
-          } else {
-            this.showErrorMessage(data.error);
-          }
-        },
-        error: (error) => {
-          console.log(error);
-          this.showErrorMessage(error.error.error); // Mostrar el mensaje de error del backend
-        },
-      });
-    } else {
-      this.showErrorMessage('Please fill in all fields of the form');
-    }
-  }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  successMessage: string = '';
-  errorMessage: string = '';
-
-  showSuccessMessage(message: string) {
-    this.successMessage = message;
-  }
-
-  showErrorMessage(message: string) {
-    this.errorMessage = message;
-  }
-
   get totalPaginas(): number {
-    return Math.ceil(this.dataSource.length / this.pageSize);
+    return Math.ceil(this.regions.length / this.pageSize);
   }
 
   pageSize = 5; // Número de elementos por página
@@ -195,8 +238,8 @@ export class RegionCRUDComponent implements OnInit{
   }
 
   // Función para obtener los datos de la página actual
-  obtenerDatosPagina() {
-    let filteredData = this.dataSource;
+  getRows() {
+    let filteredData = this.regions;
 
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
       const filterText = this.filterValue.trim().toLowerCase();
@@ -242,5 +285,17 @@ export class RegionCRUDComponent implements OnInit{
     return paginasMostradas;
   }
 
-  ventanaAgregar: boolean = false;
+  openModal(): void{
+    if(this.modalRegion)
+    {
+      this.modalRef = this.modalService.show(this.modalRegion);
+    }
+  }
+
+  closeModal(): void{
+    this.clearForm();
+    this.modalRef?.hide();
+  }
+
+
 }

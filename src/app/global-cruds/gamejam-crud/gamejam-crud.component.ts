@@ -2,9 +2,10 @@ import { Component, OnInit, ViewChild, ElementRef  } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { GameJam, Theme } from '../../../types';
+import { GameJam, Theme, Jam } from '../../../types';
 import { ThemeService } from '../../services/theme.service';
 import { GamejamService } from '../../services/gamejam.service';
+import { JamService } from '../../services/jam.service';
 declare var $: any;
 import { jsPDF }  from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -24,6 +25,7 @@ import { environment } from '../../../environments/environment.prod';
 export class GamejamCrudComponent implements OnInit {
   myForm!: FormGroup;
   dataSource: GameJam[] = [];
+  jams: Jam[] = [];
   gthemes: Theme[] = [];
   selectedColumns: (keyof GameJam)[] = [];
   columnOptions = [
@@ -36,13 +38,22 @@ export class GamejamCrudComponent implements OnInit {
   selectedHeader: string | undefined;
   filterValue: string = '';
 
-  constructor(private fb: FormBuilder, private gamejamService: GamejamService, private themeService: ThemeService) {}
+  constructor(private fb: FormBuilder, private gamejamService: GamejamService, private jamService: JamService, private themeService: ThemeService) {}
 
   ngOnInit(): void {
     this.myForm = this.fb.group({
       edition: ['', Validators.required],
       themes: this.fb.array([]),
       selectedTheme: ['']
+    });
+
+    this.jamService.listJams(`http://${environment.apiUrl}:3000/api/jam/list-jams`).subscribe({
+      next: (jams: Jam[]) => {
+        this.jams = jams;
+      },
+      error: (error) => {
+        console.log(error.error.message);
+      }
     });
 
     this.gamejamService.getGameJams(`http://${environment.apiUrl}:3000/api/game-jam/get-game-jams`).subscribe(
@@ -101,6 +112,7 @@ export class GamejamCrudComponent implements OnInit {
 
     // Obtener datos filtrados
     const selectedData = this.obtenerDatosPagina().map(row => {
+      /*
       const rowData: any[] = [];
       this.selectedColumns.forEach(column => {
         if (column.startsWith('themes.')) {
@@ -108,10 +120,10 @@ export class GamejamCrudComponent implements OnInit {
           const themeValue = row.themes?.map((theme: any) => theme[themeProperty]).join(', '); // Adjust the type to 'any' temporarily
           rowData.push(themeValue);
         } else {
-          rowData.push(row[column as keyof GameJam] !== undefined ? row[column as keyof GameJam] : '');
+          rowData.push(row[column as keyof Jam] !== undefined ? row[column as keyof Jam] : '');
         }
       });
-      return rowData;
+      return rowData;*/
     });
 
     // Crear encabezados
@@ -125,8 +137,9 @@ export class GamejamCrudComponent implements OnInit {
 
     // Generar tabla en el PDF
     autoTable(doc, {
+      /*
       head: [headers],
-      body: selectedData
+      body: selectedData*/
     });
 
     // Guardar el PDF
@@ -266,9 +279,31 @@ export class GamejamCrudComponent implements OnInit {
     }
     return Array.isArray(value) ? value.join(', ') : value;
   }
+
   obtenerDatosPagina() {
+    let filteredData = this.jams;
+
+    if(this.selectedHeader !== undefined && this.filterValue.trim() !== '')
+    {
+      const filterText = this.filterValue.trim().toLowerCase();
+      filteredData = filteredData.filter(item => {
+        switch (this.selectedHeader) {
+          case '_id':
+            return item._id && item._id.toLowerCase().startsWith(filterText);
+          case 'title':
+            return item.title.toLowerCase().includes(filterText);
+          case 'status':
+            if(filterText == 'open') return item.open;
+            else if(filterText == 'closed') return !item.open;
+            else return true;
+          default:
+            return false;
+        }
+      });
+    }
+
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    return this.dataSource.slice(startIndex, startIndex + this.pageSize);
+    return filteredData.slice(startIndex, startIndex + this.pageSize);
   }
 
 

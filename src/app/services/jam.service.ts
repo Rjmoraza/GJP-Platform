@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Jam } from '../../types';
 import { map } from 'rxjs/operators';
+import { response } from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,12 @@ export class JamService {
   }
 
   getCurrentJam(url: string): Observable<Jam> {
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
+  listJams(url: string): Observable<Jam[]>{
     return this.http.get<any>(url).pipe(
       map(response => response.data)
     );

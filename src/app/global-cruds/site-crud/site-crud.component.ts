@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef  } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Country, Region, Site } from '../../../types';
 import { RegionService } from '../../services/region.service';
 import { SiteService } from '../../services/site.service';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { MessagesComponent } from '../../messages/messages.component';
 declare var $: any;
 import { jsPDF }  from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -16,14 +18,16 @@ import { environment } from '../../../environments/environment.prod';
   imports: [
     FormsModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MessagesComponent
   ],
   templateUrl: './site-crud.component.html',
-  styleUrl: './site-crud.component.css'
+  styleUrl: './site-crud.component.css',
+  providers: [BsModalService, MessagesComponent]
 })
 export class SiteCrudComponent implements OnInit {
-  myForm!: FormGroup;
-  dataSource: Site[] = [];
+  siteForm!: FormGroup;
+  sites: Site[] = [];
   regions: Region[] = [];
   countries: Country[] = [];
   columnOptions = [
@@ -33,141 +37,170 @@ export class SiteCrudComponent implements OnInit {
     { label: 'Country Name', value: 'country.name' as keyof Site, checked: false },
   ];
 
-  siteToEdit: any;
+  selectedSite: any;
   indexSite = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
   selectedColumns: (keyof Site)[] = [];
-  constructor(private fb: FormBuilder, private siteService: SiteService, private regionService: RegionService){}
+  @ViewChild('modalSite', {static: true}) modalSite? : TemplateRef<any>;
+  @ViewChild(MessagesComponent) message!: MessagesComponent;
+  modalRef?: BsModalRef;
+
+  constructor(private fb: FormBuilder, private siteService: SiteService, private regionService: RegionService, private modalService: BsModalService){}
   ngOnInit(): void {
-    this.myForm = this.fb.group({
+    this.siteForm = this.fb.group({
       name: ['', Validators.required],
       modality: ['', Validators.required],
       country: ['', Validators.required],
       region: ['', Validators.required]
     });
-    this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`)
-    .subscribe(
-      regions => {
-        this.regions = regions;
-      },
-      error => {
-        console.error('Error al obtener regiones:', error);
-      }
-    );
-    this.siteService.getCountries(`http://${environment.apiUrl}:3000/api/site/get-countries`)
-    .subscribe(
-      countries => {
-        this.countries = countries;
-      },
-      error => {
-        console.error('Error al obtener países:', error);
-      }
-    );
-    this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`)
-    .subscribe(
-      sites => {
-        this.dataSource = sites;
-      },
-      error => {
-        console.error('Error al obtener sitios:', error);
-      }
-    );
+
+    this.listRegions();
+    this.listCountries();
+    this.listSites();
 
     this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
-  seleccionarElemento(elemento: any) {
-    this.siteToEdit = elemento;
-    this.indexSite = this.dataSource.indexOf(elemento);
+  listRegions()
+  {
+    this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`).subscribe({
+      next: (regions) => {
+        this.regions = regions;
+      },
+      error: (error) => {
+        console.error('Error al obtener regiones:', error);
+      }
+    });
+  }
 
-    const selectedRegion = this.regions.find(region => region._id === elemento.region._id);
-    const selectedCountry = this.countries.find(country => country.name === elemento.country.name);
+  listCountries()
+  {
+    this.siteService.getCountries(`http://${environment.apiUrl}:3000/api/site/get-countries`).subscribe({
+      next: (countries) => {
+        this.countries = countries;
+      },
+      error: (error) => {
+        console.error('Error al obtener países:', error);
+      }
+    });
+  }
 
-    this.myForm.patchValue({
-      name: elemento.name,
-      modality: elemento.modality,
+  listSites()
+  {
+    this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`).subscribe({
+      next: (sites) => {
+        this.sites = sites;
+      },
+      error: (error) => {
+        console.error('Error al obtener sitios:', error);
+      }
+    });
+  }
+
+  selectSite(site: Site) {
+    this.selectedSite = site;
+    const selectedRegion = this.regions.find(region => region._id === site.region._id);
+    const selectedCountry = this.countries.find(country => country.name === site.country.name);
+
+    this.siteForm.patchValue({
+      name: site.name,
+      modality: site.modality,
       region: selectedRegion,
       country: selectedCountry
     });
+    this.openModal();
   }
 
-  editar() {
-    if (this.myForm.valid) {
-
-      const siteId = this.siteToEdit['_id'];
-
-      const url = `http://${environment.apiUrl}:3000/api/site/update-site/${siteId}`;
-
-      console.log(this.myForm.value["country"].name);
-      this.siteService.updateSite(url, {
-        name: this.myForm.value["name"],
-        modality: this.myForm.value["modality"],
-        region: this.myForm.value["region"],
-        country: this.myForm.value["country"].name
-      }).subscribe({
-        next: (data) => {
-          console.log('Respuesta del servidor:', data);
-          this.dataSource[this.indexSite] = {
-            _id: siteId,
-            name: this.myForm.value["name"],
-            modality: this.myForm.value["modality"],
-            region: this.myForm.value["region"],
-            country: this.myForm.value["country"]
-          };
-          this.showSuccessMessage('Site updated successfully!');
-        },
-        error: (error) => {
-          console.error('Error al actualizar el site:', error);
-          this.showErrorMessage(error.error.error);
-        }
-      });
-    } else {
-      this.showErrorMessage('Please fill in all fields of the form');
+  saveSite()
+  {
+    if(this.selectedSite)
+    {
+      this.editSite();
+    }
+    else
+    {
+      this.addSite();
     }
   }
 
-  eliminar(elemento: any) {
-    const id = elemento._id;
+  editSite() {
+    if (this.siteForm.valid) {
+      const siteId = this.selectedSite._id;
+      const url = `http://${environment.apiUrl}:3000/api/site/update-site/${siteId}`;
 
-    const url = `http://${environment.apiUrl}:3000/api/site/delete-site/${id}`;
-
-    this.siteService.deleteSite(url).subscribe({
+      console.log(this.siteForm.value["country"].name);
+      this.siteService.updateSite(url, {
+        name: this.siteForm.value["name"],
+        modality: this.siteForm.value["modality"],
+        region: this.siteForm.value["region"],
+        country: this.siteForm.value["country"].name
+      }).subscribe({
         next: (data) => {
-            console.log('Site eliminado correctamente:', data);
-            this.dataSource = this.dataSource.filter(item => item !== elemento);
-            this.showSuccessMessage(data.msg);
+          this.listSites();
+          this.message.showMessage('Success', 'Site updated successfully!');
+          this.selectedSite = undefined;
+          this.clearForm();
+          this.closeModal();
         },
         error: (error) => {
-            console.error('Error al eliminar la categoría:', error);
-            this.showErrorMessage(error.error.msg);
+          console.error('Error al actualizar el site:', error);
+          this.message.showMessage('Error', error.error.message);
         }
-    });
+      });
+    } else {
+      this.message.showMessage('Error', 'Please fill in all fields of the form');
+    }
   }
 
-  agregar() {
-    if (this.myForm.valid) {
+  deleteSite(site: Site) {
+    const id = site._id;
+    this.message.showDialog(
+      'Confirm Action',
+      'If you delete this site, all its users will remain in the system. Proceed?',
+      () => {
+        const url = `http://${environment.apiUrl}:3000/api/site/delete-site/${id}`;
+
+        this.siteService.deleteSite(url).subscribe({
+            next: (data) => {
+                this.listSites();
+                this.message.showMessage('Success', data.message);
+            },
+            error: (error) => {
+                this.message.showMessage('Error', error.error.message);
+            }
+        });
+      }
+    );
+  }
+
+  addSite() {
+    if (this.siteForm.valid) {
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, {
-        name: this.myForm.value["name"],
-        modality: this.myForm.value["modality"],
-        region: this.myForm.value["region"],
-        country: this.myForm.value["country"].name
+        name: this.siteForm.value["name"],
+        modality: this.siteForm.value["modality"],
+        region: this.siteForm.value["region"],
+        country: this.siteForm.value["country"].name
       }).subscribe({
         next: (data) => {
           if (data.success) {
             const siteId = data.siteId;
-            this.dataSource.push({ _id: siteId, name: this.myForm.value["name"], modality: this.myForm.value["modality"], region: this.myForm.value["region"], country: this.myForm.value["country"]});
-            this.showSuccessMessage(data.msg);
-          } else {
-            this.showErrorMessage(data.error);
+            this.sites.push({ _id: siteId, name: this.siteForm.value["name"], modality: this.siteForm.value["modality"], region: this.siteForm.value["region"], country: this.siteForm.value["country"]});
+            this.message.showMessage('Success', data.message);
+            this.clearForm();
+            this.closeModal();
+          }
+          else
+          {
+            this.message.showMessage('Error', data.message);
           }
         },
         error: (error) => {
-          this.showErrorMessage(error.error.error);
+          this.message.showMessage('Error', error.error.message);
         },
       });
     } else {
-      this.showErrorMessage('Please fill in all fields of the form');
+      this.message.showMessage('Error','Please fill in all fields of the form');
     }
   }
 
@@ -176,19 +209,8 @@ export class SiteCrudComponent implements OnInit {
 /////////////////////////////////////////////////Lógica de Interfaz///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  successMessage: string = '';
-  errorMessage: string = '';
-
-  showSuccessMessage(message: string) {
-    this.successMessage = message;
-  }
-
-  showErrorMessage(message: string) {
-    this.errorMessage = message;
-  }
-
   get totalPaginas(): number {
-    return Math.ceil(this.dataSource.length / this.pageSize);
+    return Math.ceil(this.sites.length / this.pageSize);
   }
 
   pageSize = 5; // Número de elementos por página
@@ -207,8 +229,8 @@ export class SiteCrudComponent implements OnInit {
   }
 
   // Función para obtener los datos de la página actual
-  obtenerDatosPagina() {
-    let filteredData = this.dataSource;
+  getRows() {
+    let filteredData = this.sites;
 
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
       const filterText = this.filterValue.trim().toLowerCase();
@@ -327,34 +349,30 @@ export class SiteCrudComponent implements OnInit {
     if (fin < totalPaginas - 1) {
       paginasMostradas.push('...');
     }
-
-    /*
-    if (inicio == 1){
-      switch(fin - inicio){
-        case 2:
-          paginasMostradas.push(4);
-          paginasMostradas.push(5);
-          break;
-        case 3:
-          paginasMostradas.push(5);
-          break;
-        default: break;
-      }
-    }
-    if (fin == totalPaginas){
-      switch(fin - inicio){
-        case 2:
-          paginasMostradas.unshift(totalPaginas-4, totalPaginas-3);
-          break;
-        case 3:
-          paginasMostradas.unshift(totalPaginas-4);
-          break;
-        default: break;
-      }
-    }
-    */
     return paginasMostradas;
-}
+  }
+
+  openModal(): void{
+    if(this.modalSite)
+    {
+      this.modalRef = this.modalService.show(this.modalSite);
+    }
+  }
+
+  clearForm()
+  {
+    this.siteForm.setValue({
+      name: '',
+      modality: '',
+      country: '',
+      region: ''
+    });
+  }
+
+  closeModal(): void{
+    this.clearForm();
+    this.modalRef?.hide();
+  }
 
   ventanaAgregar: boolean = false;
 }

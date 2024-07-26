@@ -183,33 +183,6 @@
 
 <!-- MODALS -->
 
-<!-- Message Modal -->
-<div *ngIf="successMessage || errorMessage" class="toast-overlay">
-  <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
-    <!-- Success Message -->
-    <div *ngIf="successMessage" class="toast custom-alert alert alert-success alert-dismissible fade show" role="alert">
-      <div class="toast-message p-3">{{ successMessage }}</div>
-      <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="successMessage=''">OK</button>
-    </div>
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
-      <div class="toast-message p-3">{{ errorMessage }}</div>
-      <button type="button" class="ok-button btn btn-primary btn-sm" data-dismiss="toast" aria-label="Close" (click)="errorMessage=''">OK</button>
-    </div>
-  </div>
-</div>
-
-<!-- Confirmation Modal -->
-<div *ngIf="confirmationMessage" class="toast-overlay">
-  <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
-    <div *ngIf="confirmationMessage" class="toast custom-alert alert alert-danger alert-dismissible fade show" role="alert">
-      <div class="toast-message p-3">{{ confirmationMessage }}</div>
-      <button type="button" class="ok-button btn btn-success btn-sm m-2" data-dismiss="toast" (click)="confirmMessage(true)">Accept</button>
-      <button type="button" class="ok-button btn btn-danger btn-sm m-2" data-dismiss="toast"  (click)="confirmMessage(false)">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <!-- Theme Modal -->
 <div #themeModal class="modal fade" id="themeModal" tabindex="-1" role="dialog" aria-labelledby="themeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
@@ -251,7 +224,7 @@
 </div>
 
 <!-- Category Modal -->
-<div #themeModal class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+<div #categoryModal class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
     <form [formGroup]="categoryForm" enctype="multipart/form-data">
       <div class="modal-content">
@@ -289,3 +262,5 @@
     </form>
   </div>
 </div>
+
+<app-messages></app-messages>

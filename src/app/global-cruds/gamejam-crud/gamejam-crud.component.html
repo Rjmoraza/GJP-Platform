@@ -1,8 +1,8 @@
 <div class="card-body cardBackground">
     <div class="filters">
         <select [(ngModel)]="selectedHeader">
-            <option value="edition">Edition</option>
-            <option value="themes.titleEN">Theme Name (EN)</option>
+            <option value="title">Title</option>
+            <option value="status">Status</option>
         </select>
 
         <input type="text" [(ngModel)]="filterValue" placeholder="Filter Value">
@@ -38,27 +38,29 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Edition</th>
-                <th scope="col">Theme Name</th>
-                <th scope="col">Update</th>
-                <th scope="col">Delete</th>
+                <th scope="col">Title</th>
+                <th scope="col">Themes</th>
+                <th scope="col">Status</th>
+                <th scope="col">Stats</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let row of obtenerDatosPagina()">
-                <td>{{ row.edition }}</td>
+                <td>{{ row.title }}</td>
                 <td>
                   <ul>
                     <li *ngFor="let theme of row.themes">
-                        <a theme>{{ theme?.titleEN }}</a>
+                        <a theme>{{ theme?.titlePT }}</a>
                     </li>
                   </ul>
                 </td>
+                <td>{{ row.open ? 'Open' : 'Closed' }}</td>
                 <td>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" (click)="seleccionarElemento(row)">Update</button>
-                </td>
-                <td>
-                    <button class="btn btn-danger" (click)="eliminar(row)">Delete</button>
+                  <ul>
+                    <li>Sites: {{ row.sites?.length }}</li>
+                    <li>Jammers: {{ row.jammers?.length }}</li>
+                    <li>Submissions: TBD</li>
+                  </ul>
                 </td>
             </tr>
 
@@ -102,7 +104,8 @@
           <label>Elements per page:</label>
           <input type="number" class="form-control-sm" value="{{pageSize}}" (change)="changePageSize($event)">
         </div>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button>
+        <!-- Don't add new jams from this page, only from the GameJam page -->
+        <!-- <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Add</button> -->
     </div>
 </div>
 

@@ -33,14 +33,9 @@ import { environment } from '../../environments/environment.prod';
   styleUrl: './global-cruds.component.css'
 })
 export class GlobalCRUDsComponent implements OnInit{
-  showRegions: boolean = false;
-  showSites: boolean = false;
-  showCategories : boolean = false;
-  showThemes  : boolean = false;
-  showTeams  : boolean = false;
-  showStage  : boolean = false;
-  showUser  : boolean = false;
-  showJam  : boolean = false;
+
+  page: string = "jams";
+
   constructor(private router: Router, private userService: UserService) { }
   ngOnInit(): void {
     this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
@@ -61,65 +56,19 @@ export class GlobalCRUDsComponent implements OnInit{
     this.router.navigate(['/Sites']);
   }
 
-  private hideAll() {
-    this.showRegions = false;
-    this.showSites = false;
-    this.showCategories = false;
-    this.showThemes = false;
-    this.showTeams = false;
-    this.showStage = false;
-    this.showUser = false;
-    this.showJam = false;
+  selectPage(page: string) {
+    this.page = page;
   }
-toggleRegions() {
-  this.hideAll();
-  this.showRegions = !this.showRegions;
-}
 
-toggleSites() {
-  this.hideAll();
-  this.showSites = !this.showSites;
-}
-
-toggleCategories() {
-  this.hideAll();
-  this.showCategories = !this.showCategories;
-}
-
-toggleThemes() {
-  this.hideAll();
-  this.showThemes = !this.showThemes;
-}
-
-toggleTeams() {
-  this.hideAll();
-  this.showTeams = !this.showTeams;
-}
-
-toggleStage() {
-  this.hideAll();
-  this.showStage = !this.showStage;
-}
-
-toggleUser() {
-  this.hideAll();
-  this.showUser = !this.showUser;
-}
-
-toggleJam() {
-  this.hideAll();
-  this.showJam = !this.showJam;
-}
-
-logOut(): void {
-  this.userService.logOutUser(`http://${environment.apiUrl}:3000/api/user/log-out-user`)
-    .subscribe(
-      () => {
-        this.router.navigate(['/login']);
-      },
-      error => {
-        console.error('Error al cerrar sesión:', error);
-      }
-    );
-}
+  logOut(): void {
+    this.userService.logOutUser(`http://${environment.apiUrl}:3000/api/user/log-out-user`)
+      .subscribe(
+        () => {
+          this.router.navigate(['/login']);
+        },
+        error => {
+          console.error('Error al cerrar sesión:', error);
+        }
+      );
+  }
 }

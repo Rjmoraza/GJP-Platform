@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Jam, Theme } from '../../types';
 import { JamService } from '../services/jam.service';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { CommonModule, formatDate } from '@angular/common';
+import { MessagesComponent } from '../messages/messages.component';
 import { after } from 'node:test';
 
 @Component({
@@ -13,7 +14,8 @@ import { after } from 'node:test';
   imports: [
     FormsModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MessagesComponent
   ],
   templateUrl: './global-jam.component.html',
   styleUrl: './global-jam.component.css'
@@ -21,8 +23,6 @@ import { after } from 'node:test';
 
 export class GlobalJamComponent {
   activeJam: Jam | null = null;
-  errorMessage: String = "";
-  successMessage: String = "";
   confirmationMessage: String = "";
   confirmationAction: Function | null = null;
   selectedThemeIndex: number = -1;
@@ -30,6 +30,7 @@ export class GlobalJamComponent {
   jamForm!: FormGroup;
   themeForm!: FormGroup;
   categoryForm!: FormGroup;
+  @ViewChild(MessagesComponent) message!: MessagesComponent;
   constructor(private route: ActivatedRoute, private jamService: JamService, private fb: FormBuilder){}
 
   ngOnInit(): void {
@@ -145,7 +146,7 @@ export class GlobalJamComponent {
       },
       error: (error)=>{
         console.log(error.error.message);
-        this.errorMessage = error.error.message;
+        this.message.showMessage("Error", error.error.message);
       }
     });
   }
@@ -189,22 +190,20 @@ export class GlobalJamComponent {
           next: (data) => {
             if(data.success)
             {
-              this.successMessage = data.message;
+              this.message.showMessage("Success", data.message);
               this.loadActiveJam();
             }
             else
             {
-              this.errorMessage = data.message;
+              this.message.showMessage("Error", data.message);
             }
           },
           error: (error) => {
             console.log(error);
-            this.errorMessage = error.error.message;
+            this.message.showMessage("Error", error.error.message);
           }
         });
       }
-
-
     }
   }
 // #endregion
@@ -277,13 +276,14 @@ export class GlobalJamComponent {
   deleteTheme(index: number)
   {
     let theme = this.activeJam!.themes[index];
-    this.confirmationMessage = `Delete theme with title ${theme.titlePT}`;
-    this.confirmationAction = () => {
-      if(index >= 0 && index < this.activeJam!.themes.length)
-      {
-        this.activeJam?.themes.splice(index, 1);
-      }
-    }
+    this.message.showDialog(
+      "Confirm Action",
+      `Delete theme with title ${theme.titlePT}?`, () => {
+        if(index >= 0 && index < this.activeJam!.themes.length)
+          {
+            this.activeJam?.themes.splice(index, 1);
+          }
+      });
   }
 
 // #endregion
@@ -356,26 +356,15 @@ export class GlobalJamComponent {
   deleteCategory(index: number)
   {
     let category = this.activeJam!.categories[index];
-    this.confirmationMessage = `Delete category with title ${category.titlePT}`;
-    this.confirmationAction = () => {
-      if(index >= 0 && index < this.activeJam!.categories.length)
-      {
-        this.activeJam?.categories.splice(index, 1);
-      }
-    }
+    this.message.showDialog(
+      "Confirm Action",
+      `Delete category with title ${category.titlePT}?`, () => {
+        if(index >= 0 && index < this.activeJam!.categories.length)
+          {
+            this.activeJam?.categories.splice(index, 1);
+          }
+      });
   }
 
-// #endregion
-
-// #region Misc Functions
-  confirmMessage(confirm: boolean)
-  {
-    if(confirm && this.confirmationAction)
-    {
-      this.confirmationAction();
-    }
-    this.confirmationMessage = "";
-    this.confirmationAction = null;
-  }
 // #endregion
 }

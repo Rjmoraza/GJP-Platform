@@ -10,6 +10,7 @@ declare var $: any;
 import { jsPDF }  from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { environment } from '../../../environments/environment.prod';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-crud',
@@ -23,13 +24,14 @@ import { environment } from '../../../environments/environment.prod';
   styleUrl: './user-crud.component.css'
 })
 export class UserCrudComponent implements OnInit{
-  myForm!: FormGroup;
-  dataSource: User[] = [];
+  userForm!: FormGroup;
+  users: User[] = [];
   regions: Region[] = [];
   sites: Site[] = [];
   roles = ['GlobalOrganizer', 'LocalOrganizer', 'Judge', 'Jammer', ['LocalOrganizer', 'Judge']];
-
-  userToEdit : any;
+  successMessage: string = '';
+  errorMessage: string = '';
+  userToEdit : User | null = null;
   indexUser = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
@@ -45,35 +47,16 @@ export class UserCrudComponent implements OnInit{
   ];
   constructor(private fb: FormBuilder, private userService: UserService, private siteService: SiteService, private regionService: RegionService){}
   ngOnInit(): void {
-    this.myForm = this.fb.group({
+    this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', Validators.required],
       rol: ['', Validators.required],
-      region: ['', Validators.required],
-      site: ['', Validators.required],
-      discordUsername: ['', Validators.required]
+      region: [''],
+      site: [''],
+      discordUsername: ['']
     });
 
-    const url = `http://${environment.apiUrl}:3000/api/user/get-users`;
-    this.userService.getUsers(url).subscribe(
-      (users: any[]) => {
-        var empty = {
-          name: "None"
-        };
-
-        this.dataSource = users.map(user => ({ _id: user._id,
-          name: user.name,
-          email: user.email,
-          region: (user.region)?user.region:empty,
-          site: (user.site)?user.site:empty,
-          roles: user.roles,
-          coins: user.coins,
-          discordUsername: user.discordUsername }));
-      },
-      error => {
-        console.error('Error al obtener usuarios:', error);
-      }
-    );
+    this.listUsers();
 
     this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`)
     .subscribe(
@@ -88,11 +71,26 @@ export class UserCrudComponent implements OnInit{
     this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
+  listUsers()
+  {
+    const url = `http://${environment.apiUrl}:3000/api/user/get-users`;
+    this.userService.getUsers(url).subscribe({
+      next: (users: User[]) => {
+        var empty = {
+          name: "None"
+        };
+        this.users = users
+      },
+      error: (error) => {
+        console.log(error.error);
+      }
+    });
+  }
+
   listSites(regionId: string, siteId: string)
   {
-    this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${regionId}`)
-      .subscribe(
-        sites => {
+    this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${regionId}`).subscribe({
+        next: (sites: Site[]) => {
           this.sites = sites;
 
           // If a site was selected, pick it from the list
@@ -100,24 +98,22 @@ export class UserCrudComponent implements OnInit{
           {
             const selectedSite = this.sites.find(site => site._id === siteId);
             if (selectedSite) {
-              this.myForm.patchValue({
-                site: selectedSite
-              });
+              this.userForm.patchValue({site: selectedSite});
             }
           }
           else
           {
-            this.myForm.get('site')?.setValue(undefined);
+            this.userForm.patchValue({site: null});
           }
         },
-        error => {
+        error: (error) => {
           console.error('Error al obtener sitios:', error);
         }
-      );
+    });
   }
 
   onRegionSelection() {
-    const selectedValue = this.myForm.get('region')?.value;
+    const selectedValue = this.userForm.get('region')?.value;
     if (selectedValue && selectedValue._id) {
       this.listSites(selectedValue._id, "None");
     } else {
@@ -125,163 +121,176 @@ export class UserCrudComponent implements OnInit{
     }
   }
 
-  seleccionarElemento(elemento: any) {
+  patchUserForm(user: User)
+  {
+    this.userToEdit = user;
+    console.log(this.userToEdit);
 
-    // Clean the sites dropdown
-    this.myForm.get('site')?.setValue(undefined);
-
-    this.userToEdit = elemento;
-    this.indexUser = this.dataSource.indexOf(elemento);
-
-    // Get the selected region for this user
-    const selectedRegion = this.regions.find(region => region._id === elemento.region._id);
-    this.myForm.patchValue({
-      name: elemento.name,
-      region: selectedRegion,
-      email: elemento.email,
-      discordUsername: elemento.discordUsername
+    this.userForm.setValue({
+      name: user.name,
+      email: user.email,
+      rol: user.roles.toString(),
+      region: null,
+      site: null,
+      discordUsername: user.discordUsername
     });
 
-    // List the sites for the selected region or clean the sites dropdown if no region is selected
-    if(selectedRegion && selectedRegion._id)
+    if(user.region)
     {
-      this.listSites(selectedRegion._id, elemento.site._id);
+      const selectedRegion = this.regions.find(region => region._id === user.region._id);
+      this.userForm.patchValue({region: selectedRegion});
+      this.listSites(user.region._id, user.site?._id);
+    }
+  }
+
+  clearUserForm()
+  {
+    this.userForm.setValue({
+      name: '',
+      email: '',
+      rol: '',
+      region: null,
+      site: null,
+      discordUsername: ''
+    });
+  }
+
+  eliminar(elemento: any) {
+    const id = elemento._id;
+
+    const url = `http://${environment.apiUrl}:3000/api/user/delete-user/${id}`;
+
+    this.userService.deleteUser(url).subscribe({
+        next: (data) => {
+            console.log('Usuario eliminado correctamente:', data);
+            this.users = this.users.filter(item => item !== elemento);
+            this.showSuccessMessage(data.msg);
+        },
+        error: (error) => {
+            console.error('Error al eliminar el usuario:', error);
+            this.showErrorMessage(error.error.msg);
+        }
+    });
+  }
+
+  saveUser()
+  {
+    if(this.userToEdit)
+    {
+      this.editUser();
     }
     else
     {
-      this.sites = [];
-      this.myForm.get('site')?.setValue(undefined);
-    }
-
-    // Assign the role for the selected user
-    if (elemento.roles && elemento.roles.length > 0) {
-      const rolesString = elemento.roles.join(',');
-      this.myForm.patchValue({
-        rol: rolesString
-      });
+      this.addUser();
     }
   }
 
+  addUser()
+  {
+    if(this.userForm.valid)
+    {
+      let region: any = null;
+      if(this.userForm.get('region')?.value)
+      {
+        region = {
+          _id: this.userForm.get('region')?.value._id,
+          name: this.userForm.get('region')?.value.name
+        };
+      }
 
-  editar() {
-    if (this.myForm.valid) {
-      console.log('Formulario válido');
-      const userId = this.userToEdit['_id'];
-      const { email, name, region, site, rol, discordUsername } = this.myForm.value;
-      const roles = rol.split(',');
+      let site: any = null
+      if(this.userForm.get('site')?.value)
+      {
+        site = {
+          _id: this.userForm.get('site')?.value._id,
+          name: this.userForm.get('site')?.value.name
+        };
+      }
 
-      this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${userId}`, {
-        name: name,
-        email: email,
-        region: {
-          _id: region._id,
-          name: region.name
-        },
-        site: {
-          _id: site._id,
-          name: site.name
-        },
-        roles: roles,
+      const user: User = {
+        name : this.userForm.get('name')!.value,
+        email: this.userForm.get('email')!.value,
+        roles: this.userForm.get('rol')!.value.split(','),
         coins: 0,
-        discordUsername: discordUsername,
-      }).subscribe({
+        region: region,
+        site: site,
+        discordUsername: this.userForm.get('discordUsername')?.value
+      };
+
+      this.userService.registerUser(`http://${environment.apiUrl}:3000/api/user/register-user`, user).subscribe({
         next: (data) => {
-          if (data.success) {
-            this.dataSource[this.indexUser] = {
-              _id: userId,
-              name: name,
-              email: email,
-              region: region,
-              site: site,
-              roles: roles,
-              coins: 0,
-              discordUsername: discordUsername
-            };
-            this.showSuccessMessage(data.msg);
-          } else {
-            this.showErrorMessage(data.error);
+          if(data.success)
+          {
+            this.listUsers();
           }
         },
         error: (error) => {
-          this.showErrorMessage(error.error.error);
-        },
-      });
-    } else {
-      console.log('Formulario inválido');
-      this.showErrorMessage('Please fill in all fields of the form');
+          console.log(error.error);
+        }
+      })
+
+      console.log(user);
     }
   }
 
-    eliminar(elemento: any) {
-      const id = elemento._id;
+  editUser()
+  {
+    if(this.userToEdit)
+    {
+      let region: any = null;
+      if(this.userForm.get('region')?.value)
+      {
+        region = {
+          _id: this.userForm.get('region')?.value._id,
+          name: this.userForm.get('region')?.value.name
+        };
+      }
 
-      const url = `http://${environment.apiUrl}:3000/api/user/delete-user/${id}`;
+      let site: any = null
+      if(this.userForm.get('site')?.value)
+      {
+        site = {
+          _id: this.userForm.get('site')?.value._id,
+          name: this.userForm.get('site')?.value.name
+        };
+      }
+      const user: User = {
+        name : this.userForm.get('name')!.value,
+        email: this.userForm.get('email')!.value,
+        roles: this.userForm.get('rol')!.value.split(','),
+        coins: this.userToEdit.coins,
+        region: region,
+        site: site,
+        discordUsername: this.userForm.get('discordUsername')?.value
+      };
 
-      this.userService.deleteUser(url).subscribe({
-          next: (data) => {
-              console.log('Usuario eliminado correctamente:', data);
-              this.dataSource = this.dataSource.filter(item => item !== elemento);
-              this.showSuccessMessage(data.msg);
-          },
-          error: (error) => {
-              console.error('Error al eliminar el usuario:', error);
-              this.showErrorMessage(error.error.msg);
-          }
+      console.log('Editing user: ');
+      console.log(user);
+
+      this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.userToEdit._id}`, user).subscribe({
+        next: (data) => {
+          console.log(data);
+          this.listUsers();
+        },
+        error: (error) => {
+          console.log(error);
+        }
       });
     }
 
-    agregar() {
-      if (this.myForm.valid) {
-        console.log('Formulario válido');
-        const { email, name, region, site, discordUsername} = this.myForm.value;
-        const rolesString = this.myForm.get('rol')?.value;
-        const roles = rolesString.split(',');
+    this.userToEdit = null;
+  }
 
-        this.userService.registerUser(`http://${environment.apiUrl}:3000/api/user/register-user`, {
-          name: name,
-          email: email,
-          region: {
-            _id: region._id,
-            name: region.name
-          },
-          site: {
-            _id: site._id,
-            name: site.name
-          },
-          roles: roles,
-          coins: 0,
-          discordUsername: discordUsername,
-        }).subscribe({
-          next: (data) => {
-            if (data.success) {
-              const userId = data.userId;
-              this.dataSource.push({ _id: userId, name: name, email: email, region: region, site: site, roles: roles, coins: 0, discordUsername: discordUsername});
-              this.showSuccessMessage(data.msg);
-            } else {
-              this.showErrorMessage(data.error);
-            }
-          },
-          error: (error) => {
-            this.showErrorMessage(error.error.error);
-          },
-        });
-      } else {
-        this.showErrorMessage('Please fill in all fields of the form');
-      }
-    }
-    successMessage: string = '';
-    errorMessage: string = '';
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+  }
 
-    showSuccessMessage(message: string) {
-      this.successMessage = message;
-    }
-
-    showErrorMessage(message: string) {
-      this.errorMessage = message;
-    }
+  showErrorMessage(message: string) {
+    this.errorMessage = message;
+  }
 
   get totalPaginas(): number {
-    return Math.ceil(this.dataSource.length / this.pageSize);
+    return Math.ceil(this.users.length / this.pageSize);
   }
 
   pageSize = 5; // Número de elementos por página
@@ -301,7 +310,7 @@ export class UserCrudComponent implements OnInit{
 
   // Función para obtener los datos de la página actual
   obtenerDatosPagina() {
-    let filteredData = this.dataSource;
+    let filteredData = this.users;
 
     if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
         const filterText = this.filterValue.trim().toLowerCase();
@@ -321,7 +330,6 @@ export class UserCrudComponent implements OnInit{
             }
         });
     }
-
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
   }

@@ -14,8 +14,15 @@
           </div>
 
           <div class="Card-body">
-            <!-- En el form están los espacios o datos que van para el ts -->
-            <form (submit)="handleSubmit($event)">
+            <div *ngIf=" errorMessage " class="pt-3 text-center">
+              {{ errorMessage }}
+            </div>
+
+            <div *ngIf=" successMessage " class="p-3 my-5 text-center">
+              {{ successMessage }}
+            </div>
+
+            <form *ngIf=" !successMessage " (submit)="handleSubmit($event)">
               <!-- Input -->
               <div class="row">
                 <div class="form-group inputContainer">
@@ -31,14 +38,10 @@
                 </button>
               </div>
             </form>
-            <!-- PopUp para mostrar mensaje de verificación -->
-            <div *ngIf="showSuccessMessage" class="popUp">
-              <span class="closePopUp-btn" (click)="closePopup()">&times;</span>
-              <div>{{ successMessage }}</div> <!--style="color: #333;"-->
-            </div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
-</section> 
+</section>

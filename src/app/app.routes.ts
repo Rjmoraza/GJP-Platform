@@ -17,6 +17,7 @@ export const routes: Routes = [
     {path: '',redirectTo: "login", pathMatch: "full"},
 
     {path: 'login',component: LoginComponent},
+    {path: 'login/:error', component: LoginComponent},
     {path: 'register', component: RegisterComponent},
     {path: 'DataManagement', component: GlobalCRUDsComponent},
     {path: 'Sites', component: GlobalSitesComponent},
