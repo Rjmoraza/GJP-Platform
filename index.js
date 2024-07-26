@@ -1,4 +1,3 @@
-// Importar los módulos necesarios
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -7,16 +6,17 @@ const dotenv = require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
+const User = require('./models/userModel');
 
 
-// Crear una instancia de la aplicación Express
+// Start express on port 3000
 const app = express();
-const port = 3000; // Establecer el puerto en el que el servidor escuchará las solicitudes
+const port = 3000;
 
-// Conexión a MongoDB
+// Connect with Database
 mongoose.connect("mongodb://localhost:27017/GameJamDB");
-var root = "";
 
+// Set Environment
 if(process.env.TARGET == "PROD")
 {
     // Redirigir la salida estándar y la salida del error
@@ -27,6 +27,7 @@ if(process.env.TARGET == "PROD")
     });
 }
 
+var root = "";
 if(process.env.TARGET == "DEV")
 {
     console.log("Target is DEV");
@@ -108,6 +109,47 @@ app.use('/api/submission', submission_route);
 const theme_route = require('./routes/themeRoute');
 app.use('/api/theme', theme_route);
 
+app.get('/install', function (req, res){
+    User.countDocuments({})
+    .then(function(count) {
+        let response = "Checking the installation...<br>\n";
+        if(count <= 0)
+        {
+            if(process.env.ADMIN_EMAIL)
+            {
+                response = response + "Installing the system...<br>\n";
+                user = new User({
+                    email: process.env.ADMIN_EMAIL,
+                    name: "GameJam+ Administrator",
+                    roles: ["GlobalOrganizer"],
+                    creationDate: new Date(),
+                    lastUpdateDate: new Date()
+                });
+                user.save()
+                .then(function(){
+                    response = response + "The system installed successfully<br>";
+                    response = response + 'Go to <a href:"/index.html">GameJamPlus Platform</a> and login with the administrator email to access the system'
+                    res.send(response);
+                });
+            }
+            else
+            {
+                response = response + "Set the admin email in the environment and run the install process again.";
+                res.send(response);
+            }
+        }
+        else 
+        {
+            response = response + "System is already installed<br>";
+            response = response + 'Go to <a href="/index.html">GameJamPlus Platform</a> and login with the administrator email to access the system'
+            res.send(response);
+        }
+    })
+    .catch(function(error) {
+
+    })
+});
+
 if(process.env.TARGET == "PROD")
 {
     // Definir el archivo raíz para servir los archivos
@@ -128,10 +170,6 @@ if(process.env.TARGET == "PROD")
     });
 }
 
-app.get("*", function(req, res) {
-    
-});
-
 
 // Iniciar el servidor y escuchar en el puerto especificado
 app.listen(port, () => {
@@ -147,7 +185,7 @@ const { sendScore } = require('./services/mailer');
 async function sendEvaluations() {
     var currentStage;
     const currentDatee = new Date();
-   const currentDate = currentDatee.toISOString().slice(0, 10);
+    const currentDate = currentDatee.toISOString().slice(0, 10);
    
     const allGameJams = await GameJam.find({});
 
@@ -201,6 +239,11 @@ async function sendEvaluations() {
         }
     }
 };
+
+async function checkInstall() {
+    let count = await User.countDocuments({});
+    console.log(`${count} Users found`);
+}
 
 cron.schedule('0 0 * * *', () => {
     sendEvaluations();

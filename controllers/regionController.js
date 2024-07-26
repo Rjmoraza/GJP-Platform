@@ -29,9 +29,9 @@ const createRegion = async (req, res) => {
 
         await region.save();
 
-        res.status(200).json({ success: true, msg: 'Region created successfully!', regionId: region._id });
+        res.status(200).json({ success: true, message: 'Region created successfully!', regionId: region._id });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -86,9 +86,9 @@ const updateRegion = async (req, res) => {
 
         await Region.findByIdAndUpdate(id, updateFields);
 
-        res.status(200).json({ success: true, msg: 'Region updated successfully!' });
+        res.status(200).json({ success: true, message: 'Region updated successfully!' });
     } catch (error) {
-        res.status(400).json({ success: false, msg: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -123,29 +123,22 @@ const getRegions = async(req,res)=>{
 const deleteRegion = async(req, res) => {
     try {
         const id = req.params.id;
-        const deletedRegion = await Region.findOneAndDelete({ _id: id });
-        const query = { 'region._id': id };
+        const siteCount = await Site.countDocuments({ 'region._id':id });
+        const userCount = await User.countDocuments({ 'region._id':id });
 
-        const deletePromises = [];
-        
-        deletePromises.push(
-            User.deleteMany(query),
-            GameJam.deleteMany(query),
-            Team.deleteMany(query),
-            Site.deleteMany(query)
-        );
-        
-        Promise.all(deletePromises)
-            .then(results => {
-                results.forEach((result, index) => {
-                    const modelNames = ['User', 'GameJam', 'Team', 'Site'];
-                    console.log(`${modelNames[index]} documents deleted successfully:`, result);
-                });
-            })
-            .catch(error => {
-                console.error('Error deleting documents:', error);
-            });        
-        res.status(200).send({ success: true, msg: 'Region deleted successfully', data: deletedRegion });
+        if(siteCount > 0)
+        {
+            return res.status(400).send({ success: false, message: 'Cannot delete a region that has sites linked to it' });
+        }
+        else if(userCount > 0)
+        {
+            return res.status(400).send({ success: false, message: 'Cannot delete a region that has users linked to it' });
+        }
+        else
+        {
+            const deletedRegion = await Region.findOneAndDelete({ _id: id });
+            return res.status(200).send({ success: true, message: 'Region deleted successfully', data: deletedRegion });
+        }
     } catch(error) {
         res.status(400).send({ success: false, msg: error.message });
     }

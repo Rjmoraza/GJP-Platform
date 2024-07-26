@@ -114,7 +114,17 @@ const getCurrentJam = async(req, res) => {
     }
 };
 
-const getJams = async(req, res) => {};
+const listJams = async(req, res) => {
+    const jams = await Jam.find({});
+    if(jams !== undefined && jams)
+    {
+        res.status(200).send({ success: true, data: jams });
+    }
+    else
+    {
+        res.status(400).send({ success: false, message: 'Error loading jams '});
+    }
+};
 
 const getCurrentStage = async(req, res) => {};
 // #endregion
@@ -131,6 +141,6 @@ module.exports = {
     updateJam,
     deleteJam,
     getCurrentJam,
-    getJams,
+    listJams,
     getCurrentStage
 };

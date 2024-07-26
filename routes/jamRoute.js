@@ -16,7 +16,7 @@ game_jam_route.post('/create-jam', upload.none(), jamController.createJam);
 game_jam_route.put('/update-jam/:id', upload.none(), jamController.updateJam);
 game_jam_route.delete('/delete-jam/:id', jamController.deleteJam);
 game_jam_route.get('/get-current-jam', jamController.getCurrentJam);
-game_jam_route.get('/get-jams', jamController.getJams);
+game_jam_route.get('/list-jams', jamController.listJams);
 game_jam_route.get('/get-current-stage', jamController.getCurrentStage);
 
 module.exports = game_jam_route;

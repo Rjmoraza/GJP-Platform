@@ -15,14 +15,14 @@ const createSite = async (req, res) => {
         const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
         const creatorUser = await User.findById(userId);
         if(!creatorUser.roles.includes("GlobalOrganizer") && !creatorUser.roles.includes("LocalOrganizer")){
-            return res.status(400).json({ success: false, error: 'No Permission' });
+            return res.status(400).json({ success: false, message: 'No Permission' });
         }
         if (!mongoose.Types.ObjectId.isValid(region._id)) {
-            return res.status(400).json({ success: false, error: 'The provided region ID is not valid.' });
+            return res.status(400).json({ success: false, message: 'The provided region ID is not valid.' });
         } else {
             const existingRegion = await Region.findById(region._id);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "That region doesn't exist" });
+                return res.status(404).json({ success: false, message: "That region doesn't exist" });
             }
         }
 
@@ -32,7 +32,7 @@ const createSite = async (req, res) => {
         const country = countriesData.find(country => country.name === countryName);
 
         if (!country) {
-            return res.status(400).json({ success: false, error: "The provided country is not valid" });
+            return res.status(400).json({ success: false, message: "The provided country is not valid" });
         }
 
         const site = new Site({
@@ -58,9 +58,9 @@ const createSite = async (req, res) => {
 
         await site.save();
 
-        res.status(200).json({ success: true, msg: 'The site has been created successfully', siteId: site._id  });
+        res.status(200).json({ success: true, message: 'The site has been created successfully', siteId: site._id  });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -78,11 +78,11 @@ const updateSite = async (req, res) => {
         const description = req.body.description;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'Site not found (Site ID invalid)' });
+            return res.status(400).json({ success: false, message: 'Site not found (Site ID invalid)' });
         } else {
             const existingRegion = await Site.findById(id);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: 'Site not found' });
+                return res.status(404).json({ success: false, message: 'Site not found' });
             }
         }
         let changed = 0;
@@ -135,11 +135,11 @@ const updateSite = async (req, res) => {
 
         if (region) {
             if (!mongoose.Types.ObjectId.isValid(region._id)) {
-                return res.status(400).json({ success: false, error: 'El ID de región proporcionado no es válido.' });
+                return res.status(400).json({ success: false, error: 'Region ID not valid' });
             } else {
                 const existingRegion = await Region.findById(region._id);
                 if (!existingRegion) {
-                    return res.status(404).json({ success: false, error: "Esa región no existe" });
+                    return res.status(404).json({ success: false, error: "Region not found" });
                 }
             }
             updateFields.region = region;
@@ -173,9 +173,9 @@ const updateSite = async (req, res) => {
         }
         await Site.findByIdAndUpdate({ _id: id }, updateFields);
 
-        res.status(200).send({ success: true, msg: 'Se ha actualizado el site correctamente'});
+        res.status(200).send({ success: true, message: 'Site updated successfully'});
     } catch (error) {
-        res.status(400).send({ success: false, msg: error.message });
+        res.status(400).send({ success: false, message: error.message });
     }
 };
 
@@ -184,17 +184,17 @@ const getSite = async(req,res)=>{
     try{
         const id = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'El ID de site proporcionado no es válido.' });
+            return res.status(400).json({ success: false, message: 'Site ID is not valid' });
         } else {
             const existingRegion = await Site.findById(id);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Ese site no existe" });
+                return res.status(404).json({ success: false, message: "Site not found" });
             }
         }
         const selectedSite = await Site.findById(id);
-        res.status(200).send({ success:true, msg:'Site encontrado correctamente', data: selectedSite });
+        res.status(200).send({ success:true, message:'Site found', data: selectedSite });
     } catch(error) {
-        res.status(400).send({ success:false, msg:error.message });
+        res.status(400).send({ success:false, message:error.message });
     }
 };
 
@@ -211,9 +211,9 @@ const changeStatus = async (req, res) => {
         }
         
         await site.save(); 
-        res.status(200).json({ success: true, msg: 'Site status updated successfully'});
+        res.status(200).json({ success: true, message: 'Site status updated successfully'});
     } catch (error) {
-        res.status(400).json({ success: false, msg: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -228,19 +228,18 @@ const updateDescription = async (req, res) => {
 
         site.description = description;
         await site.save();
-        res.status(200).json({ success: true, msg: 'Description updated successfully' });
+        res.status(200).json({ success: true, message: 'Description updated successfully' });
     } catch (error) {
-        res.status(400).json({ success: false, msg: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
-
 
 const getSites = async(req,res)=>{
     try{
         const allSites = await Site.find({});
-        res.status(200).send({ success:true, msg:'Se han encontrado sites en el sistema', data: allSites });
+        res.status(200).send({ success:true, message:'Sites listed successfully', data: allSites });
     } catch(error) {
-        res.status(400).send({ success:false, msg:error.message });
+        res.status(400).send({ success:false, message:error.message });
     }
 };
 
@@ -251,15 +250,15 @@ const getCountries = async (req, res) => {
         fs.readFile(countriesPath, 'utf8', (err, data) => {
             if (err) {
                 console.error(err);
-                res.status(500).json({ success: false, msg: 'Error al leer el archivo JSON' });
+                res.status(500).json({ success: false, message: 'Error reading countries JSON' });
                 return;
             }
 
             const countries = JSON.parse(data);
-            res.status(200).json({ success: true, msg: 'Datos de países obtenidos correctamente', data: countries });
+            res.status(200).json({ success: true, message: 'Countries listed successfully', data: countries });
         });
     } catch (error) {
-        res.status(400).json({ success: false, msg: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -267,18 +266,18 @@ const getSitesPerRegion = async (req, res) => {
     try {
         const region = req.params.regionId;
         if (!mongoose.Types.ObjectId.isValid(region)) {
-            return res.status(400).json({ success: false, error: 'El ID de región proporcionado no es válido.' });
+            return res.status(400).json({ success: false, error: 'Region ID is invalid' });
         } else {
             const existingRegion = await Region.findById(region);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Esa región no existe" });
+                return res.status(404).json({ success: false, error: "Region not found" });
             } else {
                 const selectedSites = await Site.find({ 'region._id': region });
-                return res.status(200).json({ success: true, msg: 'Sitios encontrados correctamente', data: selectedSites });
+                return res.status(200).json({ success: true, message: 'Sites found successfully', data: selectedSites });
             }
         }
     } catch (error) {
-        return res.status(400).json({ success: false, msg: error.message });
+        return res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -286,57 +285,38 @@ const getSitesPerRegionOpen = async (req, res) => {
     try {
         const region = req.params.regionId;
         if (!mongoose.Types.ObjectId.isValid(region)) {
-            return res.status(400).json({ success: false, error: 'El ID de región proporcionado no es válido.' });
+            return res.status(400).json({ success: false, error: 'Region ID is invalid' });
         } else {
             const existingRegion = await Region.findById(region);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Esa región no existe" });
+                return res.status(404).json({ success: false, error: "Region not found" });
             } else {
                 const selectedSites = await Site.find({ 'region._id': region, 'open': 0  });
-                return res.status(200).json({ success: true, msg: 'Sitios encontrados correctamente', data: selectedSites });
+                return res.status(200).json({ success: true, message: 'Sites listed successfully', data: selectedSites });
             }
         }
     } catch (error) {
-        return res.status(400).json({ success: false, msg: error.message });
+        return res.status(400).json({ success: false, message: error.message });
     }
 };
-
 
 const deleteSite = async(req,res)=>{
     try{
         const id = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'El ID de site proporcionado no es válido.' });
+            return res.status(400).json({ success: false, message: 'Site ID is invalid' });
         } else {
             const existingRegion = await Site.findById(id);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Ese site no existe" });
+                return res.status(404).json({ success: false, message: "Site not found" });
             }
         }
         const deletedSite = await Site.findOneAndDelete({ _id: id });
-        const query = { 'site._id': id };
-
-        const deletePromises = [];
         
-        deletePromises.push(
-            User.deleteMany(query),
-            GameJam.deleteMany(query),
-            Team.deleteMany(query)
-        );
-        
-        Promise.all(deletePromises)
-            .then(results => {
-                results.forEach((result, index) => {
-                    const modelNames = ['User', 'GameJam', 'Team'];
-                    console.log(`${modelNames[index]} documents deleted successfully:`, result);
-                });
-            })
-            .catch(error => {
-                console.error('Error deleting documents:', error);
-            });        
-        res.status(200).send({ success:true, msg:'Site eliminado correctamente', data: deletedSite });
+        await User.updateMany({ 'site._id' : id } , { site : null });
+        return res.status(200).send({ success: true, message:'Site deleted successfully' });
     } catch(error) {
-        res.status(400).send({ success:false, msg:error.message });
+        return res.status(400).send({ success:false, message:error.message });
     }
 };
 

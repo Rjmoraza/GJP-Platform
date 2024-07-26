@@ -184,8 +184,9 @@ const magicLink = async (req, res) => {
         }
         return res.redirect(redirectUrl);
     } catch (error) {
-        console.error('Error processing token:', error);
-        res.status(400).json({ success: false, error: 'Error processing token' });
+        //console.error('Error processing token:', error);
+        //res.status(400).json({ success: false, error: 'Error processing token' });
+        return res.clearCookie('token').redirect(`http://${process.env.URL}/login/error`);
     }
 };
 
