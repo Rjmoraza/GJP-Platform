@@ -137,12 +137,14 @@ export interface Jam {
     manualES: string,
     manualEN: string
   }[],
-  deadlineStage1?: Date,
-  deadlineStage2?: Date,
-  deadlineStage3?: Date,
-  deadlineEvaluation1?: Date,
-  deadlineEvaluation2?: Date,
-  deadlineEvaluation3?: Date,
+  stages: {
+    stageName: string,
+    startDate: Date,
+    endDate: Date,
+    roles: {
+      roleName: string
+    }[]
+  }[]
 }
 
 export interface Stage {

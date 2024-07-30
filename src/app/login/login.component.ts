@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit{
     const url = `http://${environment.apiUrl}:3000/api/user/login-user`;
     this.userService.loginUser(url, email).subscribe(
       response => {
-        this.successMessage = `Link de inicio de sesión enviado a: ${response.email}`;
+        this.successMessage = `Login link sent to: ${response.email}`;
         this.errorMessage = "";
       },
       error => {

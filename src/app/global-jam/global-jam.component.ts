@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
 import { Jam, Theme } from '../../types';
 import { JamService } from '../services/jam.service';
 import { ActivatedRoute } from '@angular/router';
@@ -27,9 +27,13 @@ export class GlobalJamComponent {
   confirmationAction: Function | null = null;
   selectedThemeIndex: number = -1;
   selectedCategoryIndex: number = -1;
+  selectedStageIndex: number = -1;
+  timeZone: string = '';
+  roleNames: string[] = ["Global Organizer", "Local Organizer", "Judge", "Jammer"];
   jamForm!: FormGroup;
   themeForm!: FormGroup;
   categoryForm!: FormGroup;
+  stageForm!: FormGroup;
   @ViewChild(MessagesComponent) message!: MessagesComponent;
   constructor(private route: ActivatedRoute, private jamService: JamService, private fb: FormBuilder){}
 
@@ -40,13 +44,7 @@ export class GlobalJamComponent {
       title: ['', Validators.required],
       toolbox: [''],
       open: [''],
-      public: [''],
-      deadlineS1: [''],
-      deadlineS2: [''],
-      deadlineS3: [''],
-      deadlineE1: [''],
-      deadlineE2: [''],
-      deadlineE3: ['']
+      public: ['']
     });
 
     this.themeForm = this.fb.group({
@@ -72,6 +70,20 @@ export class GlobalJamComponent {
       manualES: [''],
       manualEN: ['']
     });
+
+    this.stageForm = this.fb.group({
+      stageName: ['', Validators.required],
+      startDate: [new Date()],
+      endDate: [new Date()],
+      roleGlobal: [false],
+      roleLocal: [false],
+      roleJudge: [false],
+      roleJammer: [false]
+    });
+
+    let now = new Date();
+    let tzOffset = now.getTimezoneOffset();
+    this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
   }
 
 // #region Main Functions
@@ -81,25 +93,11 @@ export class GlobalJamComponent {
     let tzOffset = now.getTimezoneOffset();
     let timeZone: string = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
 
-    let deadlineS1 = this.activeJam?.deadlineStage1 ? formatDate(this.activeJam?.deadlineStage1, 'yyyy-MM-dd', 'en', timeZone) : null;
-    let deadlineS2 = this.activeJam?.deadlineStage2 ? formatDate(this.activeJam?.deadlineStage2, 'yyyy-MM-dd', 'en', timeZone) : null;
-    let deadlineS3 = this.activeJam?.deadlineStage3 ? formatDate(this.activeJam?.deadlineStage3, 'yyyy-MM-dd', 'en', timeZone) : null;
-
-    let deadlineE1 = this.activeJam?.deadlineEvaluation1 ? formatDate(this.activeJam?.deadlineEvaluation1, 'yyyy-MM-dd', 'en', timeZone) : null;
-    let deadlineE2 = this.activeJam?.deadlineEvaluation2 ? formatDate(this.activeJam?.deadlineEvaluation2, 'yyyy-MM-dd', 'en', timeZone) : null;
-    let deadlineE3 = this.activeJam?.deadlineEvaluation3 ? formatDate(this.activeJam?.deadlineEvaluation3, 'yyyy-MM-dd', 'en', timeZone) : null;
-
     this.jamForm.setValue({
       title: this.activeJam?.title,
       toolbox: this.activeJam?.toolbox,
       open: this.activeJam?.open,
-      public: this.activeJam?.public,
-      deadlineS1: deadlineS1,
-      deadlineS2: deadlineS2,
-      deadlineS3: deadlineS3,
-      deadlineE1: deadlineE1,
-      deadlineE2: deadlineE2,
-      deadlineE3: deadlineE3
+      public: this.activeJam?.public
     })
   }
 
@@ -135,7 +133,9 @@ export class GlobalJamComponent {
       sites: [],
       jammers: [],
       themes: [],
-      categories: []
+      categories: [],
+      stages: [],
+      toolbox: ''
     }).subscribe({
       next: (data)=>{
         if(data.success)
@@ -160,12 +160,6 @@ export class GlobalJamComponent {
         let open = this.jamForm.get('open')?.value;
         let published = this.jamForm.get('public')?.value;
         let toolbox = this.jamForm.get('toolbox')?.value ? this.jamForm.get('toolbox')?.value : this.activeJam.toolbox;
-        let deadlineS1 = (this.jamForm.get('deadlineS1')?.value) ? this.jamForm.get('deadlineS1')?.value : this.activeJam.deadlineStage1;
-        let deadlineS2 = (this.jamForm.get('deadlineS2')?.value) ? this.jamForm.get('deadlineS2')?.value : this.activeJam.deadlineStage2;
-        let deadlineS3 = (this.jamForm.get('deadlineS3')?.value) ? this.jamForm.get('deadlineS3')?.value : this.activeJam.deadlineStage3;
-        let deadlineE1 = (this.jamForm.get('deadlineE1')?.value) ? this.jamForm.get('deadlineE1')?.value : this.activeJam.deadlineEvaluation1;
-        let deadlineE2 = (this.jamForm.get('deadlineE3')?.value) ? this.jamForm.get('deadlineE2')?.value : this.activeJam.deadlineEvaluation2;
-        let deadlineE3 = (this.jamForm.get('deadlineE3')?.value) ? this.jamForm.get('deadlineE3')?.value : this.activeJam.deadlineEvaluation3;
 
         const jam: Jam = {
           title: title,
@@ -176,12 +170,7 @@ export class GlobalJamComponent {
           jammers: [],
           themes: this.activeJam.themes,
           categories: this.activeJam.categories,
-          deadlineStage1: deadlineS1,
-          deadlineStage2: deadlineS2,
-          deadlineStage3: deadlineS3,
-          deadlineEvaluation1: deadlineE1,
-          deadlineEvaluation2: deadlineE2,
-          deadlineEvaluation3: deadlineE3
+          stages: this.activeJam.stages
         };
 
         console.log(jam);
@@ -214,17 +203,17 @@ export class GlobalJamComponent {
     this.selectedThemeIndex = index;
     if(index >= 0 && index < this.activeJam!.themes.length)
     {
-      let theme = this.activeJam?.themes[index];
+      let theme = this.activeJam!.themes[index];
       this.themeForm.setValue({
-        titlePT: theme!.titlePT,
-        titleES: theme!.titleES,
-        titleEN: theme!.titleEN,
-        manualPT: theme!.manualPT,
-        manualES: theme!.manualES,
-        manualEN: theme!.manualEN,
-        descriptionPT: theme!.descriptionPT,
-        descriptionES: theme!.descriptionES,
-        descriptionEN: theme!.descriptionEN
+        titlePT: theme.titlePT,
+        titleES: theme.titleES,
+        titleEN: theme.titleEN,
+        manualPT: theme.manualPT,
+        manualES: theme.manualES,
+        manualEN: theme.manualEN,
+        descriptionPT: theme.descriptionPT,
+        descriptionES: theme.descriptionES,
+        descriptionEN: theme.descriptionEN
       });
     }
     else
@@ -294,17 +283,17 @@ export class GlobalJamComponent {
     this.selectedCategoryIndex = index;
     if(index >= 0 && index < this.activeJam!.categories.length)
     {
-      let category = this.activeJam?.categories[index];
+      let category = this.activeJam!.categories[index];
       this.categoryForm.setValue({
-        titlePT: category!.titlePT,
-        titleES: category!.titleES,
-        titleEN: category!.titleEN,
-        manualPT: category!.manualPT,
-        manualES: category!.manualES,
-        manualEN: category!.manualEN,
-        descriptionPT: category!.descriptionPT,
-        descriptionES: category!.descriptionES,
-        descriptionEN: category!.descriptionEN
+        titlePT: category.titlePT,
+        titleES: category.titleES,
+        titleEN: category.titleEN,
+        manualPT: category.manualPT,
+        manualES: category.manualES,
+        manualEN: category.manualEN,
+        descriptionPT: category.descriptionPT,
+        descriptionES: category.descriptionES,
+        descriptionEN: category.descriptionEN
       });
     }
     else
@@ -360,11 +349,94 @@ export class GlobalJamComponent {
       "Confirm Action",
       `Delete category with title ${category.titlePT}?`, () => {
         if(index >= 0 && index < this.activeJam!.categories.length)
-          {
-            this.activeJam?.categories.splice(index, 1);
-          }
+        {
+          this.activeJam?.categories.splice(index, 1);
+        }
       });
   }
 
+// #endregion
+
+// #region Stages Functions
+  patchStageForm(index: number): void {
+    this.selectedStageIndex = index;
+    if(index >= 0 && index < this.activeJam!.stages.length)
+    {
+      let stage = this.activeJam!.stages[index];
+
+      let startDate = stage.startDate ? formatDate(stage.startDate, 'yyyy-MM-dd', 'en', this.timeZone) : null;
+      let endDate = stage.endDate ? formatDate(stage.endDate, 'yyyy-MM-dd', 'en', this.timeZone) : null;
+
+      this.stageForm.setValue({
+        stageName: stage.stageName,
+        startDate: startDate,
+        endDate: endDate,
+        roleGlobal: stage.roles.some(r => r.roleName === "Global Organizer"),
+        roleLocal: stage.roles.some(r => r.roleName === "Local Organizer"),
+        roleJudge: stage.roles.some(r => r.roleName === "Judge"),
+        roleJammer: stage.roles.some(r => r.roleName === "Jammer")
+      });
+
+      console.log(stage.roles);
+    }
+    else
+    {
+      this.clearStageForm();
+    }
+  }
+
+  clearStageForm(): void {
+    this.stageForm.setValue({
+      stageName: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      roleGlobal: false,
+      roleLocal: false,
+      roleJudge: false,
+      roleJammer: false
+    })
+  }
+
+  saveStage(): void{
+    let roles = [];
+
+    if(this.stageForm.get('roleGlobal')!.value) roles.push({roleName: "Global Organizer"});
+    if(this.stageForm.get('roleLocal')!.value) roles.push({roleName: "Local Organizer"});
+    if(this.stageForm.get('roleJudge')!.value) roles.push({roleName: "Judge"});
+    if(this.stageForm.get('roleJammer')!.value) roles.push({roleName: "Jammer"});
+
+    let stage = {
+      stageName: this.stageForm.get('stageName')!.value,
+      startDate: this.stageForm.get('startDate')!.value,
+      endDate: this.stageForm.get('endDate')!.value,
+      roles: roles
+    }
+
+    if(this.selectedStageIndex >= 0)
+    {
+      this.activeJam!.stages[this.selectedStageIndex] = stage;
+    }
+    else
+    {
+      this.activeJam!.stages.push(stage);
+    }
+
+    this.activeJam!.stages.sort((a,b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+    this.selectedStageIndex = -1;
+    this.clearStageForm();
+  }
+
+  deleteStage(index: number): void {
+    let stage = this.activeJam!.stages[index];
+    this.message.showDialog(
+      "Confirm Action",
+      `Delete Stage with name ${stage.stageName}?`, () => {
+        if(index >= 0 && index < this.activeJam!.stages.length)
+        {
+          this.activeJam?.stages.splice(index, 1);
+        }
+      });
+  }
 // #endregion
 }
