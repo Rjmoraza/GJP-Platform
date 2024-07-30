@@ -15,21 +15,18 @@ const createJam = async(req, res) => {
             return res.status(403).json({success: false, error: 'Session is invalid'});
         }
 
+        console.log(req.body);
+
         const jam = new Jam({
             title: req.body.title,
             open: true,
             public: false,
             sites: [],
             jammers: [],
-            toolbox: req.body.toolbox | null,
+            toolbox: req.body.toolbox,
             themes: req.body.themes,
             categories: req.body.categories,
-            deadlineStage1: req.body.deadlineStage1 | null,
-            deadlineStage2: req.body.deadlineStage2 | null,
-            deadlineStage3: req.body.deadlineStage3 | null,
-            deadlineEvaluation1: req.body.deadlineEvaluation1 | null,
-            deadlineEvaluation2: req.body.deadlineEvaluation2 | null,
-            deadlineEvaluation3: req.body.deadlineEvaluation3 | null,
+            stages: req.body.stages,
             creatorUser: {
                 userId: creatorUser._id,
                 name: creatorUser.name,
@@ -70,6 +67,7 @@ const updateJam = async(req, res) => {
         }
 
         console.log(`Jam found with Id: ${jam._id}`);
+        console.log(req.body);
 
         jam.title = req.body.title;
         jam.open = req.body.open;
@@ -77,12 +75,7 @@ const updateJam = async(req, res) => {
         jam.toolbox = req.body.toolbox;
         jam.themes = req.body.themes;
         jam.categories = req.body.categories;
-        jam.deadlineStage1 = req.body.deadlineStage1;
-        jam.deadlineStage2 = req.body.deadlineStage2;
-        jam.deadlineStage3 = req.body.deadlineStage3;
-        jam.deadlineEvaluation1 = req.body.deadlineEvaluation1;
-        jam.deadlineEvaluation2 = req.body.deadlineEvaluation2;
-        jam.deadlineEvaluation3 = req.body.deadlineEvaluation3;
+        jam.stages = req.body.stages;
         jam.lastUpdateUser = {
             userId: creatorUser._id,
             name: creatorUser.name,

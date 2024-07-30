@@ -103,25 +103,22 @@ const jamSchema = mongoose.Schema({
             type: String
         },
     }],
-    deadlineStage1: {
-        type: Date
-    },
-    deadlineStage2: {
-        type: Date
-    },
-    deadlineStage3: {
-        type: Date
-    },
-    deadlineEvaluation1: {
-        type: Date
-    },
-    deadlineEvaluation2: {
-        type: Date
-    },
-    deadlineEvaluation3: 
-    {
-        type: Date
-    },
+    stages: [{
+        stageName: {
+            type: String
+        },
+        startDate: {
+            type: Date
+        },
+        endDate: {
+            type: Date
+        },
+        roles: [{
+            roleName: {
+                type: String
+            }
+        }]
+    }],
     creatorUser:  {
         userId: {
             type: Schema.Types.ObjectId, 
