@@ -17,12 +17,12 @@ body
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-h1
+h1, h2, h3
 {
   font-family: 'Changa One', sans-serif;
 }
 
-h2, h3, h4, h5, h6
+h4, h5, h6
 {
   font-family: 'Changa', sans-serif;
 }
@@ -135,9 +135,14 @@ h2, h3, h4, h5, h6
   cursor: pointer;
 }
 
+.flex-center{
+  align-items: center;
+  justify-content: center;
+}
+
 .navbutton{
-  display: block;
-  width: 100%;
+  display: flex;
+  flex: 1;
   color: white;
   margin: 1px;
   border: solid black 1px;

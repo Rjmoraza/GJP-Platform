@@ -128,6 +128,7 @@ export class SiteCrudComponent implements OnInit {
   }
 
   editSite() {
+    // TODO change this method to send full country struct
     if (this.siteForm.valid) {
       const siteId = this.selectedSite!._id;
       const url = `http://${environment.apiUrl}:3000/api/site/update-site/${siteId}`;
@@ -181,6 +182,7 @@ export class SiteCrudComponent implements OnInit {
   }
 
   addSite() {
+    // TODO change this method to send full country struct
     if (this.siteForm.valid) {
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, {
         name: this.siteForm.value["name"],

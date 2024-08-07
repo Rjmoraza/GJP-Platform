@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RegionService } from '../services/region.service';
 import { SiteService } from '../services/site.service';
@@ -39,8 +39,12 @@ export class LocalHomeComponent {
     this.siteForm = this.fb.group({
       name: ['', Validators.required],
       modality: ['', Validators.required],
-      country: ['', Validators.required],
-      region: ['', Validators.required]
+      country: '',
+      description: '',
+      open: false,
+      phoneNumber: '',
+      email: '',
+      language: 'PT'
     });
 
     this.listCountries();
@@ -90,6 +94,7 @@ export class LocalHomeComponent {
     this.siteService.getSite(url).subscribe({
       next: (site) => {
         this.site = site;
+        this.patchSiteForm();
       },
       error: (error) => {
         console.error('Error when loading site:', error);
@@ -113,7 +118,8 @@ export class LocalHomeComponent {
             next: (data) => {
               if(data.success)
               {
-                this.message.showMessage("Success", data.message);
+                console.log(data.message);
+                //this.message.showMessage("Success", data.message);
               }
             },
             error: (error) => {
@@ -131,11 +137,34 @@ export class LocalHomeComponent {
   }
 
   patchSiteForm() : void {
+    if(this.site)
+    {
+      const selectedCountry = this.countries.find(country => country.name === this.site!.country.name);
 
+      this.siteForm.setValue({
+        name: this.site.name,
+        modality: this.site.modality,
+        description: this.site.description ? this.site.description : '',
+        country: selectedCountry,
+        open: this.site.open ? this.site.open : false,
+        phoneNumber: this.site.phoneNumber ? this.site.phoneNumber : '',
+        email: this.site.email ? this.site.email : '',
+        language: this.site.language ? this.site.language : 'PT'
+      });
+    }
   }
 
   clearSiteForm() : void {
-
+    this.siteForm.setValue({
+      name: '',
+      modality: 'online',
+      description: '',
+      country: '',
+      open: false,
+      phoneNumber: '',
+      email: '',
+      language: 'PT'
+    });
   }
 
   createNewSite()
@@ -153,6 +182,8 @@ export class LocalHomeComponent {
 
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, site).subscribe({
         next: (data) => {
+          this.site = data.site;
+          this.patchSiteForm();
           this.user.site = {
             _id: data.site._id,
             name: data.site.name
@@ -180,19 +211,28 @@ export class LocalHomeComponent {
   saveSite() : void {
     if(this.site)
     {
-      this.editSite();
-    }
-    else
-    {
-      this.addSite();
-    }
-  }
+      let countryName: any = this.siteForm.get('country')?.value.name;
+      let site: Site = {
+        name : this.siteForm.get('name')?.value,
+        modality : this.siteForm.get('modality')?.value,
+        description : this.siteForm.get('description')?.value,
+        country : countryName, // TODO change siteController to receive full country struct
+        open : this.siteForm.get('open')?.value,
+        phoneNumber : this.siteForm.get('phoneNumber')?.value,
+        email : this.siteForm.get('email')?.value,
+        language : this.siteForm.get('language')?.value,
+        regionId : this.site.regionId
+      };
 
-  editSite() : void {
-    console.log("editting site");
-  }
-
-  addSite() : void {
-    console.log("adding new site");
+      this.siteService.updateSite(`http://${environment.apiUrl}:3000/api/site/update-site/${this.site._id}`, site).subscribe({
+        next: (data) => {
+          this.message.showMessage("Success", data.message);
+          this.site = data.site;
+        },
+        error: (error) => {
+          this.message.showMessage("Error", error.error.message);
+        }
+      });
+    }
   }
 }

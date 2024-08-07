@@ -1,13 +1,14 @@
 <div>
-  <!-- NO REGION -->
+  <!-- #region NO REGION -->
   <div *ngIf="!user.region" class="warning p-5 text-center m-2">
     <p>You haven't been assigned to a region, please select your region to proceed.</p>
     <p>NOTE: this action is not reversible, get in touch with a Global Organizer if you require to change your region.</p>
 
     <button *ngFor="let region of regions" type="button" class="btn btn-primary m-1" (click)="selectRegion(region)">{{ region.name }}</button>
   </div>
+  <!-- #endregion -->
 
-  <!-- NO SITE -->
+  <!-- #region NO SITE -->
   <div *ngIf="user.region && !user.site" class="warning p-5 text-center m-2">
     <p>You haven't been assigned to a site. Please create your site or join another site as co-organizer.</p>
     <p>NOTE: this action is not reversible, get in touch with a Global Organizer if you require to change your site.</p>
@@ -15,11 +16,14 @@
     <button type="button" class="btn btn-primary m-1" (click)="createNewSite()">Create new site</button>
     <button type="button" class="btn btn-primary m-1">Join a site</button>
   </div>
+  <!-- #endregion -->
 
   <!-- LOCAL HOME -->
   <div *ngIf="user.region && user.site" class="row w-100 p-3">
 
     <div class="p-3 mb-2 bg-dark d-block text-white text-center timer">00:00:00:00</div>
+
+    <!-- #region NAV BAR -->
     <div id="localHomeNavBar" class="col-2 container-fluid">
       <div class="navbutton navL1" data-toggle="collapse" data-target="#homeMenu">Home</div>
       <ul #homeMenu id="homeMenu" class="collapse">
@@ -29,22 +33,23 @@
         <li class="navbutton navL2" (click)="page = 'news'">Notifications</li>
       </ul>
 
-      <button class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">My Venue</button>
+      <div class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">My Venue</div>
       <ul #venueMenu id="venueMenu" class="collapse">
         <li class="navbutton navL2" (click)="page = 'site'">Site Information</li>
         <li class="navbutton navL2" (click)="page = 'jammers'">Jammers and Teams</li>
         <li class="navbutton navL2" (click)="page = 'games'">Submissions</li>
       </ul>
 
-      <button class="navbutton navL1" data-toggle="collapse" data-target="#orgMenu">Org. Info</button>
+      <div class="navbutton navL1" data-toggle="collapse" data-target="#orgMenu">Org. Info</div>
       <ul #orgMenu id="orgMenu" class="collapse">
         <li class="navbutton navL2" (click)="page = 'contact'">Contact Information</li>
         <li class="navbutton navL2" (click)="page = 'fellows'">Fellowship</li>
       </ul>
     </div>
+    <!-- #endregion -->
 
     <div id="localHomeMainContent" class="col-8">
-      <!-- HOME REGION -->
+      <!-- #region HOME -->
       <div *ngIf="page == 'jam'" class="container container-lg p-3">
         <h1>THIS IS THE GAMEJAM PAGE</h1>
         <p>Here is the information of the gamejam</p>
@@ -64,11 +69,133 @@
         <h1>NOTIFICATIONS</h1>
         <p>This section is still under construction</p>
       </div>
+      <!-- #endregion -->
 
-      <!-- VENUE REGION -->
-      <div *ngIf="page == 'site'" class="container container-lg p-3">
+      <!-- #region VENUE -->
+      <div *ngIf="page == 'site' && site" class="container container-lg p-3">
         <h1>{{ site!.name.toUpperCase() }}</h1>
-        <p>Site editing form</p>
+        <div class="row">
+          <div class="col-4">
+            <h3 class="text-center">Region:</h3>
+            <p class="text-center">{{ user.region.name }}</p>
+          </div>
+
+          <div class="col-4">
+            <h3 class="text-center">Country:</h3>
+            <p class="text-center">{{ site.country?.code }} - {{ site.country?.name }}</p>
+          </div>
+
+          <div class="col-4">
+            <h3 class="text-center">Join Code:</h3>
+            <p class="text-center">{{ site.code }}</p>
+            <small class="form-text text-muted my-2">Share this code with other venue organizers so they can access your venue's dashboard.</small>
+          </div>
+        </div>
+
+
+        <form (submit)="saveSite()" [formGroup]="siteForm" class="row">
+
+          <div class="col-4">
+            <h3>Basic & Contact Information</h3>
+
+            <div class="form-group">
+              <label for="siteName">Site Name</label>
+              <input type="text" class="form-control" id="siteName" formControlName="name">
+            </div>
+
+            <div class="form-group">
+              <label for="siteName">Site Country</label>
+              <select class="form-control formList" id="countries" formControlName="country">
+                <option value="" disabled selected hidden>Country of the site</option>
+                <option *ngFor="let country of countries" [ngValue]="country">{{ country.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="siteEmail">Site Email</label>
+              <input type="email" class="form-control" id="sitePhone" formControlName="email" placeholder="info@your.venue.com">
+              <small class="form-text text-muted">An official email address for your venue. This address will be visible to jammers and other organizers.<br>This field is not required.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="sitePhone">Phone Number</label>
+              <input type="tel" class="form-control" id="sitePhone" formControlName="phoneNumber" placeholder="+55 21 98765-4321">
+              <small class="form-text text-muted">An official phone number for your venue. This number will be visible to jammers and other organizers. Remember to include your country/area code.<br>This field is not required.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="sitePhone">Site Modality</label>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" value="on site" name="modality" formControlName="modality">
+                <label class="form-check-label" for="modality">On Site</label>
+              </div>
+
+              <div class="form-check">
+                <input type="radio" class="form-check-input" value="online" name="modality" formControlName="modality">
+                <label class="form-check-label" for="modality">Online</label>
+              </div>
+
+              <div class="form-check">
+                <input type="radio" class="form-check-input" value="hybrid" name="modality" formControlName="modality">
+                <label class="form-check-label" for="modality">Hybrid</label>
+              </div>
+
+              <small class="form-text text-muted">Is your venue on site, online, or both?</small>
+            </div>
+
+            <div class="form-group">
+              <label for="sitePhone">Site Status</label>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" [value]="true" name="open" formControlName="open">
+                <label class="form-check-label" for="open">Open</label>
+              </div>
+
+              <div class="form-check">
+                <input type="radio" class="form-check-input" [value]="false" name="open" formControlName="open">
+                <label class="form-check-label" for="open">Closed</label>
+              </div>
+
+              <small class="form-text text-muted">Is your site open for new jammers to sign up?</small>
+            </div>
+
+            <div class="form-group">
+              <label for="sitePhone">Site Language</label>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" value="PT" name="language" formControlName="language">
+                <label class="form-check-label" for="open">Português (PT)</label>
+              </div>
+
+              <div class="form-check">
+                <input type="radio" class="form-check-input" value="ES" name="language" formControlName="language">
+                <label class="form-check-label" for="open">Español (ES)</label>
+              </div>
+
+              <div class="form-check">
+                <input type="radio" class="form-check-input" value="EN" name="language" formControlName="language">
+                <label class="form-check-label" for="open">English (EN)</label>
+              </div>
+
+              <small class="form-text text-muted">GameJam+ supports three official languages:
+                <ul>
+                  <li>Portuguese (main)</li>
+                  <li>Spanish (limited support)</li>
+                  <li>English (limited support)</li>
+                </ul>
+                If your site supports another language, please add it to your site's description.
+              </small>
+            </div>
+          </div>
+
+          <div class="col-8">
+            <h3>Description and Instructions</h3>
+            <div class="form-group">
+              <small class="form-text text-muted my-2">Include any additional description and information about your venue like special instructions, address, requirements, etc... This information will be visible <b>only to your site's jammers</b>.</small>
+              <textarea rows="40" class="form-control" formControlName="description" placeholder="Site Description"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="navbutton navL1 flex-center m-3">SAVE CHANGES</button>
+        </form>
       </div>
 
       <div *ngIf="page == 'jammers'" class="container container-lg p-3">
@@ -80,8 +207,9 @@
         <h1>SUBMISSIONS</h1>
         <p>Submission list and tools</p>
       </div>
+      <!-- #endregion -->
 
-      <!-- ORG REGION -->
+      <!-- #region ORG -->
       <div *ngIf="page == 'contact'" class="container container-lg p-3">
         <h1>CONTACT INFORMATION</h1>
         <p>contact information form</p>
@@ -91,6 +219,8 @@
         <h1>MY FELLOWSHIP</h1>
         <p>This section is still under construction</p>
       </div>
+
+      <!-- #endregion -->
     </div>
 
     <div id="localHomeSideBar" class="col-2">

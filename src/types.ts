@@ -55,6 +55,9 @@ export interface Site {
     open?: number;
     modality?: string;
     description?: string;
+    phoneNumber?: string;
+    email?: string;
+    language?: string;
     regionId: string;
     country: {
       name: string;
