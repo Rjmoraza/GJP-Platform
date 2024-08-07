@@ -14,7 +14,7 @@ const createRegion = async (req, res) => {
         const creatorUser = await User.findById(userId);
         
         if (existingRegion) {
-            return res.status(409).json({ success: false, error: "Region already exists!" });
+            return res.status(409).json({ success: false, message: "Region already exists!" });
         }
 
         const region = new Region({
@@ -38,54 +38,22 @@ const createRegion = async (req, res) => {
 const updateRegion = async (req, res) => {
     try {
         const id = req.params.id;
-        const updateFields = {};
         const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
         const lastUpdateUser = await User.findById(userId);
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'The provided region ID is not valid!' });
+            return res.status(400).json({ success: false, message: 'The provided region ID is not valid!' });
         } else {
             const existingRegion = await Region.findOne({ name: req.body.name });
             if (existingRegion && existingRegion._id.toString() !== id) {
-                return res.status(409).json({ success: false, error: 'A region with that name already exists!' });
+                return res.status(409).json({ success: false, message: 'A region with that name already exists!' });
             }
         }
 
-        if (req.body.name) {
-            updateFields.name = req.body.name;
-            updateFields.lastUpdateUser = {
-                userId: lastUpdateUser._id,
-                name: lastUpdateUser.name,
-                email: lastUpdateUser.email
-            }
-            updateFields.lastUpdateDate = new Date();
-            const query = { 'region._id': id };
-
-            const updateFieldsQuery = { $set: { 'region.name': req.body.name } };
-
-            const updatePromises = [];
-
-            updatePromises.push(
-              User.updateMany(query, updateFieldsQuery),
-              GameJam.updateMany(query, updateFieldsQuery),
-              Team.updateMany(query, updateFieldsQuery),
-              Site.updateMany(query, updateFieldsQuery)
-            );
-            
-            Promise.all(updatePromises)
-            .then(results => {
-              results.forEach((result, index) => {
-                const modelNames = ['User', 'GameJam', 'Team', 'Site'];
-                console.log(`${modelNames[index]} documents updated successfully:`, result);
-              });
-            })
-            .catch(error => {
-              console.error('Error updating documents:', error);
-            });
-        }
-
-        await Region.findByIdAndUpdate(id, updateFields);
-
+        let region = await Region.findOne({ _id: req.params.id });
+        region.name = req.body.name;
+        await region.save();
+        
         res.status(200).json({ success: true, message: 'Region updated successfully!' });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -114,9 +82,9 @@ const getRegion = async(req,res)=>{
 const getRegions = async(req,res)=>{
     try{
         const allRegions = await Region.find({});
-        res.status(200).send({ success:true, msg:'Se han encontrado regiones en el sistema', data: allRegions });
+        res.status(200).send({ success:true, message:'Se han encontrado regiones en el sistema', data: allRegions });
     } catch(error) {
-        res.status(400).send({ success:false, msg:error.message });
+        res.status(400).send({ success:false, message:error.message });
     }
 };
 

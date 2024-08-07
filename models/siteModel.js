@@ -6,8 +6,12 @@ const siteSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    code: {
+        type: String,
+        required: true
+    },
     open: {
-        type: Number,
+        type: Boolean,
         required: true
     },
     modality: {
@@ -18,16 +22,10 @@ const siteSchema = mongoose.Schema({
         type: String,
         required: false
     },
-    region:  {
-        _id: { 
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Region',
-            required: true
-        },
-        name: { 
-            type: String, 
-            required: true 
-        }
+    regionId: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Region',
+        required: true
     },
     country:  {
         name: { 
@@ -38,6 +36,9 @@ const siteSchema = mongoose.Schema({
             type: String, 
             required: true 
         }
+    },
+    city: {
+        type: String
     },
     creatorUser:  {
         userId: {

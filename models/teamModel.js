@@ -2,53 +2,25 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const teamSchema = mongoose.Schema({
-    studioName: {
+    teamName: {
         type:String,
         required:true
     },
-    description:{
+    teamCode:{
         type:String,
         required:true
     },
-    stage:{
-        type: Number
+    siteId: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Site',
+        required: true
     },
-    region:  {
-        _id: { 
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Region',
-            required: true
-        },
-        name: { 
-            type: String, 
-            required: true 
-        }
-    },
-    site:  {
-        _id: { 
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Site',
-            required: true
-        },
-        name: { 
-            type: String, 
-            required: true 
-        }
-    },
-    linkTree: [{
-        type:String
-    }],
-    gameJam:  {
-        _id: { 
+    jamId: { 
             type: mongoose.Schema.Types.ObjectId,
             ref: 'GameJam',
             required: true
-        },
-        edition: { 
-            type: String, 
-            required: true 
-        }
     },
+    // Keep jammers info in case the jammer exits the platform
     jammers:  [{
         _id: {
             type: Schema.Types.ObjectId, 
@@ -64,18 +36,10 @@ const teamSchema = mongoose.Schema({
             type: String
         }
     }],
-    lastSub: {
-        type: Schema.Types.ObjectId,
-        ref: 'Submission'
-    },
     submissions:   [{
         type: Schema.Types.ObjectId, 
         ref: 'Submission',
         required: false
-    }],
-    chatsIds: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Chat'
     }],
     creatorUser:  {
         userId: {

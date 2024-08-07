@@ -3,50 +3,57 @@ const Region = require('../models/regionModel');
 const Team = require('../models/teamModel');
 const GameJam = require('../models/gameJamEventModel');
 const User = require('../models/userModel');
+const userController = require('./userController');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
+const crypto = require('node:crypto');
 
 const createSite = async (req, res) => {
-    const { name, region, country, modality } = req.body;
-    const countryName = country;
+    const { name, regionId, country, city, modality } = req.body;
     try {
-        const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
-        const creatorUser = await User.findById(userId);
-        if(!creatorUser.roles.includes("GlobalOrganizer") && !creatorUser.roles.includes("LocalOrganizer")){
-            return res.status(400).json({ success: false, message: 'No Permission' });
+        const creatorUser = await userController.validateUser(req);
+        if(!creatorUser)
+        {
+            return res.status(403).json({success: false, error: 'Session is invalid'});
         }
-        if (!mongoose.Types.ObjectId.isValid(region._id)) {
+        else if (!mongoose.Types.ObjectId.isValid(regionId)) {
             return res.status(400).json({ success: false, message: 'The provided region ID is not valid.' });
         } else {
-            const existingRegion = await Region.findById(region._id);
+            const existingRegion = await Region.findById(regionId);
             if (!existingRegion) {
                 return res.status(404).json({ success: false, message: "That region doesn't exist" });
             }
         }
 
-        const countriesPath = path.join(__dirname, '..', 'staticData', 'countries.json');
-        const countriesData = JSON.parse(fs.readFileSync(countriesPath, 'utf8'));
+        let countryData = findCountry(country);
 
-        const country = countriesData.find(country => country.name === countryName);
-
-        if (!country) {
+        if (!countryData) {
             return res.status(400).json({ success: false, message: "The provided country is not valid" });
         }
 
+        // Generate a unique code for this team (make sure it's a unique code)
+        let existingSite;
+        let uniqueCode;
+        do
+        {
+            uniqueCode = crypto.randomBytes(10).toString('hex').slice(0,6).toUpperCase();
+            existingSite = await Site.findOne({ code: uniqueCode });
+        }
+        while(existingSite);
+
         const site = new Site({
             name: name,
+            code: uniqueCode,
             modality: modality,
             country: {
-                name: countryName,
-                code: country.code 
+                name: countryData.name,
+                code: countryData.code 
             },
-            region: {
-                _id: region._id,
-                name: region.name
-            },
-            open: 0,
+            regionId: regionId,
+            city: city,
+            open: false,
             description: "",
             creatorUser: {
                 userId: creatorUser._id,
@@ -56,9 +63,8 @@ const createSite = async (req, res) => {
             creationDate: new Date()
         });
 
-        await site.save();
-
-        res.status(200).json({ success: true, message: 'The site has been created successfully', siteId: site._id  });
+        newSite = await site.save();
+        res.status(200).json({ success: true, message: 'The site has been created successfully', site: newSite});
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
@@ -66,112 +72,51 @@ const createSite = async (req, res) => {
 
 
 const updateSite = async (req, res) => {
+    const { name, regionId, country, city, open, modality, description } = req.body;
+    const id = req.params.id;
     try {
-        const id = req.params.id;
-        const updateFields = {};
-        const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
-        const lastUpdateUser = await User.findById(userId);
-        const region = req.body.region;
-        const countryName = req.body.country;
-        const open = req.body.open;
-        const modality = req.body.modality;
-        const description = req.body.description;
+        const creatorUser = await userController.validateUser(req);
+        if(!creatorUser)
+        {
+            return res.status(403).json({success: false, error: 'Session is invalid'});
+        }
+        else if (!mongoose.Types.ObjectId.isValid(regionId)) {
+            return res.status(400).json({ success: false, message: 'The provided region ID is not valid.' });
+        } else {
+            const existingRegion = await Region.findById(regionId);
+            if (!existingRegion) {
+                return res.status(404).json({ success: false, message: "That region doesn't exist" });
+            }
+        }
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: 'Site not found (Site ID invalid)' });
-        } else {
-            const existingRegion = await Site.findById(id);
-            if (!existingRegion) {
-                return res.status(404).json({ success: false, message: 'Site not found' });
-            }
+        } 
+        let site = await Site.findById(id);
+        if (!site) {
+            return res.status(404).json({ success: false, message: 'Site not found' });
         }
-        let changed = 0;
-        if (req.body.name) {
-            updateFields.name = req.body.name;
-            changed++;
-            const query = { 'site._id': id };
-
-            const updateFieldsQuery = {
-                $set: {
-                  'site.name': req.body.name,
-                  'region._id': req.body.region._id,
-                  'region.name': req.body.region.name
-                }
-            };              
-
-            const updatePromises = [];
-
-            updatePromises.push(
-              User.updateMany(query, updateFieldsQuery),
-              GameJam.updateMany(query, updateFieldsQuery),
-              Team.updateMany(query, updateFieldsQuery)
-            );
-            
-            Promise.all(updatePromises)
-            .then(results => {
-              results.forEach((result, index) => {
-                const modelNames = ['User', 'GameJam', 'Team'];
-                console.log(`${modelNames[index]} documents updated successfully:`, result);
-              });
-            })
-            .catch(error => {
-              console.error('Error updating documents:', error);
-            });
+        let countryData = findCountry(country);
+        if (!countryData) {
+            return res.status(400).json({ success: false, error: "The country is not valid" });
         }
-        if (req.body.country) {
-            const countriesPath = path.join(__dirname, '..', 'staticData', 'countries.json');
-            const countriesData = JSON.parse(fs.readFileSync(countriesPath, 'utf8'));
-    
-            const country = countriesData.find(country => country.name === countryName);
-            if (!country) {
-                return res.status(400).json({ success: false, error: "The country is not valid" });
-            }
-            updateFields.country = {
-                name: country.name,
-                code: country.code 
-            }
-            changed++;
-        }
+        
+        site.name = name;
+        site.regionId = regionId;
+        site.country = {
+            name: countryData.name,
+            code: countryData.code
+        };
+        site.city = city;
+        site.modality = modality;
+        if(description) site.description = description;
+        if(open) site.open = open;
+        site.lastUpdateUser = creatorUser;
+        site.lastUpdateDate = new Date();
 
-        if (region) {
-            if (!mongoose.Types.ObjectId.isValid(region._id)) {
-                return res.status(400).json({ success: false, error: 'Region ID not valid' });
-            } else {
-                const existingRegion = await Region.findById(region._id);
-                if (!existingRegion) {
-                    return res.status(404).json({ success: false, error: "Region not found" });
-                }
-            }
-            updateFields.region = region;
-            changed++;
-        }
- 
+        console.log(site);
 
-        if (open) {
-            updateFields.open = open;
-            changed++;
-        }
-
-        if (modality) {
-            updateFields.modality = modality;
-            changed++;
-        }
-
-        if(description)
-        {
-            updateFields.description = description;
-            changed++;
-        }
-
-        if (changed > 0) {
-            updateFields.lastUpdateUser = {
-                userId: lastUpdateUser._id,
-                name: lastUpdateUser.name,
-                email: lastUpdateUser.email
-            };
-            updateFields.lastUpdateDate = new Date();
-        }
-        await Site.findByIdAndUpdate({ _id: id }, updateFields);
+        await site.save();
 
         res.status(200).send({ success: true, message: 'Site updated successfully'});
     } catch (error) {
@@ -186,17 +131,31 @@ const getSite = async(req,res)=>{
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: 'Site ID is not valid' });
         } else {
-            const existingRegion = await Site.findById(id);
-            if (!existingRegion) {
+            const site = await Site.findById(id);
+            if (!site) {
                 return res.status(404).json({ success: false, message: "Site not found" });
             }
+            else {
+                return res.status(200).send({ success:true, message:'Site found', data: site });
+            }
         }
-        const selectedSite = await Site.findById(id);
-        res.status(200).send({ success:true, message:'Site found', data: selectedSite });
+    } catch(error) {
+        return res.status(400).send({ success:false, message:error.message });
+    }
+};
+
+const getSiteByCode = async(req, res)=>{
+    try{
+        const code = req.params.code;
+        const site = await Site.findOne({ code: code });
+        if (!site) {
+            return res.status(404).json({ success: false, message: "Site not found" });
+        }
+        res.status(200).send({ success:true, message:'Site found', data: site });
     } catch(error) {
         res.status(400).send({ success:false, message:error.message });
     }
-};
+}
 
 const changeStatus = async (req, res) => {
     try {
@@ -264,17 +223,13 @@ const getCountries = async (req, res) => {
 
 const getSitesPerRegion = async (req, res) => {
     try {
-        const region = req.params.regionId;
-        if (!mongoose.Types.ObjectId.isValid(region)) {
+        const regionId = req.params.regionId;
+        console.log(regionId);
+        if (!mongoose.Types.ObjectId.isValid(regionId)) {
             return res.status(400).json({ success: false, error: 'Region ID is invalid' });
         } else {
-            const existingRegion = await Region.findById(region);
-            if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Region not found" });
-            } else {
-                const selectedSites = await Site.find({ 'region._id': region });
-                return res.status(200).json({ success: true, message: 'Sites found successfully', data: selectedSites });
-            }
+            const sites = await Site.find({ 'regionId': regionId });
+            return res.status(200).json({ success: true, message: 'Sites found successfully', data: sites });
         }
     } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
@@ -320,10 +275,18 @@ const deleteSite = async(req,res)=>{
     }
 };
 
+const findCountry = (countryName) =>
+{
+    const countriesPath = path.join(__dirname, '..', 'staticData', 'countries.json');
+    const countriesData = JSON.parse(fs.readFileSync(countriesPath, 'utf8'));
+    return countriesData.find(country => country.name === countryName);
+}
+
 module.exports = {
     createSite,
     updateSite,
     getSite,
+    getSiteByCode,
     getSites,
     getCountries,
     getSitesPerRegion,

@@ -34,7 +34,7 @@ const createJam = async(req, res) => {
             },
             creationDate: new Date(),
             lastUpdateUser: {
-                userID: creatorUser._id,
+                userId: creatorUser._id,
                 name: creatorUser.name,
                 email: creatorUser.email
             },
@@ -64,10 +64,7 @@ const updateJam = async(req, res) => {
         if(jam === undefined || jam == null)
         {
             return res.status(400).json({ success: false, message: 'No jam found with that id' });
-        }
-
-        console.log(`Jam found with Id: ${jam._id}`);
-        console.log(req.body);
+        }        
 
         jam.title = req.body.title;
         jam.open = req.body.open;
@@ -82,8 +79,6 @@ const updateJam = async(req, res) => {
             email: creatorUser.email
         };
         jam.lastUpdateDate = new Date();
-
-        console.log(jam);
         
         await jam.save();
 

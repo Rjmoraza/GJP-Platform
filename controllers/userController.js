@@ -16,19 +16,19 @@ const registerUser = async (req, res) => {
     try {
         // Validar email
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return res.status(403).json({ success: false, error: 'Invalid email address.' });
+            return res.status(403).json({ success: false, message: 'Invalid email address.' });
         }
 
         // Verificar si el email ya está registrado
-        const existingEmail = await User.findOne({ email });
+        const existingEmail = await User.findOne({ email: email });
         if (existingEmail) {
-            return res.status(409).json({ success: false, error: "The email is already in use." });
+            return res.status(409).json({ success: false, message: "The email is already in use." });
         }
 
         // Verificar si el nombre de usuario de Discord ya está registrado
-        const existingDiscordUsername = await User.findOne({ discordUsername });
+        const existingDiscordUsername = await User.findOne({ discordUsername: discordUsername });
         if (existingDiscordUsername) {
-            return res.status(409).json({ success: false, error: "The Discord Username is already in use." });
+            return res.status(409).json({ success: false, message: "The Discord Username is already in use." });
         }
 
         // Crear nuevo usuario
@@ -46,9 +46,9 @@ const registerUser = async (req, res) => {
 
         // Guardar usuario en la base de datos
         await user.save();
-        res.status(200).json({ success: true, msg: 'Registered successfully', userId: user._id });
+        res.status(200).json({ success: true, message: 'Registered successfully', userId: user._id });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -58,21 +58,21 @@ const updateUser = async (req, res) => {
     const { name, email, region, site, team, roles, coins, discordUsername } = req.body;
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'Invalid user ID.' });
+            return res.status(400).json({ success: false, message: 'Invalid user ID.' });
         }
 
         const existingUser = await User.findById(id);
         if (!existingUser) {
-            return res.status(404).json({ success: false, error: 'User not found.' });
+            return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
         if (email && email !== existingUser.email) {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                return res.status(403).json({ success: false, error: 'Invalid email address.' });
+                return res.status(403).json({ success: false, message: 'Invalid email address.' });
             }
             const emailExists = await User.findOne({ email });
             if (emailExists) {
-                return res.status(409).json({ success: false, error: 'The email is already in use.' });
+                return res.status(409).json({ success: false, message: 'The email is already in use.' });
             }
             existingUser.email = email;
         }
@@ -126,9 +126,9 @@ const updateUser = async (req, res) => {
 
         await existingUser.save();
 
-        res.status(200).json({ success: true, msg: 'User updated successfully.' });
+        res.status(200).json({ success: true, message: 'User updated successfully.' });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -297,9 +297,9 @@ const deleteUser = async (req, res) => {
                 console.error('Error removing Jammer:', error);
             });
 
-        res.status(200).send({ success: true, msg: 'User removed correctly', data: deletedUser });
+        res.status(200).send({ success: true, message: 'User removed correctly', data: deletedUser });
     } catch (error) {
-        res.status(400).send({ success: false, msg: error.message });
+        res.status(400).send({ success: false, message: error.message });
     }
 };
 

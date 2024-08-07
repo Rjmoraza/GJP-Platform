@@ -5,87 +5,69 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Site = require('../models/siteModel');
 const Region = require('../models/regionModel');
+const userController = require('./userController');
+const crypto = require('node:crypto');
 
 const createTeam = async (req, res) => {
-    const { studioName, description, gameJam, linkTree, jammers, site, region } = req.body;
+    // Validate the user
+    const creatorUser = await userController.validateUser(req);
+    if(!creatorUser)
+    {
+        return res.status(403).json({success: false, error: 'Session is invalid'});
+    }
     try {
-        const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
-        const creatorUser = await User.findById(userId);
-        if (!gameJam || !gameJam._id || !mongoose.Types.ObjectId.isValid(gameJam._id)) {
-            return res.status(400).json({ success: false, error: 'The provided GameJam is invalid.' });
+        const {teamName, jamId, siteId, jammers} = req.body;
+
+        // Check if the teamName already exists for this jam and site
+        let existingTeam = await Team.findOne({ teamName:teamName, jamId:jamId, siteId: siteId });
+        if(existingTeam)
+        {
+            return res.status(400).json({ success: false, message: "There's another team with this name in this site"});
         }
 
-        const existingGameJam = await GameJam.findById(gameJam._id);
-        if (!existingGameJam) {
-            return res.status(404).json({ success: false, error: "That GameJam does not exist" });
-        }
-
-        const existingSite = await Site.findById(site._id);
-        if (!existingSite) {
-            return res.status(404).json({ success: false, error: "That site does not exist" });
-        }
-        const existingRegion = await Region.findById(region._id);
-        if (!existingRegion) {
-            return res.status(404).json({ success: false, error: "That region does not exist" });
-        }
-
-        for (const jammer of jammers) {
-            const user = await User.findById(jammer._id);
-            if (user.team && user.team._id) {
-                return res.status(403).json({ success: false, error: `User ${user.name} (${user.email}) is already assigned to a team.` });
+        // Check if any of the jammers in the list has a team
+        for(const jammer of jammers){
+            existingTeam = await Team.findOne({ siteId: siteId, jamId: jamId, jammers: jammer });
+            if(existingTeam)
+            {
+                return res.status(400).json({ success: false, message: `Jammer with name ${jammer.name} is already assigned to a team`});
             }
-        }        
+        };
 
-        const createdTeam = new Team({
-            studioName: studioName,
-            description: description,
-            stage: 0,
-            site: {
-                _id: existingSite._id,
-                name: existingSite.name
-            },
-            region: {
-                _id: existingRegion._id,
-                name: existingRegion.name
-            },
-            gameJam: {
-                _id: existingGameJam._id,
-                edition: existingGameJam.edition
-            },
-            linkTree: linkTree,
-            jammers: jammers.map(jammer => ({
-                _id: jammer._id,
-                name: jammer.name,
-                email: jammer.email,
-                discordUsername: jammer.discordUsername
-            })),
+        // Generate a unique code for this team (make sure it's a unique code)
+        let uniqueCode;
+        do
+        {
+            uniqueCode = crypto.randomBytes(10).toString('hex').slice(0,6).toUpperCase();
+            existingTeam = await Team.findOne({ teamCode: uniqueCode , jamId: jamId });
+        }
+        while(existingTeam);
+
+        // Create the team
+        const team = {
+            teamName: teamName,
+            teamCode: uniqueCode,
+            jamId: jamId,
+            siteId: siteId,
+            jammers: jammers,
             creatorUser: {
                 userId: creatorUser._id,
                 name: creatorUser.name,
                 email: creatorUser.email
             },
-            creationDate: new Date()
-        });
+            creationDate: new Date(),
+            lastUpdatedUser: {
+                userId: creatorUser._id,
+                name: creatorUser.name,
+                email: creatorUser.email
+            },
+            lastUpdateDate: new Date()
+        }
 
-        const savedTeam = await createdTeam.save();
-
-        await Promise.all(jammers.map(async jammer => {
-            const user = await User.findById(jammer._id);
-            if (!user) {
-                console.log(`No se encontró el usuario con ID: ${jammer._id}`);
-                return;
-            }
-
-            user.team = {
-                _id: savedTeam._id,
-                name: savedTeam.studioName
-            };
-            await user.save();
-        }));
-
-        res.status(200).json({ success: true, msg: 'Team created successfully', team: savedTeam });
+        await team.save();
+        res.status(200).json({ success: true, message: 'Team created successfully', teamCode: uniqueCode });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
