@@ -45,10 +45,7 @@ export class LocalSiteInformationComponent implements OnInit{
   constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private teamService: TeamService){}
   site: Site = {
     name: '',
-    region: {
-      _id: '',
-      name: ''
-    },
+    regionId: '',
     country: {
       name: '',
       code: ''
@@ -116,8 +113,10 @@ export class LocalSiteInformationComponent implements OnInit{
     this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
       .subscribe(
         user => {
-          this.siteID = user.site._id;
-          this.siteService.getSite(`http://${environment.apiUrl}:3000/api/site/get-site/${user.site._id}`)
+          if(user.site)
+          {
+            this.siteID = user.site?._id;
+            this.siteService.getSite(`http://${environment.apiUrl}:3000/api/site/get-site/${user.site?._id}`)
             .subscribe(
               site => {
                 this.site = site;
@@ -132,7 +131,7 @@ export class LocalSiteInformationComponent implements OnInit{
               }
             );
 
-          this.siteService.getSubmissions(`http://${environment.apiUrl}:3000/api/submission/get-submissions-site/${user.site._id}`)
+            this.siteService.getSubmissions(`http://${environment.apiUrl}:3000/api/submission/get-submissions-site/${user.site._id}`)
             .subscribe(
               submissions  => {
                 this.games = submissions;
@@ -142,24 +141,25 @@ export class LocalSiteInformationComponent implements OnInit{
               }
             );
 
-          this.userService.getJammersSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + user.site._id).subscribe(
-            jammers => {
-              console.log(jammers);
-              this.jammers = jammers;
-            }
-          );
+            this.userService.getJammersSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + user.site._id).subscribe(
+              jammers => {
+                console.log(jammers);
+                this.jammers = jammers;
+              }
+            );
 
-          this.userService.getLocalsSite(`http://${environment.apiUrl}:3000/api/user/get-localPerSite/` + user.site._id).subscribe(
-            staff => {
-              this.staff = staff;
-            }
-          );
+            this.userService.getLocalsSite(`http://${environment.apiUrl}:3000/api/user/get-localPerSite/` + user.site._id).subscribe(
+              staff => {
+                this.staff = staff;
+              }
+            );
 
-          this.teamService.getTeamsSite(`http://${environment.apiUrl}:3000/api/team/get-teams/` + user.site.name).subscribe(
-            teams => {
-              this.teams = teams;
-            }
-          );
+            this.teamService.getTeamsSite(`http://${environment.apiUrl}:3000/api/team/get-teams/` + user.site.name).subscribe(
+              teams => {
+                this.teams = teams;
+              }
+            );
+          }
         },
         error => {
           console.error('Error al obtener usuario actual:', error);
@@ -179,7 +179,7 @@ export class LocalSiteInformationComponent implements OnInit{
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, {
         name: this.createSiteForm.value["name"],
         modality: this.createSiteForm.value["modality"],
-        region: this.createSiteForm.value["region"],
+        regionId: this.createSiteForm.value["region"]?._id,
         country: this.createSiteForm.value["country"].name,
         description: ""
       }).subscribe({
@@ -190,7 +190,7 @@ export class LocalSiteInformationComponent implements OnInit{
               _id: siteId,
               name: this.createSiteForm.value["name"],
               modality: this.createSiteForm.value["modality"],
-              region: this.createSiteForm.value["region"],
+              regionId: this.createSiteForm.value["region"]?._id,
               country: this.createSiteForm.value["country"],
               description: ""
             }
@@ -267,7 +267,7 @@ export class LocalSiteInformationComponent implements OnInit{
       this.siteService.updateSite(url, {
         name: this.updateSiteForm.value["name"],
         modality: this.updateSiteForm.value["modality"],
-        region: this.site.region,
+        regionId: this.site.regionId,
         country: countryName,
         open: open,
         description: this.updateSiteForm.value["description"]

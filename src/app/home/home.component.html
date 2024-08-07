@@ -1,76 +1,96 @@
-<section class="vh-100 backgroundGradient">
-    <div class="container-fluid h-100 mainWindow">
-        <div class="row headerGradient">
-            <div class = "col GJrol">GJ+ - {{userRole}}  {{username}}</div>
-            <div class = "dashButton">
-                <img class="col btn btn-default" data-toggle="modal" data-target="#userDashboard" src="/assets/Images/menu.png" width="64" height="50">
-            </div>
-            <!--
-            <div class = "col btn btn-primary logOutButton" (click)="logOut()">Log out</div>
-            -->
-        </div>
-        <div class="row mainContainer">
+<section class="backgroundGradient">
+  <div class="container-fluid mainWindow">
+    <div *ngIf="user" class="row headerGradient">
+      <div class = "col-lg GJrol">{{user?.name}} ({{activeRole}})</div>
 
-            <app-local-home *ngIf="userRole === 'LocalOrganizer'"></app-local-home>
-            <app-global-home *ngIf="userRole === 'GlobalOrganizer'"></app-global-home>
-            <app-jammer-home *ngIf="userRole === 'Jammer'"></app-jammer-home>
-            <app-juez-main *ngIf="userRole === 'Judge'"></app-juez-main>
+      <!-- ROLE SWITCHER -->
+      <div *ngIf="user.roles.length > 1" class="col-4 btn-group btn-group-toggle" data-toggle="buttons">
+        <label *ngFor="let role of user.roles" [ngClass]="{'btn btn-secondary' : true, 'active': role === activeRole}" (click)="changeActiveRole(role)">
+          <input type="radio" name="roles" [value]="role">{{role}}
+        </label>
+      </div>
 
-        </div>
-
-        <div #userDashboard class="modal fade" id="userDashboard" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    
-                    <div class="modal-header">
-                        <div class="row">
-                            <img src="/assets/Images/GJ-logo.png" width="64" height="50">
-                        </div>
-                        <span href="#" class="close" data-dismiss="modal">&times;</span>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="row">
-                            Name:
-                        </div>
-                        <div class="col">
-                            {{ name }}
-                        </div>
-                        <div class="row">
-                            Discord Username:
-                        </div>
-                        <div class="col">
-                            {{ discordName }}
-                        </div>
-                        <div class="row">
-                            Email:
-                        </div>
-                        <div class="col">
-                            {{ email }}
-                        </div>
-                        <div class="row">
-                            Site:
-                        </div>
-                        <div class="col">
-                            {{ region }} - {{ site }}
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <div class="col btn btn-primary logOutButton" (click)="openEditUserInfoModal()" data-toggle="modal" data-target="#editUserInfo">
-                            Update User Data
-                        </div>
-                        <div *ngIf="localLogged" class="col btn btn-primary logOutButton" (click)="changeWindow()" href="#" data-dismiss="modal">
-                            Change Window
-                        </div>
-                        <div class="col btn btn-primary logOutButton" (click)="logOut()" href="#" data-dismiss="modal">
-                            Log Out
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <app-user-dashboard *ngIf="editing"></app-user-dashboard>
+      <!-- USER BUTTON -->
+      <div class = "col-1 dashButton">
+          <img class="" data-toggle="modal" data-target="#accountModal" (click)="patchUserForm()" src="/assets/Images/menu.png" width="64" height="50">
+      </div>
     </div>
+
+    <div class="row mainContainer">
+
+      <app-global-home *ngIf="activeRole === 'GlobalOrganizer'"></app-global-home>
+      <app-local-home *ngIf="activeRole === 'LocalOrganizer'" [user]="user"></app-local-home>
+      <app-jammer-home *ngIf="activeRole === 'Jammer'"></app-jammer-home>
+      <app-juez-main *ngIf="activeRole === 'Judge'"></app-juez-main>
+
+    </div>
+  </div>
 </section>
+
+
+<!-- MODALS -->
+<div #accountModal *ngIf="user" class="modal fade" id="accountModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <form (submit)="updateUser()" [formGroup]="userForm" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">User Information</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body container no-radius">
+          <div class="row">
+            <div class="col-sm">
+              <label for="Name">Name</label>
+              <input type="text" class="form-control" id="name" placeholder="Enter user's full name" formControlName="name">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm">
+              <label for="email">Email</label>
+              <div class="form-control" readonly> {{user.email}} </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm">
+              <label for="discord">Discord</label>
+              <input type="text" class="form-control" id="discord" placeholder="Enter user's discord" formControlName="discordUsername">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm">
+              <label for="site">Site Information</label>
+              <div class="form-control" readonly>{{ getUserRegionName() }} - {{ getUserSiteName() }}</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm">
+              <label for="discord">Roles:</label>
+              <div class="form-control" readonly>
+                <div *ngFor="let role of user!.roles">
+                  {{role}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="p-3 m-2 error">
+          {{ errorMessage }}
+        </div>
+
+        <div *ngIf="successMessage" class="p-3 m-2 success">
+          {{ successMessage }}
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clearUserForm()" #closeUserModal>Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

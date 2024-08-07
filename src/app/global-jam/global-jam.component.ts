@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
 import { Jam, Theme } from '../../types';
 import { JamService } from '../services/jam.service';
@@ -23,18 +23,18 @@ import { after } from 'node:test';
 
 export class GlobalJamComponent {
   activeJam: Jam | null = null;
-  confirmationMessage: String = "";
-  confirmationAction: Function | null = null;
   selectedThemeIndex: number = -1;
   selectedCategoryIndex: number = -1;
   selectedStageIndex: number = -1;
   timeZone: string = '';
-  roleNames: string[] = ["Global Organizer", "Local Organizer", "Judge", "Jammer"];
   jamForm!: FormGroup;
   themeForm!: FormGroup;
   categoryForm!: FormGroup;
   stageForm!: FormGroup;
+  errorMessage: string = '';
+  warningMessage: string = '';
   @ViewChild(MessagesComponent) message!: MessagesComponent;
+  @ViewChild('closeStageModal') closeStageModal?: ElementRef;
   constructor(private route: ActivatedRoute, private jamService: JamService, private fb: FormBuilder){}
 
   ngOnInit(): void {
@@ -73,8 +73,8 @@ export class GlobalJamComponent {
 
     this.stageForm = this.fb.group({
       stageName: ['', Validators.required],
-      startDate: [new Date()],
-      endDate: [new Date()],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
       roleGlobal: [false],
       roleLocal: [false],
       roleJudge: [false],
@@ -371,8 +371,8 @@ export class GlobalJamComponent {
         stageName: stage.stageName,
         startDate: startDate,
         endDate: endDate,
-        roleGlobal: stage.roles.some(r => r.roleName === "Global Organizer"),
-        roleLocal: stage.roles.some(r => r.roleName === "Local Organizer"),
+        roleGlobal: stage.roles.some(r => r.roleName === "GlobalOrganizer"),
+        roleLocal: stage.roles.some(r => r.roleName === "LocalOrganizer"),
         roleJudge: stage.roles.some(r => r.roleName === "Judge"),
         roleJammer: stage.roles.some(r => r.roleName === "Jammer")
       });
@@ -398,12 +398,29 @@ export class GlobalJamComponent {
   }
 
   saveStage(): void{
+    if(!this.stageForm.valid)
+    {
+      this.errorMessage = "Please fill the Stage Name and Dates";
+      return;
+    }
     let roles = [];
 
-    if(this.stageForm.get('roleGlobal')!.value) roles.push({roleName: "Global Organizer"});
-    if(this.stageForm.get('roleLocal')!.value) roles.push({roleName: "Local Organizer"});
+    if(this.stageForm.get('roleGlobal')!.value) roles.push({roleName: "GlobalOrganizer"});
+    if(this.stageForm.get('roleLocal')!.value) roles.push({roleName: "LocalOrganizer"});
     if(this.stageForm.get('roleJudge')!.value) roles.push({roleName: "Judge"});
     if(this.stageForm.get('roleJammer')!.value) roles.push({roleName: "Jammer"});
+
+    const startDate = new Date(this.stageForm.get('startDate')!.value);
+    const endDate = new Date(this.stageForm.get('endDate')!.value);
+    const delta = endDate.getTime() - startDate.getTime();
+
+    if(delta < 0)
+    {
+      this.errorMessage = "Start Date must be before End Date";
+      return;
+    }
+
+    console.log(`Start Date is: ${startDate} End Date is: ${endDate} Delta is ${endDate.getTime() - startDate.getTime()}`);
 
     let stage = {
       stageName: this.stageForm.get('stageName')!.value,
@@ -425,6 +442,7 @@ export class GlobalJamComponent {
 
     this.selectedStageIndex = -1;
     this.clearStageForm();
+    this.closeStageModal?.nativeElement.click();
   }
 
   deleteStage(index: number): void {

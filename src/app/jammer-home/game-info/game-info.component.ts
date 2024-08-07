@@ -49,16 +49,16 @@ export class GameInfoComponent implements OnInit {
 loading: boolean = false;
 
   constructor(
-    private fb: FormBuilder, 
-    private router: Router, 
+    private fb: FormBuilder,
+    private router: Router,
     private route: ActivatedRoute,
-    private SubmissionService: SubmissionService, 
-    private TeamService: TeamService, 
-    private ThemeService: ThemeService, 
+    private SubmissionService: SubmissionService,
+    private TeamService: TeamService,
+    private ThemeService: ThemeService,
     private CategoryService: CategoryService,
     private UserService: UserService
   ) { }
-  
+
   ngOnInit(): void {
     this.loading = true;
     this.route.params.subscribe(params => {
@@ -84,7 +84,7 @@ loading: boolean = false;
           const urlj = `http://${environment.apiUrl}:3000/api/team/get-team/${game.teamId}`;
           this.TeamService.getTeamById(urlj).subscribe(
             (team: Team) => {
-              this.teamName = team.studioName;
+              this.teamName = team.teamName;
               this.gameDescription = game.description;
               this.teamMembers = team.jammers.map(jammer => ({
                 name: jammer.name,
@@ -97,7 +97,7 @@ loading: boolean = false;
                   this.categories = [category.titleEN];
                   const urlt = `http://${environment.apiUrl}:3000/api/theme/get-theme/${game.themeId}`;
                   this.ThemeService.getTheme(urlt).subscribe(
-                    (theme: Theme) => { 
+                    (theme: Theme) => {
                       this.themes = theme.titleEN !== undefined ? [theme.titleEN] : [];
                       this.dataSource = {
                         name: this.gameTitle,
@@ -131,5 +131,5 @@ loading: boolean = false;
       );
     });
     this.loading = false;
-  }  
+  }
 }

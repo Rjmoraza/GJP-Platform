@@ -38,37 +38,10 @@ export class GlobalCRUDsComponent implements OnInit{
 
   constructor(private router: Router, private userService: UserService) { }
   ngOnInit(): void {
-    this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
-    .subscribe(
-      user => {
-        if (user.roles.includes('LocalOrganizer')) {
-          this.router.navigate(['/Games']);
-        }
-        if (user.roles.includes('Jammer')) {
-          this.router.navigate(['/Jammer']);
-        }
-      },
-      () => {
-      }
-    );
-  }
-  moveToSites() {
-    this.router.navigate(['/Sites']);
+
   }
 
   selectPage(page: string) {
     this.page = page;
-  }
-
-  logOut(): void {
-    this.userService.logOutUser(`http://${environment.apiUrl}:3000/api/user/log-out-user`)
-      .subscribe(
-        () => {
-          this.router.navigate(['/login']);
-        },
-        error => {
-          console.error('Error al cerrar sesión:', error);
-        }
-      );
   }
 }

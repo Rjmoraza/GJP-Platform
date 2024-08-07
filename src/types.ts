@@ -32,11 +32,11 @@ export interface User {
   name: string;
   email: string;
   discordUsername: string;
-  region: {
+  region?: {
     _id: string;
     name: string;
   };
-  site: {
+  site?: {
     _id: string;
     name: string;
   };
@@ -51,17 +51,16 @@ export interface User {
 export interface Site {
     _id?: string;
     name: string;
+    code?: string;
     open?: number;
     modality?: string;
-    description?: string,
-    region: {
-      _id: string;
-      name: string;
-    };
+    description?: string;
+    regionId: string;
     country: {
       name: string;
       code: string;
     };
+    city?: string;
 }
 
 export interface Region {
@@ -162,27 +161,16 @@ export interface Stage {
 
 export interface Team {
   _id?: string;
-  studioName: string;
-  description: Date;
-  linkTree: string[];
-  region: {
-    _id: string;
-    name: string;
-  };
-  site: {
-    _id: string;
-    name: string;
-  };
-  gameJam: {
-    _id: string;
-    edition: string;
-  };
-  jammers: {
+  teamName: string;
+  teamCode: string;
+  siteId: string;
+  jamId: string;
+  jammers: [{
     _id: string;
     name: string;
     email: string;
     discordUsername: string;
-  }[];
+  }]
 }
 
 export interface Theme {

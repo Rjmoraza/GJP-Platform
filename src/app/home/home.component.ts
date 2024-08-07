@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { SiteService } from '../services/site.service';
@@ -15,6 +17,8 @@ import { environment } from '../../environments/environment.prod';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     LocalHomeComponent,
     JammerHomeComponent,
     JuezMainComponent,
@@ -24,64 +28,113 @@ import { environment } from '../../environments/environment.prod';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
-  localLogged: boolean = false;
-  editing: boolean = false;
-  username: string | undefined;
-  userRole: string | undefined;
-  name: string | undefined;
-  discordName: string | undefined;
-  email: string | undefined;
-  site: string | undefined;
-  region: string | undefined;
+export class HomeComponent{
+  userForm!: FormGroup;
+  errorMessage: string = '';
+  successMessage: string = '';
+  user!: User;
+  name: string = '';
+  activeRole: string = "";
 
-  constructor(private router: Router, private userService: UserService, private siteService: SiteService) {}
+  constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private siteService: SiteService) {}
 
   ngOnInit(): void {
-    this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
-      .subscribe(
-        (user: User) => {
-          if (user.roles.includes("LocalOrganizer") && user.roles.includes("Judge")) {
-            this.localLogged = true;
-            this.userRole = "LocalOrganizer";
-          } else {
-            this.userRole = user.roles[0]; // Asignar el primer rol como userRole
-          }
-          this.username = `${user.name} (${user.discordUsername})`;
-          this.name = user.name;
-          this.discordName = user.discordUsername;
-          this.email = user.email;
+    this.userForm = this.fb.group({
+      name: ['', Validators.required],
+      discordUsername: ['']
+    });
 
-          if(user.site) this.site = user.site.name;
-          if(user.region) this.region = user.region.name;
-        },
-        error => {
-          this.router.navigate(['/login']);
-        }
-      );
+    this.getUser();
   }
 
-  changeWindow(): void {
-    if (this.userRole === "LocalOrganizer") {
-      this.userRole = "Judge";
-    } else {
-      this.userRole = "LocalOrganizer";
+  getUser() : void{
+    this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`).subscribe({
+      next: (user:User) =>{
+        this.user = user;
+        this.activeRole = user.roles[0]; // select the highest role as the active role
+      },
+      error: (error) => {
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  getUserRegionName(): string {
+    if(this.user?.region)
+    {
+      return this.user.region.name;
+    }
+    else
+    {
+      return "None";
     }
   }
 
-  openEditUserInfoModal(): void {
-    this.editing = true;
+  getUserSiteName(): string {
+    if(this.user?.site)
+    {
+      return this.user.site.name;
+    }
+    else
+    {
+      return "None";
+    }
+  }
+
+  changeActiveRole(newRole: string)
+  {
+    this.activeRole = newRole;
+  }
+
+  patchUserForm() : void {
+    if(this.user)
+    {
+      this.userForm.setValue({
+        name: this.user.name,
+        discordUsername: this.user.discordUsername ? this.user.discordUsername : ''
+      })
+    }
+  }
+
+  clearUserForm() : void {
+    this.userForm.setValue({
+      name: '',
+      discordUsername: ''
+    });
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  updateUser() : void {
+    if(this.user && this.userForm.valid)
+    {
+      this.user.name = this.userForm.get('name')?.value;
+      this.user.discordUsername = this.userForm.get('discordUsername')?.value;
+      this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.user._id}`, this.user).subscribe({
+        next: (data) => {
+          this.successMessage = "User updated successfully";
+          this.getUser();
+        },
+        error: (error) => {
+          this.errorMessage = error.message;
+        }
+      });
+    }
+    else
+    {
+      this.errorMessage = "Please fill all the fields";
+    }
   }
 
   logOut(): void {
-    this.userService.logOutUser(`http://${environment.apiUrl}:3000/api/user/log-out-user`)
-      .subscribe(
-        () => {
-          this.router.navigate(['/login']);
-        },
-        error => {
-          console.error('Error al cerrar sesión:', error);
-        }
-      );
+    this.userService.logOutUser(`http://${environment.apiUrl}:3000/api/user/log-out-user`).subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Error logging out', error.error.message);
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

@@ -1,1 +1,103 @@
-<app-local-site-information></app-local-site-information>
+<div>
+  <!-- NO REGION -->
+  <div *ngIf="!user.region" class="warning p-5 text-center m-2">
+    <p>You haven't been assigned to a region, please select your region to proceed.</p>
+    <p>NOTE: this action is not reversible, get in touch with a Global Organizer if you require to change your region.</p>
+
+    <button *ngFor="let region of regions" type="button" class="btn btn-primary m-1" (click)="selectRegion(region)">{{ region.name }}</button>
+  </div>
+
+  <!-- NO SITE -->
+  <div *ngIf="user.region && !user.site" class="warning p-5 text-center m-2">
+    <p>You haven't been assigned to a site. Please create your site or join another site as co-organizer.</p>
+    <p>NOTE: this action is not reversible, get in touch with a Global Organizer if you require to change your site.</p>
+
+    <button type="button" class="btn btn-primary m-1" (click)="createNewSite()">Create new site</button>
+    <button type="button" class="btn btn-primary m-1">Join a site</button>
+  </div>
+
+  <!-- LOCAL HOME -->
+  <div *ngIf="user.region && user.site" class="row w-100 p-3">
+
+    <div class="p-3 mb-2 bg-dark d-block text-white text-center timer">00:00:00:00</div>
+    <div id="localHomeNavBar" class="col-2 container-fluid">
+      <div class="navbutton navL1" data-toggle="collapse" data-target="#homeMenu">Home</div>
+      <ul #homeMenu id="homeMenu" class="collapse">
+        <li class="navbutton navL2" (click)="page = 'jam'">GJ+</li>
+        <li class="navbutton navL2" (click)="page = 'calendar'">Event Calendar</li>
+        <li class="navbutton navL2" (click)="page = 'toolbox'">Toolbox</li>
+        <li class="navbutton navL2" (click)="page = 'news'">Notifications</li>
+      </ul>
+
+      <button class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">My Venue</button>
+      <ul #venueMenu id="venueMenu" class="collapse">
+        <li class="navbutton navL2" (click)="page = 'site'">Site Information</li>
+        <li class="navbutton navL2" (click)="page = 'jammers'">Jammers and Teams</li>
+        <li class="navbutton navL2" (click)="page = 'games'">Submissions</li>
+      </ul>
+
+      <button class="navbutton navL1" data-toggle="collapse" data-target="#orgMenu">Org. Info</button>
+      <ul #orgMenu id="orgMenu" class="collapse">
+        <li class="navbutton navL2" (click)="page = 'contact'">Contact Information</li>
+        <li class="navbutton navL2" (click)="page = 'fellows'">Fellowship</li>
+      </ul>
+    </div>
+
+    <div id="localHomeMainContent" class="col-8">
+      <!-- HOME REGION -->
+      <div *ngIf="page == 'jam'" class="container container-lg p-3">
+        <h1>THIS IS THE GAMEJAM PAGE</h1>
+        <p>Here is the information of the gamejam</p>
+      </div>
+
+      <div *ngIf="page == 'calendar'" class="container container-lg p-3">
+        <h1>EVENT CALENDAR</h1>
+        <p>Here be the calendar</p>
+      </div>
+
+      <div *ngIf="page == 'toolbox'" class="container container-lg p-3">
+        <h1>TOOLBOX</h1>
+        <p>Here be the toolbox</p>
+      </div>
+
+      <div *ngIf="page == 'news'" class="container container-lg p-3">
+        <h1>NOTIFICATIONS</h1>
+        <p>This section is still under construction</p>
+      </div>
+
+      <!-- VENUE REGION -->
+      <div *ngIf="page == 'site'" class="container container-lg p-3">
+        <h1>{{ site!.name.toUpperCase() }}</h1>
+        <p>Site editing form</p>
+      </div>
+
+      <div *ngIf="page == 'jammers'" class="container container-lg p-3">
+        <h1>JAMMERS</h1>
+        <p>Jammer list and tools</p>
+      </div>
+
+      <div *ngIf="page == 'games'" class="container container-lg p-3">
+        <h1>SUBMISSIONS</h1>
+        <p>Submission list and tools</p>
+      </div>
+
+      <!-- ORG REGION -->
+      <div *ngIf="page == 'contact'" class="container container-lg p-3">
+        <h1>CONTACT INFORMATION</h1>
+        <p>contact information form</p>
+      </div>
+
+      <div *ngIf="page == 'fellows'" class="container container-lg p-3">
+        <h1>MY FELLOWSHIP</h1>
+        <p>This section is still under construction</p>
+      </div>
+    </div>
+
+    <div id="localHomeSideBar" class="col-2">
+      THIS IS THE SIDEBAR
+    </div>
+  </div>
+</div>
+
+
+<app-messages></app-messages>

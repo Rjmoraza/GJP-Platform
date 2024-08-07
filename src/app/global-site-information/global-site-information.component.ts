@@ -27,9 +27,9 @@ export class GlobalSiteInformationComponent implements OnInit {
   jammers: User[] =[];
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private siteService: SiteService,
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private userService: UserService
   ) { }
 
@@ -75,9 +75,9 @@ export class GlobalSiteInformationComponent implements OnInit {
     this.userService.getUsers(staffUrl).subscribe(
       (users: any[]) => {
         this.staff = users?.map(user => ({
-          _id: user._id, name: user.name, email: user.email, 
-          region: user.region, site: user.site, roles: user.roles, 
-          coins: user.coins, discordUsername: user.discordUsername 
+          _id: user._id, name: user.name, email: user.email,
+          region: user.region, site: user.site, roles: user.roles,
+          coins: user.coins, discordUsername: user.discordUsername
         }));
       },
       error => {
@@ -86,13 +86,13 @@ export class GlobalSiteInformationComponent implements OnInit {
       }
     );
 
-    const jammersUrl = `http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${this.staff[0].site._id}`;
+    const jammersUrl = `http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${this.staff[0].site?._id}`;
     this.userService.getJammersSite(jammersUrl).subscribe(
       (users: any[]) => {
         this.jammers = users?.map(user => ({
-          _id: user._id, name: user.name, email: user.email, 
-          region: user.region, site: user.site, roles: user.roles, 
-          coins: user.coins, discordUsername: user.discordUsername 
+          _id: user._id, name: user.name, email: user.email,
+          region: user.region, site: user.site, roles: user.roles,
+          coins: user.coins, discordUsername: user.discordUsername
         }));
       },
       error => {

@@ -13,8 +13,8 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 export class MessagesComponent {
   title: string = '';
   message: string = '';
-  acceptAction?: Function;
-  cancelAction?: Function;
+  acceptAction?: Function | null = null;
+  cancelAction?: Function | null = null;
   @ViewChild('modalMessage', {static: true}) modalMessage? : TemplateRef<any>;
   messageRef?: BsModalRef;
 
@@ -25,19 +25,25 @@ export class MessagesComponent {
 
   ngOnInit(): void {}
 
-  showMessage(title: string, message: string)
+  showMessage(title: string, message: string, acceptAction: Function | null = null)
   {
     if(this.modalMessage)
     {
       this.title = title;
       this.message = message;
       this.messageRef = this.modalService.show(this.modalMessage);
+      this.acceptAction = acceptAction;
     }
   }
 
   closeMessage()
   {
     this.messageRef?.hide();
+    if(this.acceptAction)
+    {
+      this.acceptAction();
+      this.acceptAction = null;
+    }
   }
 
   showDialog(title: string, message: string, accept?: Function, cancel?: Function)
@@ -63,5 +69,7 @@ export class MessagesComponent {
       this.cancelAction();
     }
     this.dialogRef?.hide();
+    this.acceptAction = null;
+    this.cancelAction = null;
   }
 }

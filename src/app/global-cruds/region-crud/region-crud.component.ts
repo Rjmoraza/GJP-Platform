@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RegionService } from '../../services/region.service';
-import { Region } from '../../../types';
+import { SiteService } from '../../services/site.service';
+import { Region, Site } from '../../../types';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { jsPDF }  from 'jspdf';
 import { MessagesComponent } from '../../messages/messages.component';
@@ -22,12 +23,13 @@ declare var $: any;
   ],
   templateUrl: './region-crud.component.html',
   styleUrl: './region-crud.component.css',
-  providers: [BsModalService, MessagesComponent]
+  providers: [BsModalService]
 })
 export class RegionCRUDComponent implements OnInit{
   regionForm!: FormGroup;
   regions: Region[] = [];
-  selectedRegion?: Region;
+  sites: Site[] = [];
+  selectedRegion?: Region | null = null;
   columnOptions = [
     { label: 'name', value: 'name' as keyof Region, checked: false },
   ];
@@ -37,18 +39,18 @@ export class RegionCRUDComponent implements OnInit{
   filterValue: string = '';
   selectedColumns: (keyof Region)[] = [];
   ventanaAgregar: boolean = false;
-  @ViewChild('modalRegion', {static: true}) modalRegion? : TemplateRef<any>;
+  @ViewChild('closeRegionModal') closeRegionModal?: ElementRef;
   @ViewChild(MessagesComponent) message!: MessagesComponent;
-  modalRef?: BsModalRef;
   modalError: string = "";
 
-  constructor(private fb: FormBuilder, private regionService: RegionService, private modalService: BsModalService){}
+  constructor(private fb: FormBuilder, private regionService: RegionService, private siteService: SiteService, private modalService: BsModalService){}
 
   ngOnInit(): void {
     this.regionForm = this.fb.group({
       region: ['', Validators.required]
     });
     this.listRegions();
+    this.listSites();
 
     this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
@@ -57,8 +59,8 @@ export class RegionCRUDComponent implements OnInit{
   {
     const url = `http://${environment.apiUrl}:3000/api/region/get-regions`;
     this.regionService.getRegions(url).subscribe({
-      next: (regions: any[]) => {
-        this.regions = regions.map(region => ({ _id: region._id, name: region.name }));
+      next: (regions: Region[]) => {
+        this.regions = regions;
       },
       error: (error) => {
         console.error('Error al obtener regiones:', error);
@@ -66,12 +68,30 @@ export class RegionCRUDComponent implements OnInit{
     });
   }
 
+  listSites()
+  {
+    const url = `http://${environment.apiUrl}:3000/api/site/get-sites`;
+    this.siteService.getSites(url).subscribe({
+      next: (sites: Site[]) => {
+        this.sites = sites;
+      },
+      error: (error) => {
+        console.error('Error al obtener sitios:', error);
+      }
+    });
+  }
+
+  countSitesPerRegion(regionId?: string)
+  {
+    const sites = this.sites.filter(site => site.regionId === regionId);
+    return sites.length;
+  }
+
   selectRegion(region: Region){
     this.selectedRegion = region;
     this.regionForm.patchValue({
       region: region.name
     });
-    this.openModal();
   }
 
   saveRegion()
@@ -106,7 +126,7 @@ export class RegionCRUDComponent implements OnInit{
           }
         },
         error: (error) => {
-          console.log(error);
+          console.log(error.error.message);
           this.modalError = error.error.message;
           //this.showErrorMessage(error.error.error); // Mostrar el mensaje de error del backend
         },
@@ -143,8 +163,6 @@ export class RegionCRUDComponent implements OnInit{
           this.listRegions();
         },
         error: (error) => {
-          //console.error('Error al actualizar la región:', error);
-          //this.showErrorMessage(error.error.message);
           this.modalError = error.error.message;
         }
       });
@@ -159,24 +177,29 @@ export class RegionCRUDComponent implements OnInit{
     this.regionForm.setValue({
       region: ''
     });
+    this.selectedRegion = null;
+    this.modalError = '';
   }
 
-  eliminar(elemento: any) {
-    const id = elemento._id;
-
-    const url = `http://${environment.apiUrl}:3000/api/region/delete-region/${id}`;
-
-    this.regionService.deleteRegion(url).subscribe({
-        next: (data) => {
-            console.log('Region eliminada correctamente:', data);
-            this.message.showMessage("Success", data.message);
-            this.listRegions();
-        },
-        error: (error) => {
-            console.error('Error al eliminar el elemento:', error);
-            this.message.showMessage("Error", error.error.message);
-        }
-    });
+  deleteRegion(region: Region) {
+    this.message.showDialog(
+      "Confirm Action",
+      `Delete region with name ${region.name}`,
+      () => {
+        const id = region._id;
+        const url = `http://${environment.apiUrl}:3000/api/region/delete-region/${id}`;
+        this.regionService.deleteRegion(url).subscribe({
+            next: (data) => {
+                this.message.showMessage("Success", data.message);
+                this.listRegions();
+            },
+            error: (error) => {
+                console.error('Error al eliminar el elemento:', error);
+                this.message.showMessage("Error", error.error.message);
+            }
+        });},
+      () => {}
+    );
   }
 
   toggleColumn(column: keyof Region, event: any) {
@@ -222,18 +245,17 @@ export class RegionCRUDComponent implements OnInit{
     return Math.ceil(this.regions.length / this.pageSize);
   }
 
-  pageSize = 5; // Número de elementos por página
-  currentPage = 1; // Página actual
+  pageSize = 5; // Elements per page
+  currentPage = 1;
 
-  // Función para cambiar de página
-  cambiarPagina(page: number) {
+  changePage(page: number) {
     this.currentPage = page;
   }
 
   changePageSize(e: any)
   {
     this.pageSize = e.srcElement.value;
-    this.cambiarPagina(1);
+    this.changePage(1);
     localStorage.setItem("PageSize", `${this.pageSize}`);
   }
 
@@ -258,7 +280,6 @@ export class RegionCRUDComponent implements OnInit{
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);
   }
-
 
   get paginasMostradas(): (number | '...')[] {
     const totalPaginas = this.totalPaginas;
@@ -285,17 +306,8 @@ export class RegionCRUDComponent implements OnInit{
     return paginasMostradas;
   }
 
-  openModal(): void{
-    if(this.modalRegion)
-    {
-      this.modalRef = this.modalService.show(this.modalRegion);
-    }
-  }
-
   closeModal(): void{
     this.clearForm();
-    this.modalRef?.hide();
+    this.closeRegionModal?.nativeElement.click();
   }
-
-
 }

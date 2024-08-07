@@ -3,6 +3,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 
 html, body
 {
@@ -28,6 +30,8 @@ h2, h3, h4, h5, h6
 .backgroundGradient
 {
   background-color: #E9E9E9;
+  height: 100vh;
+  overflow: scroll;
 }
 
 .backgroundGradient .FullColor
@@ -42,6 +46,11 @@ h2, h3, h4, h5, h6
 .container{
   border-radius: 25px;
   background-color: #00000011;
+}
+
+.th-60
+{
+  width: 60%;
 }
 
 .th-40
@@ -68,6 +77,12 @@ h2, h3, h4, h5, h6
 .no-radius
 {
   border-radius: 0px;
+}
+
+.containerMid{
+  width: 80%;
+  margin: auto;
+  padding: 30px;
 }
 
 .containerLarge{
@@ -97,9 +112,50 @@ h2, h3, h4, h5, h6
   background-color: #FF000022;
 }
 
+.success{
+  border-style: dashed;
+  border-radius: 10px;
+  border-color: #00FF0055;
+  background-color: #00FF0022;
+}
+
 .info{
   border-style: dashed;
   border-radius: 10px;
   border-color: #DDDDDD;
   background-color: #FFFFFF;
 }
+
+.timer{
+  font-size: 3em;
+  font-family: "Space Mono", monospace;
+}
+
+.pointer:hover{
+  cursor: pointer;
+}
+
+.navbutton{
+  display: block;
+  width: 100%;
+  color: white;
+  margin: 1px;
+  border: solid black 1px;
+}
+
+.navbutton:hover{
+  background-color: #101010;
+  cursor: pointer;
+}
+
+.navL1{
+  background-color: #252525;
+  padding: 1em;
+}
+
+.navL2{
+  background-color: #454545;
+  padding: 0.6em;
+}
+
+

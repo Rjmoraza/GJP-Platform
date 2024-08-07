@@ -10,7 +10,7 @@
     <div class="row">
 
       <!-- Left Side -->
-      <div class="col">
+      <div class="col" id="jamLeftSide">
         <div class="form-group">
           <label for="title">Title</label>
           <input type="text" class="form-control" id="title" placeholder="Enter title" formControlName="title">
@@ -115,8 +115,7 @@
       </div>
 
       <!-- Right Side -->
-
-      <div class="col">
+      <div class="col" id="jamRightSide">
         <div>
           Participants
         </div>
@@ -262,7 +261,7 @@
 </div>
 
 <!-- Stage Modal -->
-<div #stageModal class="modal fade" id="stageModal" tabindex="-1" role="dialog" aria-labelledby="stageModalLabel" aria-hidden="true">
+<div #stageModal class="modal fade" id="stageModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <form [formGroup]="stageForm" enctype="multipart/form-data">
       <div class="modal-content">
@@ -311,10 +310,14 @@
             <label class="form-check-label" for="jammerRoleCheck">Jammer</label>
           </div>
 
+          <div *ngIf="errorMessage" class="error p-3 my-2">
+            {{ errorMessage }}
+          </div>
+
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" data-dismiss="modal" (click)="saveStage()">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" #closeStageModal>Close</button>
+          <button type="submit" class="btn btn-primary" (click)="saveStage()">Save changes</button>
         </div>
       </div>
     </form>

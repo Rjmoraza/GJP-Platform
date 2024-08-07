@@ -96,6 +96,7 @@ export class JammerCreateTeamComponent implements OnInit {
   }
 
   createTeam() {
+    /*
     if (this.myForm.valid) {
       const { studioName, description, gameJam, site, region } = this.myForm.value;
       this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`).subscribe(
@@ -108,8 +109,7 @@ export class JammerCreateTeamComponent implements OnInit {
           };
 
           this.teamService.createTeam(`http://${environment.apiUrl}:3000/api/team/create-team`, {
-            studioName: studioName,
-            description: description,
+            teamName: studioName,
             gameJam: {
               _id: gameJam._id,
               edition: gameJam.edition
@@ -144,5 +144,6 @@ export class JammerCreateTeamComponent implements OnInit {
     } else {
       console.log('Form is not valid');
     }
+      */
   }
 }

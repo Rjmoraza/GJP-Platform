@@ -1,11 +1,10 @@
-import { Component, OnInit, ViewChild, TemplateRef  } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Country, Region, Site } from '../../../types';
 import { RegionService } from '../../services/region.service';
 import { SiteService } from '../../services/site.service';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { MessagesComponent } from '../../messages/messages.component';
 declare var $: any;
 import { jsPDF }  from 'jspdf';
@@ -22,8 +21,7 @@ import { environment } from '../../../environments/environment.prod';
     MessagesComponent
   ],
   templateUrl: './site-crud.component.html',
-  styleUrl: './site-crud.component.css',
-  providers: [BsModalService, MessagesComponent]
+  styleUrl: './site-crud.component.css'
 })
 export class SiteCrudComponent implements OnInit {
   siteForm!: FormGroup;
@@ -37,22 +35,23 @@ export class SiteCrudComponent implements OnInit {
     { label: 'Country Name', value: 'country.name' as keyof Site, checked: false },
   ];
 
-  selectedSite: any;
+  selectedSite: Site | null = null;
   indexSite = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
   selectedColumns: (keyof Site)[] = [];
-  @ViewChild('modalSite', {static: true}) modalSite? : TemplateRef<any>;
+  modalError: string = '';
+  @ViewChild('closeSiteModal') closeSiteModal?: ElementRef;
   @ViewChild(MessagesComponent) message!: MessagesComponent;
-  modalRef?: BsModalRef;
 
-  constructor(private fb: FormBuilder, private siteService: SiteService, private regionService: RegionService, private modalService: BsModalService){}
+  constructor(private fb: FormBuilder, private siteService: SiteService, private regionService: RegionService){}
   ngOnInit(): void {
     this.siteForm = this.fb.group({
       name: ['', Validators.required],
       modality: ['', Validators.required],
+      region: ['', Validators.required],
       country: ['', Validators.required],
-      region: ['', Validators.required]
+      city: ['']
     });
 
     this.listRegions();
@@ -98,9 +97,15 @@ export class SiteCrudComponent implements OnInit {
     });
   }
 
+  getRegionName(regionId: string)
+  {
+    const region = this.regions.find(region => region._id === regionId);
+    return region?.name;
+  }
+
   selectSite(site: Site) {
     this.selectedSite = site;
-    const selectedRegion = this.regions.find(region => region._id === site.region._id);
+    const selectedRegion = this.regions.find(region => region._id === site.regionId);
     const selectedCountry = this.countries.find(country => country.name === site.country.name);
 
     this.siteForm.patchValue({
@@ -109,11 +114,9 @@ export class SiteCrudComponent implements OnInit {
       region: selectedRegion,
       country: selectedCountry
     });
-    this.openModal();
   }
 
-  saveSite()
-  {
+  saveSite() {
     if(this.selectedSite)
     {
       this.editSite();
@@ -126,30 +129,33 @@ export class SiteCrudComponent implements OnInit {
 
   editSite() {
     if (this.siteForm.valid) {
-      const siteId = this.selectedSite._id;
+      const siteId = this.selectedSite!._id;
       const url = `http://${environment.apiUrl}:3000/api/site/update-site/${siteId}`;
 
       console.log(this.siteForm.value["country"].name);
       this.siteService.updateSite(url, {
         name: this.siteForm.value["name"],
         modality: this.siteForm.value["modality"],
-        region: this.siteForm.value["region"],
-        country: this.siteForm.value["country"].name
+        regionId: this.siteForm.value["region"]?._id,
+        country: this.siteForm.value["country"].name,
+        city: this.siteForm.value["city"]
       }).subscribe({
         next: (data) => {
           this.listSites();
           this.message.showMessage('Success', 'Site updated successfully!');
-          this.selectedSite = undefined;
+          this.selectedSite = null;
           this.clearForm();
           this.closeModal();
         },
         error: (error) => {
           console.error('Error al actualizar el site:', error);
-          this.message.showMessage('Error', error.error.message);
+          this.modalError = error.error.message;
+          //this.message.showMessage('Error', error.error.message);
         }
       });
     } else {
-      this.message.showMessage('Error', 'Please fill in all fields of the form');
+      this.modalError = 'Please fill all fields in the form';
+      //this.message.showMessage('Error', 'Please fill in all fields of the form');
     }
   }
 
@@ -179,28 +185,29 @@ export class SiteCrudComponent implements OnInit {
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, {
         name: this.siteForm.value["name"],
         modality: this.siteForm.value["modality"],
-        region: this.siteForm.value["region"],
-        country: this.siteForm.value["country"].name
+        regionId: this.siteForm.value["region"]?._id,
+        country: this.siteForm.value["country"].name,
+        city: this.siteForm.value["city"]
       }).subscribe({
         next: (data) => {
           if (data.success) {
             const siteId = data.siteId;
-            this.sites.push({ _id: siteId, name: this.siteForm.value["name"], modality: this.siteForm.value["modality"], region: this.siteForm.value["region"], country: this.siteForm.value["country"]});
+            this.listSites();
             this.message.showMessage('Success', data.message);
             this.clearForm();
             this.closeModal();
           }
           else
           {
-            this.message.showMessage('Error', data.message);
+            this.modalError = data.message;
           }
         },
         error: (error) => {
-          this.message.showMessage('Error', error.error.message);
+          this.modalError = error.error.message;
         },
       });
     } else {
-      this.message.showMessage('Error','Please fill in all fields of the form');
+      this.modalError = 'Please fill in all fields of the form';
     }
   }
 
@@ -279,23 +286,17 @@ export class SiteCrudComponent implements OnInit {
           _id: site._id || '',
           name: site.name || '',
           modality: site.modality,
-          region: {
-            _id: site.region._id || '',
-            name: site.region.name || ''
-          },
+          regionId: site.regionId || '',
           country: {
             name: site.country.name || '',
             code: site.country.code || ''
           }
         }));
-
+        // TODO FIX EXPORT WITH REGION NAMES
         const selectedData = data.map(row => {
           const rowData: any[] = [];
           this.selectedColumns.forEach(column => {
-            if (column.startsWith('region.')) {
-              const subProperty = column.split('.')[1];
-              rowData.push(((row.region as {[key: string]: string})[subProperty]));
-            } else if (column.startsWith('country.')) {
+            if (column.startsWith('country.')) {
               const subProperty = column.split('.')[1];
               rowData.push(((row.country as {[key: string]: string})[subProperty]));
             } else {
@@ -352,26 +353,22 @@ export class SiteCrudComponent implements OnInit {
     return paginasMostradas;
   }
 
-  openModal(): void{
-    if(this.modalSite)
-    {
-      this.modalRef = this.modalService.show(this.modalSite);
-    }
-  }
-
   clearForm()
   {
     this.siteForm.setValue({
       name: '',
       modality: '',
       country: '',
+      city: '',
       region: ''
     });
+    this.modalError = '';
+    this.selectedSite = null;
   }
 
   closeModal(): void{
     this.clearForm();
-    this.modalRef?.hide();
+    this.closeSiteModal?.nativeElement.click();
   }
 
   ventanaAgregar: boolean = false;

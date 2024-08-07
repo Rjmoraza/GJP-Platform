@@ -112,7 +112,7 @@ export class JuezMainComponent implements OnInit {
                     {
                       id: juego._id,
                       name: juego.title,
-                      team: team.studioName
+                      team: team.teamName
                     }
                   );
                 },
@@ -137,7 +137,7 @@ export class JuezMainComponent implements OnInit {
                     {
                       id: juego._id,
                       name: juego.title,
-                      team: team.studioName
+                      team: team.teamName
                     }
                   );
                 },
@@ -177,9 +177,9 @@ export class JuezMainComponent implements OnInit {
       (juego: Submission) => {
         const existingGame = this.games.find(game => game.id === juego._id);
         if (existingGame) {
-          return; 
+          return;
         }
-  
+
         const urlj = `http://${environment.apiUrl}:3000/api/team/get-team/` + juego.teamId
         this.TeamService.getTeamById(urlj).subscribe(
           (team: Team) => {
@@ -187,14 +187,14 @@ export class JuezMainComponent implements OnInit {
               {
                 id: juego._id,
                 name: juego.title,
-                team: team.studioName
+                team: team.teamName
               }
             );
           },
           error => {
             if (error.status === 400) {
               this.showErrorMessage(error);
-            } 
+            }
           }
         )
       },
@@ -211,22 +211,22 @@ export class JuezMainComponent implements OnInit {
   showErrorMessage(message: string) {
     this.errorMessage = message;
   }
-  
+
   updateTimer() {
     const now = new Date();
-  
+
     if (this.targetTime instanceof Date) {
       const difference = this.targetTime.getTime() - now.getTime();
       if (difference <= 0) {
         this.timeRemaining = '0d 0h 0m 0s';
         return;
       }
-  
+
       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
       const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-  
+
       let timeRemainingStr = '';
       if (days > 0) {
         timeRemainingStr += `${days}d `;
@@ -240,7 +240,7 @@ export class JuezMainComponent implements OnInit {
       if (seconds > 0) {
         timeRemainingStr += `${seconds}s`;
       }
-  
+
       this.timeRemaining = timeRemainingStr.trim();
     } else {
       this.timeRemaining = '0d 0h 0m 0s';
@@ -274,7 +274,7 @@ export class JuezMainComponent implements OnInit {
       audioDesignFeedback: this.audioDesignFeedback,
       buildFeedback: this.buildFeedback,
       personalFeedback: this.personalFeedback
-  };  
+  };
     this.SubmissionService.giveRating(`http://${environment.apiUrl}:3000/api/submission/give-rating`, rating).subscribe({
       next: (data) => {
         if (data.success) {
@@ -288,9 +288,9 @@ export class JuezMainComponent implements OnInit {
       error: (error) => {
       },
     });
-    
+
   }
-  
+
   private loadData() {
     var url = `http://${environment.apiUrl}:3000/api/submission/get-submission/` + this.gameParameter;
     this.SubmissionService.getSubmission(url).subscribe(
@@ -298,18 +298,18 @@ export class JuezMainComponent implements OnInit {
         this.gameLink = game.game;
         this.pitchLink = game.pitch;
         this.gameTitle = game.title;
-        
+
         const urlj = `http://${environment.apiUrl}:3000/api/team/get-team/` + game.teamId;
         this.TeamService.getTeamById(urlj).subscribe(
           (team: Team) => {
-            this.teamName = team.studioName;
+            this.teamName = team.teamName;
             this.gameDescription = game.description;
             this.teamMembers = team.jammers.map(jammer => ({
               name: jammer.name,
               discordUsername: jammer.discordUsername,
               email: jammer.email
             }));
-  
+
             const urlc = `http://${environment.apiUrl}:3000/api/category/get-category/` + game.categoryId;
             this.CategoryService.getCategory(urlc).subscribe(
               (categories: Category) => {
@@ -318,7 +318,7 @@ export class JuezMainComponent implements OnInit {
                 this.ThemeService.getTheme(urlt).subscribe(
                   (theme: Theme) => {
                     this.themes = theme.titleEN !== undefined ? [theme.titleEN] : [];
-                    
+
                     const ratingUrl = `http://${environment.apiUrl}:3000/api/submission/get-rating/` + game._id;
                     this.SubmissionService.getRating(ratingUrl).subscribe(
                       (rating: any) => {
@@ -385,7 +385,7 @@ export class JuezMainComponent implements OnInit {
                         if (rating.personalFeedback !== undefined) {
                             this.personalFeedback = rating.personalFeedback;
                         }
-                      
+
                       },
                       error => {
                         console.error('Error al obtener la puntuación del juego:', error);
@@ -412,6 +412,6 @@ export class JuezMainComponent implements OnInit {
       }
     );
   }
-   
-  
+
+
 }

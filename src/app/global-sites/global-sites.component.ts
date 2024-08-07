@@ -26,7 +26,7 @@ export class GlobalSitesComponent implements OnInit{
   siteParameter: String | undefined;
   inSite: boolean = false;
   dataSource: Site[] = [];
-  regions: any[] = []; 
+  regions: any[] = [];
   staff: User[] = [];
   games: any[] = [];
   siteId : String = "";
@@ -54,11 +54,11 @@ export class GlobalSitesComponent implements OnInit{
     this.userService.getUsers(url).subscribe(
       (users: any[]) => {
         this.staff = users.map(user => ({
-          _id: user._id, name: user.name, email: user.email, 
-          region: user.region, site: user.site, roles: user.roles, 
+          _id: user._id, name: user.name, email: user.email,
+          region: user.region, site: user.site, roles: user.roles,
           coins: user.coins, discordUsername: user.discordUsername
         }));
-        this.siteService.getSubmissionsByName(`http://${environment.apiUrl}:3000/api/submission/get-submissions-site/${this.staff[0].site._id}`)
+        this.siteService.getSubmissionsByName(`http://${environment.apiUrl}:3000/api/submission/get-submissions-site/${this.staff[0].site?._id}`)
           .subscribe(
             submissions => {
               this.games = submissions;
@@ -67,14 +67,14 @@ export class GlobalSitesComponent implements OnInit{
               this.games = [];
             }
           );
-        const jammersUrl = `http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${this.staff[0].site._id}`;
+        const jammersUrl = `http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${this.staff[0].site?._id}`;
         this.userService.getJammersSite(jammersUrl).subscribe(
           (users: any[]) => {
             this.jammers = users.map(user => ({
-              _id: user._id, name: user.name, email: user.email, 
-              region: user.region, site: user.site, roles: user.roles, 
+              _id: user._id, name: user.name, email: user.email,
+              region: user.region, site: user.site, roles: user.roles,
               coins: user.coins, discordUsername: user.discordUsername
-            })); 
+            }));
           },
           error => {
             this.jammers = [];
@@ -86,7 +86,7 @@ export class GlobalSitesComponent implements OnInit{
       }
     );
   }
-  
+
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       if (params['region']) {
@@ -95,7 +95,7 @@ export class GlobalSitesComponent implements OnInit{
         this.regionParameter = 'Regions';
       }
     });
-  
+
     this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`)
       .subscribe(
         sites => {
@@ -107,20 +107,20 @@ export class GlobalSitesComponent implements OnInit{
         }
       );
   }
-  
+
 
   transformSitesData(): void {
     const groupedSites: { [key: string]: any[] } = {};
 
     this.dataSource.forEach(site => {
-      const { name, region, country} = site;
-      const regionName = region.name;
+      const { name, regionId, country} = site;
+      //const regionName = region.name;
 
-      if (!groupedSites[regionName]) {
-        groupedSites[regionName] = [];
-      }
+      //if (!groupedSites[regionName]) {
+      //  groupedSites[regionName] = [];
+      //}
 
-      groupedSites[regionName].push({ country: country.name, name});
+      //groupedSites[regionName].push({ country: country.name, name});
     });
 
     this.regions = Object.keys(groupedSites).map(regionName => ({

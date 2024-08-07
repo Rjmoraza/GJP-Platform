@@ -50,13 +50,13 @@ export class GameInformationComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private SubmissionService: SubmissionService, 
-    private TeamService: TeamService, 
-    private ThemeService: ThemeService, 
+    private SubmissionService: SubmissionService,
+    private TeamService: TeamService,
+    private ThemeService: ThemeService,
     private CategoryService: CategoryService,
     private UserService: UserService
   ) { }
-  
+
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.checkUserRole();
@@ -82,7 +82,7 @@ export class GameInformationComponent implements OnInit {
     const url = this.id
       ? `http://${environment.apiUrl}:3000/api/submission/get-submission/${this.game}`
       : `http://${environment.apiUrl}:3000/api/submission/get-submission-name/${this.game}`;
-    
+
     this.SubmissionService.getSubmissionName(url).subscribe(
       (game: Submission) => {
         this.populateGameData(game);
@@ -107,7 +107,7 @@ export class GameInformationComponent implements OnInit {
     const urlj = `http://${environment.apiUrl}:3000/api/team/get-team/${teamId}`;
     this.TeamService.getTeamById(urlj).subscribe(
       (team: Team) => {
-        this.teamName = team.studioName;
+        this.teamName = team.teamName;
         this.teamMembers = team.jammers.map(jammer => ({
           name: jammer.name,
           discordUsername: jammer.discordUsername,
@@ -135,7 +135,7 @@ export class GameInformationComponent implements OnInit {
   private loadThemeData(themeId: string): void {
     const urlt = `http://${environment.apiUrl}:3000/api/theme/get-theme/${themeId}`;
     this.ThemeService.getTheme(urlt).subscribe(
-      (theme: Theme) => { 
+      (theme: Theme) => {
         this.themes = theme.titleEN ? [theme.titleEN] : [];
         this.dataSource = {
           name: this.gameTitle,

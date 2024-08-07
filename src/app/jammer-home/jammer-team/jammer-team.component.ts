@@ -26,7 +26,7 @@ export class JammerTeamComponent implements OnInit {
   members: Member[] = [];
   siteId: string | undefined;
   possibleMembers: User[] = [];
-  
+
   showAddMemberModal: boolean = false;
   suggestionsVisible: boolean = false;
   isTriangleUp: boolean = true;
@@ -46,14 +46,17 @@ export class JammerTeamComponent implements OnInit {
           if (user.roles.includes('GlobalOrganizer')) {
             this.router.navigate(['/DataManagement']);
           }
-          this.siteId = user.site._id;
-          this.userService.getUsers(`http://${environment.apiUrl}:3000/api/user/get-free-jammers-per-site/` + user.site._id)
-            .subscribe(
-              (users: User[]) => {
-                this.possibleMembers = users;
-              },
-              () => {}
-            );
+          if(user.site)
+          {
+            this.siteId = user.site?._id;
+            this.userService.getUsers(`http://${environment.apiUrl}:3000/api/user/get-free-jammers-per-site/` + user.site?._id)
+              .subscribe(
+                (users: User[]) => {
+                  this.possibleMembers = users;
+                },
+                () => {}
+              );
+          }
 
           if (user.team && user.team._id) {
             this.teamService.getTeamById(`http://${environment.apiUrl}:3000/api/team/get-team/` + user.team._id)
@@ -154,7 +157,7 @@ export class JammerTeamComponent implements OnInit {
     this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
       .subscribe(
         user => {
-          this.siteId = user.site._id;
+          this.siteId = user.site?._id;
           if (user.team && user.team._id) {
             this.teamService.removeJammerFromTeam(`http://${environment.apiUrl}:3000/api/team/remove-jammer/` + this.dataSource[0]._id + '/' + user._id)
               .subscribe(

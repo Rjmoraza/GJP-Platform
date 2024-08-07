@@ -1,27 +1,16 @@
-<nav class="navbar">
-    <div class="tabButton">
-      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='jams' }" (click)="selectPage('jams')">GameJams</div>
-      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='regions' }" (click)="selectPage('regions')">Regions</div>
-      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='sites' }" (click)="selectPage('sites')">Sites</div>
-      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='teams' }" (click)="selectPage('teams')">Teams</div>
-      <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='users' }" (click)="selectPage('users')">Users</div>
-<!--
-    <div class="btn btn-default crudButton" [ngClass]="{ 'active': showThemes }" (click)="toggleThemes()">Themes</div>
-    <div class="btn btn-default crudButton" [ngClass]="{ 'active': showStage }" (click)="toggleStage()">Stages</div>
-    <div class="btn btn-default crudButton" [ngClass]="{ 'active': showCategories }" (click)="toggleCategories()">Categories</div>
--->
-    </div>
-</nav>
+<div class="navbar">
+  <div class="tabButton">
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='jams' }" (click)="selectPage('jams')">GameJams</div>
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='regions' }" (click)="selectPage('regions')">Regions</div>
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='sites' }" (click)="selectPage('sites')">Sites</div>
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='users' }" (click)="selectPage('users')">Users</div>
+    <div class="btn btn-default crudButton" [ngClass]="{ 'active': page=='teams' }" (click)="selectPage('teams')">Teams</div>
+  </div>
+</div>
 <div class="content">
   <div *ngIf="page=='jams'" class="card crudContent"><app-gamejam-crud></app-gamejam-crud></div>
   <div *ngIf="page=='regions'" class="card crudContent"><app-region-crud></app-region-crud></div>
   <div *ngIf="page=='sites'" class="card crudContent"><app-site-crud></app-site-crud></div>
-  <div *ngIf="page=='teams'" class="card crudContent"><app-team-crud></app-team-crud></div>
   <div *ngIf="page=='users'" class="card crudContent"><app-user-crud></app-user-crud></div>
-<!--
-  <div *ngIf="page=='categories'" class="card crudContent"><app-category-crud></app-category-crud></div>
-  <div *ngIf="page=='stages'" class="card crudContent"><app-stage-crud></app-stage-crud></div>
-  <div *ngIf="page=='themes'" class="card crudContent"><app-theme-crud></app-theme-crud></div>
--->
-
+  <div *ngIf="page=='teams'" class="card crudContent"><app-team-crud></app-team-crud></div>
 </div>

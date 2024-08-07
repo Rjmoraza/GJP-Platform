@@ -1,25 +1,26 @@
-<div class="row background">
-
+<div class="containerMid">
+  <div class="row background">
     <!-- Tab -->
     <div class="tabButton" [style.background]="inJam ? '#3D3D3D' : '#D9D9D9'">
-        <div class="btn btn-default tabFont" [style.color]="inJam ? 'white' : 'black'" (click)="moveToJam()">
-            Game Jam
-        </div>
+      <div class="btn btn-default tabFont" [style.color]="inJam ? 'white' : 'black'" (click)="moveToJam()">
+          Game Jam
+      </div>
     </div>
 
     <!-- Tab -->
     <div class="tabButton" [style.background]="inData ? '#3D3D3D' : '#D9D9D9'">
-        <div class="btn btn-default tabFont" [style.color]="inData ? 'white' : 'black'" (click)="moveToCruds()">
-            Data Management
-        </div>
+      <div class="btn btn-default tabFont" [style.color]="inData ? 'white' : 'black'" (click)="moveToCruds()">
+          Data Management
+      </div>
     </div>
-
-</div>
-<div class="row h-100 tabBackground">
+  </div>
+  <div class="row h-100 tabBackground">
     <div class="col centerCol">
         <div class="Card tabCardBackground">
             <app-global-jam *ngIf="inJam"></app-global-jam>
             <app-global-cruds *ngIf="inData"></app-global-cruds>
         </div>
     </div>
+  </div>
 </div>
+

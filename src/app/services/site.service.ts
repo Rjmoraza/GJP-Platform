@@ -14,42 +14,42 @@ export class SiteService {
   createSite(url: string, site: Site): Observable<any> {
     return this.http.post(url, site, { withCredentials: true });
   }
-  
+
   updateSite(url: string, site: Site): Observable<any> {
     return this.http.put(url, site, { withCredentials: true });
   }
 
-  getSites(url: string): Observable<Site[]> { 
-    return this.http.get<any>(url).pipe( 
+  getSites(url: string): Observable<Site[]> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }
 
-  getSite(url: string): Observable<Site> { 
-    return this.http.get<any>(url, { withCredentials: true }).pipe( 
+  getSite(url: string): Observable<Site> {
+    return this.http.get<any>(url, { withCredentials: true }).pipe(
       map(response => response.data)
     );
   }
 
-  getCountries(url: string): Observable<Country[]> { 
-    return this.http.get<any>(url).pipe( 
+  getCountries(url: string): Observable<Country[]> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }
 
-  getSubmissions(url: string): Observable<any[]> { 
-    return this.http.get<any>(url, { withCredentials: true }).pipe( 
+  getSubmissions(url: string): Observable<any[]> {
+    return this.http.get<any>(url, { withCredentials: true }).pipe(
       map(response => response.data)
     );
   }
-  getSubmissionsByName(url: string): Observable<any[]> { 
-    return this.http.get<any>(url, { withCredentials: true }).pipe( 
+  getSubmissionsByName(url: string): Observable<any[]> {
+    return this.http.get<any>(url, { withCredentials: true }).pipe(
       map(response => response.data)
     );
   }
 
-  getSitesPerRegion(url: string): Observable<Site[]> { 
-    return this.http.get<any>(url).pipe( 
+  getSitesPerRegion(url: string): Observable<Site[]> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }

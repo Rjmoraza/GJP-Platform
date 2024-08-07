@@ -6,7 +6,7 @@ import { UserService } from '../../services/user.service';
 import { Region, Site, User } from '../../../types';
 import { SiteService } from '../../services/site.service';
 import { RegionService } from '../../services/region.service';
-declare var $: any;
+import { MessagesComponent } from '../../messages/messages.component';
 import { jsPDF }  from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { environment } from '../../../environments/environment.prod';
@@ -18,7 +18,8 @@ import { Observable } from 'rxjs';
   imports: [
     FormsModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MessagesComponent
   ],
   templateUrl: './user-crud.component.html',
   styleUrl: './user-crud.component.css'
@@ -36,6 +37,8 @@ export class UserCrudComponent implements OnInit{
   selectedHeader: string | undefined;
   filterValue: string = '';
   selectedColumns: (keyof User)[] = [];
+  @ViewChild(MessagesComponent) message!: MessagesComponent;
+  @ViewChild('closeUserModal') closeUserForm!: ElementRef;
   columnOptions = [
     { label: 'Name', value: 'name' as keyof User, checked: false },
     { label: 'Email', value: 'email' as keyof User, checked: false },
@@ -50,25 +53,30 @@ export class UserCrudComponent implements OnInit{
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', Validators.required],
-      rol: ['', Validators.required],
+      roleGlobal: [false],
+      roleLocal: [false],
+      roleJudge: [false],
+      roleJammer: [false],
       region: [''],
       site: [''],
       discordUsername: ['']
     });
 
     this.listUsers();
+    this.listRegions();
+    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
+  }
 
-    this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`)
-    .subscribe(
-      regions => {
+  listRegions()
+  {
+    this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`).subscribe({
+      next: (regions: Region[]) => {
         this.regions = regions;
       },
-      error => {
-        console.error('Error al obtener regiones:', error);
+      error: (error) => {
+        this.message.showMessage("Error", error.error.message);
       }
-    );
-
-    this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
+    });
   }
 
   listUsers()
@@ -113,9 +121,9 @@ export class UserCrudComponent implements OnInit{
   }
 
   onRegionSelection() {
-    const selectedValue = this.userForm.get('region')?.value;
-    if (selectedValue && selectedValue._id) {
-      this.listSites(selectedValue._id, "None");
+    const region = this.userForm.get('region')?.value;
+    if (region && region._id) {
+      this.listSites(region._id, "None");
     } else {
       console.error('La región seleccionada no tiene un ID válido.');
     }
@@ -125,21 +133,32 @@ export class UserCrudComponent implements OnInit{
   {
     this.userToEdit = user;
     console.log(this.userToEdit);
+    const roleGlobal = user.roles.includes("GlobalOrganizer");
+    const roleLocal = user.roles.includes("LocalOrganizer");
+    const roleJudge = user.roles.includes("Judge");
+    const roleJammer = user.roles.includes("Jammer");
 
     this.userForm.setValue({
       name: user.name,
       email: user.email,
-      rol: user.roles.toString(),
+      roleGlobal: roleGlobal,
+      roleLocal: roleLocal,
+      roleJudge: roleJudge,
+      roleJammer: roleJammer,
       region: null,
       site: null,
-      discordUsername: user.discordUsername
+      discordUsername: user.discordUsername ? user.discordUsername : ''
     });
 
     if(user.region)
     {
-      const selectedRegion = this.regions.find(region => region._id === user.region._id);
+      const selectedRegion = this.regions.find(region => region._id === user.region?._id);
       this.userForm.patchValue({region: selectedRegion});
-      this.listSites(user.region._id, user.site?._id);
+    }
+
+    if(user.region && user.site)
+    {
+      this.listSites(user.region._id, user.site._id);
     }
   }
 
@@ -148,29 +167,37 @@ export class UserCrudComponent implements OnInit{
     this.userForm.setValue({
       name: '',
       email: '',
-      rol: '',
+      roleGlobal: false,
+      roleLocal: false,
+      roleJudge: false,
+      roleJammer: false,
       region: null,
       site: null,
       discordUsername: ''
     });
+    this.sites = [];
+    this.errorMessage = '';
   }
 
-  eliminar(elemento: any) {
-    const id = elemento._id;
-
-    const url = `http://${environment.apiUrl}:3000/api/user/delete-user/${id}`;
-
-    this.userService.deleteUser(url).subscribe({
-        next: (data) => {
-            console.log('Usuario eliminado correctamente:', data);
-            this.users = this.users.filter(item => item !== elemento);
-            this.showSuccessMessage(data.msg);
-        },
-        error: (error) => {
-            console.error('Error al eliminar el usuario:', error);
-            this.showErrorMessage(error.error.msg);
-        }
-    });
+  deleteUser(user: User) {
+    this.message.showDialog(
+      "Confirm Action",
+      `Delete user with email ${user.email}?`,
+      ()=>{
+        const id = user._id;
+        const url = `http://${environment.apiUrl}:3000/api/user/delete-user/${id}`;
+        this.userService.deleteUser(url).subscribe({
+            next: (data) => {
+                this.users = this.users.filter(item => item !== user);
+                this.message.showMessage("Success", data.message);
+            },
+            error: (error) => {
+                console.error('Error al eliminar el usuario:', error);
+                this.message.showMessage("Error", error.error.message);
+            }
+        });
+      },
+      ()=>{});
   }
 
   saveUser()
@@ -207,10 +234,23 @@ export class UserCrudComponent implements OnInit{
         };
       }
 
+      let roles = [];
+      if(this.userForm.get('roleGlobal')!.value) roles.push("GlobalOrganizer");
+      if(this.userForm.get('roleLocal')!.value) roles.push("LocalOrganizer");
+      if(this.userForm.get('roleJudge')!.value) roles.push("Judge");
+      if(this.userForm.get('roleJammer')!.value) roles.push("Jammer");
+
+      console.log(roles);
+      if(roles.length == 0)
+      {
+        this.errorMessage = "Please select at least one role for this user";
+        return;
+      }
+
       const user: User = {
         name : this.userForm.get('name')!.value,
         email: this.userForm.get('email')!.value,
-        roles: this.userForm.get('rol')!.value.split(','),
+        roles: roles,
         coins: 0,
         region: region,
         site: site,
@@ -221,15 +261,25 @@ export class UserCrudComponent implements OnInit{
         next: (data) => {
           if(data.success)
           {
+            this.closeUserForm.nativeElement.click();
+            this.message.showMessage("Success", data.message);
             this.listUsers();
+          }
+          else
+          {
+            this.errorMessage = data.message;
           }
         },
         error: (error) => {
-          console.log(error.error);
+          this.errorMessage = error.error.message;
         }
       })
 
       console.log(user);
+    }
+    else
+    {
+      this.errorMessage = "Please fill all the fields";
     }
   }
 
@@ -254,10 +304,24 @@ export class UserCrudComponent implements OnInit{
           name: this.userForm.get('site')?.value.name
         };
       }
+
+      let roles = [];
+      if(this.userForm.get('roleGlobal')!.value) roles.push("GlobalOrganizer");
+      if(this.userForm.get('roleLocal')!.value) roles.push("LocalOrganizer");
+      if(this.userForm.get('roleJudge')!.value) roles.push("Judge");
+      if(this.userForm.get('roleJammer')!.value) roles.push("Jammer");
+
+      console.log(roles);
+      if(roles.length == 0)
+      {
+        this.errorMessage = "Please select at least one role for this user";
+        return;
+      }
+
       const user: User = {
         name : this.userForm.get('name')!.value,
         email: this.userForm.get('email')!.value,
-        roles: this.userForm.get('rol')!.value.split(','),
+        roles: roles,
         coins: this.userToEdit.coins,
         region: region,
         site: site,
@@ -265,28 +329,20 @@ export class UserCrudComponent implements OnInit{
       };
 
       console.log('Editing user: ');
-      console.log(user);
 
       this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.userToEdit._id}`, user).subscribe({
         next: (data) => {
-          console.log(data);
+          this.closeUserForm.nativeElement.click();
+          this.message.showMessage("Success", "User updated successfully");
           this.listUsers();
         },
         error: (error) => {
-          console.log(error);
+          this.errorMessage = error.message;
         }
       });
     }
 
     this.userToEdit = null;
-  }
-
-  showSuccessMessage(message: string) {
-    this.successMessage = message;
-  }
-
-  showErrorMessage(message: string) {
-    this.errorMessage = message;
   }
 
   get totalPaginas(): number {
@@ -297,14 +353,14 @@ export class UserCrudComponent implements OnInit{
   currentPage = 1; // Página actual
 
   // Función para cambiar de página
-  cambiarPagina(page: number) {
+  changePage(page: number) {
     this.currentPage = page;
   }
 
   changePageSize(e: any)
   {
     this.pageSize = e.srcElement.value;
-    this.cambiarPagina(1);
+    this.changePage(1);
     localStorage.setItem("PageSize", `${this.pageSize}`);
   }
 
@@ -357,6 +413,7 @@ export class UserCrudComponent implements OnInit{
   }
 
   exportToPDF() {
+    /*
     const doc = new jsPDF();
 
     const url = `http://${environment.apiUrl}:3000/api/user/get-users`;
@@ -424,6 +481,7 @@ export class UserCrudComponent implements OnInit{
             console.error('Error fetching teams:', error);
         }
     );
+    */
   }
 
 
@@ -450,6 +508,4 @@ export class UserCrudComponent implements OnInit{
     }
     return paginasMostradas;
   }
-
-  ventanaAgregar: boolean = false;
 }
