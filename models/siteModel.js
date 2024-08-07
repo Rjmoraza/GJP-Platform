@@ -40,6 +40,15 @@ const siteSchema = mongoose.Schema({
     city: {
         type: String
     },
+    language: {
+        type: String
+    },
+    phoneNumber: {
+        type: String
+    },
+    email: {
+        type: String
+    },
     creatorUser:  {
         userId: {
             type: Schema.Types.ObjectId, 

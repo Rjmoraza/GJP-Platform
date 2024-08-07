@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const crypto = require('node:crypto');
 
 const createSite = async (req, res) => {
+    // TODO change this method to receive full country struct
     const { name, regionId, country, city, modality } = req.body;
     try {
         const creatorUser = await userController.validateUser(req);
@@ -72,13 +73,15 @@ const createSite = async (req, res) => {
 
 
 const updateSite = async (req, res) => {
-    const { name, regionId, country, city, open, modality, description } = req.body;
+    // TODO change this method to receive full country struct
+    const { name, regionId, country, city, open, modality, description, language, phoneNumber, email } = req.body;
     const id = req.params.id;
+    console.log(id);
     try {
         const creatorUser = await userController.validateUser(req);
         if(!creatorUser)
         {
-            return res.status(403).json({success: false, error: 'Session is invalid'});
+            return res.status(403).json({success: false, message: 'Session is invalid'});
         }
         else if (!mongoose.Types.ObjectId.isValid(regionId)) {
             return res.status(400).json({ success: false, message: 'The provided region ID is not valid.' });
@@ -98,7 +101,7 @@ const updateSite = async (req, res) => {
         }
         let countryData = findCountry(country);
         if (!countryData) {
-            return res.status(400).json({ success: false, error: "The country is not valid" });
+            return res.status(400).json({ success: false, message: "The country is not valid" });
         }
         
         site.name = name;
@@ -111,14 +114,17 @@ const updateSite = async (req, res) => {
         site.modality = modality;
         if(description) site.description = description;
         if(open) site.open = open;
+        if(language) site.language = language;
+        if(phoneNumber) site.phoneNumber = phoneNumber;
+        if(email) site.email = email;
         site.lastUpdateUser = creatorUser;
         site.lastUpdateDate = new Date();
 
         console.log(site);
 
-        await site.save();
+        let newSite = await site.save();
 
-        res.status(200).send({ success: true, message: 'Site updated successfully'});
+        res.status(200).send({ success: true, message: 'Site updated successfully', site: newSite});
     } catch (error) {
         res.status(400).send({ success: false, message: error.message });
     }
