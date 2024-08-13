@@ -57,6 +57,8 @@ export interface Site {
     description?: string;
     phoneNumber?: string;
     email?: string;
+    address?: string;
+    server?: string;
     language?: string;
     regionId: string;
     country: {

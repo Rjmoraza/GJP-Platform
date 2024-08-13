@@ -21,7 +21,7 @@
   <!-- LOCAL HOME -->
   <div *ngIf="user.region && user.site" class="row w-100 p-3">
 
-    <div class="p-3 mb-2 bg-dark d-block text-white text-center timer">00:00:00:00</div>
+    <div class="p-3 mb-2 bg-dark d-block text-white text-center timer">{{ deltaTime }}</div>
 
     <!-- #region NAV BAR -->
     <div id="localHomeNavBar" class="col-2 container-fluid">
@@ -29,8 +29,7 @@
       <ul #homeMenu id="homeMenu" class="collapse">
         <li class="navbutton navL2" (click)="page = 'jam'">GJ+</li>
         <li class="navbutton navL2" (click)="page = 'calendar'">Event Calendar</li>
-        <li class="navbutton navL2" (click)="page = 'toolbox'">Toolbox</li>
-        <li class="navbutton navL2" (click)="page = 'news'">Notifications</li>
+        <!--<li class="navbutton navL2" (click)="page = 'news'">Notifications</li>-->
       </ul>
 
       <div class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">My Venue</div>
@@ -38,11 +37,6 @@
         <li class="navbutton navL2" (click)="page = 'site'">Site Information</li>
         <li class="navbutton navL2" (click)="page = 'jammers'">Jammers and Teams</li>
         <li class="navbutton navL2" (click)="page = 'games'">Submissions</li>
-      </ul>
-
-      <div class="navbutton navL1" data-toggle="collapse" data-target="#orgMenu">Org. Info</div>
-      <ul #orgMenu id="orgMenu" class="collapse">
-        <li class="navbutton navL2" (click)="page = 'contact'">Contact Information</li>
         <li class="navbutton navL2" (click)="page = 'fellows'">Fellowship</li>
       </ul>
     </div>
@@ -51,18 +45,102 @@
     <div id="localHomeMainContent" class="col-8">
       <!-- #region HOME -->
       <div *ngIf="page == 'jam'" class="container container-lg p-3">
-        <h1>THIS IS THE GAMEJAM PAGE</h1>
-        <p>Here is the information of the gamejam</p>
+        <div *ngIf="!jam">
+          <h1>JOIN A GAME JAM</h1>
+          <p class="warning">This site is not linked to an open gamejam. Join to a gamejam below to start managing your site.</p>
+          <div class="row">
+            <div class="col-4 card" *ngFor="let gj of jams">
+              <h3 class="text-center">{{gj.title}}</h3>
+              <div class="row" *ngFor="let stage of gj.stages">
+                <div class="col-4"><b>{{ stage.stageName }}</b></div>
+                <div class="col-8">{{ stage.startDate | date: 'dd/MM/yyyy' }} - {{ stage.endDate | date: 'dd/MM/yyyy' }}</div>
+              </div>
+              <button class="navbutton navL1" (click)="joinJam(gj)">JOIN</button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="jam && site">
+          <h1 class="text-center">{{jam.title}}</h1>
+
+          <div class="info d-block text-center p-5 mb-5" *ngIf="!jam.public">
+            <p>Themes and categories are secret.</p>
+            <p>Global Organizers will publish the themes and categories soon, check again later.</p>
+          </div>
+
+          <!-- THEMES -->
+          <div class="row" *ngIf="jam.public">
+            <h2 class="col-12">Themes</h2>
+            <div class="col-4 p-2" *ngFor="let theme of jam.themes">
+              <div class="card p-2">
+                <h3 *ngIf="site.language == 'PT'" class="text-center">{{ theme.titlePT }}</h3>
+                <h3 *ngIf="site.language == 'ES'" class="text-center">{{ theme.titleES }}</h3>
+                <h3 *ngIf="site.language == 'EN'" class="text-center">{{ theme.titleEN }}</h3>
+
+                <p *ngIf="site.language == 'PT'">{{ theme.descriptionPT }}</p>
+                <p *ngIf="site.language == 'ES'">{{ theme.descriptionES }}</p>
+                <p *ngIf="site.language == 'EN'">{{ theme.descriptionEN }}</p>
+
+                <a *ngIf="site.language == 'PT'" href="{{ theme.manualPT }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'ES'" href="{{ theme.manualES }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'EN'" href="{{ theme.manualEN }}" class="navbutton navL1 my-2">Manual</a>
+              </div>
+            </div>
+          </div>
+
+          <hr *ngIf="jam.public" class="my-4">
+
+          <!-- CATEGORIES -->
+          <div class="row" *ngIf="jam.public">
+            <h2 class="col-12">Categories</h2>
+            <div class="col-4 p-2" *ngFor="let category of jam.categories">
+              <div class="card p-2">
+                <h3 *ngIf="site.language == 'PT'" class="text-center">{{ category.titlePT }}</h3>
+                <h3 *ngIf="site.language == 'ES'" class="text-center">{{ category.titleES }}</h3>
+                <h3 *ngIf="site.language == 'EN'" class="text-center">{{ category.titleEN }}</h3>
+
+                <p *ngIf="site.language == 'PT'">{{ category.descriptionPT }}</p>
+                <p *ngIf="site.language == 'ES'">{{ category.descriptionES }}</p>
+                <p *ngIf="site.language == 'EN'">{{ category.descriptionEN }}</p>
+
+                <a *ngIf="site.language == 'PT'" href="{{ category.manualPT }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'ES'" href="{{ category.manualES }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'EN'" href="{{ category.manualEN }}" class="navbutton navL1 my-2">Manual</a>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- STAGES -->
+          <div class="row pb-3 align-items-end">
+            <h2 class="col-12">Stages</h2>
+            <div class="col-3 p-2" *ngFor="let stage of jam.stages">
+              <div [ngClass]="getStageClass(stage)">
+                <h3 class="text-center">{{ stage.stageName }}</h3>
+                <p class="text-center">{{ stage.startDate | date: 'dd/MM/yyyy' }} - {{ stage.endDate | date: 'dd/MM/yyyy' }}</p>
+                <p class="text-center" *ngIf="isCurrentStage(stage)">Current Stage</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- TOOLBOX -->
+          <div class="row pb-3 align-items-end">
+            <h2 class="col-12">Toolbox</h2>
+            <div class="col-3 p-2">
+              <div class="card">
+                here be the toolbox
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="page == 'calendar'" class="container container-lg p-3">
         <h1>EVENT CALENDAR</h1>
         <p>Here be the calendar</p>
-      </div>
-
-      <div *ngIf="page == 'toolbox'" class="container container-lg p-3">
-        <h1>TOOLBOX</h1>
-        <p>Here be the toolbox</p>
       </div>
 
       <div *ngIf="page == 'news'" class="container container-lg p-3">
@@ -73,7 +151,7 @@
 
       <!-- #region VENUE -->
       <div *ngIf="page == 'site' && site" class="container container-lg p-3">
-        <h1>{{ site!.name.toUpperCase() }}</h1>
+        <h1 class="text-center">{{ site!.name.toUpperCase() }}</h1>
         <div class="row">
           <div class="col-4">
             <h3 class="text-center">Region:</h3>
@@ -92,19 +170,20 @@
           </div>
         </div>
 
+        <hr class="my-4">
 
         <form (submit)="saveSite()" [formGroup]="siteForm" class="row">
 
-          <div class="col-4">
+          <div class="col-6">
             <h3>Basic & Contact Information</h3>
 
             <div class="form-group">
-              <label for="siteName">Site Name</label>
+              <label for="siteName" class="required">Site Name</label>
               <input type="text" class="form-control" id="siteName" formControlName="name">
             </div>
 
             <div class="form-group">
-              <label for="siteName">Site Country</label>
+              <label for="siteName" class="required">Site Country</label>
               <select class="form-control formList" id="countries" formControlName="country">
                 <option value="" disabled selected hidden>Country of the site</option>
                 <option *ngFor="let country of countries" [ngValue]="country">{{ country.name }}</option>
@@ -112,19 +191,39 @@
             </div>
 
             <div class="form-group">
+              <label for="siteCity" class="required">Site City</label>
+              <input type="text" class="form-control" id="siteCity" formControlName="city">
+            </div>
+
+            <div class="form-group">
               <label for="siteEmail">Site Email</label>
               <input type="email" class="form-control" id="sitePhone" formControlName="email" placeholder="info@your.venue.com">
-              <small class="form-text text-muted">An official email address for your venue. This address will be visible to jammers and other organizers.<br>This field is not required.</small>
+              <small class="form-text text-muted">An official email address for your venue. This address will be visible to jammers and other organizers.</small>
             </div>
 
             <div class="form-group">
               <label for="sitePhone">Phone Number</label>
               <input type="tel" class="form-control" id="sitePhone" formControlName="phoneNumber" placeholder="+55 21 98765-4321">
-              <small class="form-text text-muted">An official phone number for your venue. This number will be visible to jammers and other organizers. Remember to include your country/area code.<br>This field is not required.</small>
+              <small class="form-text text-muted">An official phone number for your venue. This number will be visible to jammers and other organizers. Remember to include your country/area code.</small>
             </div>
 
             <div class="form-group">
-              <label for="sitePhone">Site Modality</label>
+              <label for="siteAddress">Venue Address</label>
+              <input type="text" class="form-control" id="siteAddress" formControlName="address" placeholder="Venue address">
+              <small class="form-text text-muted">If your venue has a physical location, specify the address.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="siteServer">Online Server</label>
+              <input type="text" class="form-control" id="siteServer" formControlName="server" placeholder="https://discord.gg/mySiteURL">
+              <small class="form-text text-muted">An URL to your virtual venue if any (discord server, whatsapp group, telegram group, or any other that applies)</small>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <h3>Options</h3>
+            <div class="form-group">
+              <label for="sitePhone" class="required">Site Modality</label>
               <div class="form-check">
                 <input type="radio" class="form-check-input" value="on site" name="modality" formControlName="modality">
                 <label class="form-check-label" for="modality">On Site</label>
@@ -144,7 +243,7 @@
             </div>
 
             <div class="form-group">
-              <label for="sitePhone">Site Status</label>
+              <label for="sitePhone" class="required">Site Status</label>
               <div class="form-check">
                 <input type="radio" class="form-check-input" [value]="true" name="open" formControlName="open">
                 <label class="form-check-label" for="open">Open</label>
@@ -186,11 +285,11 @@
             </div>
           </div>
 
-          <div class="col-8">
+          <div class="col-12">
             <h3>Description and Instructions</h3>
             <div class="form-group">
               <small class="form-text text-muted my-2">Include any additional description and information about your venue like special instructions, address, requirements, etc... This information will be visible <b>only to your site's jammers</b>.</small>
-              <textarea rows="40" class="form-control" formControlName="description" placeholder="Site Description"></textarea>
+              <textarea rows="20" class="form-control" formControlName="description" placeholder="Site Description"></textarea>
             </div>
           </div>
 

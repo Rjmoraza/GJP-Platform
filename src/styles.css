@@ -48,6 +48,18 @@ h4, h5, h6
   background-color: #00000011;
 }
 
+.card.inverted{
+  background-color: #222222;
+  color: white;
+}
+
+.block{
+  border-radius: 25px;
+  background-color: #00000011;
+  padding: 10px;
+  margin: 5px;
+}
+
 .th-60
 {
   width: 60%;
@@ -161,6 +173,11 @@ h4, h5, h6
 .navL2{
   background-color: #454545;
   padding: 0.6em;
+}
+
+.required:after{
+  content: "*";
+  color: red;
 }
 
 

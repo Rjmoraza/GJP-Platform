@@ -158,8 +158,8 @@
             Jam Visibility: {{ (activeJam.public) ? 'Public' : 'Secret'}}
           </label>
           <div class="btn-group btn-group-toggle form-row d-block" data-toggle="buttons">
-            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.public}" (click)="setPublicValue(false)">
-              <input type="radio" name="public" id="jamPublic" (checked)="activeJam.public" (click)="setPublicValue(false)"> Public
+            <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':activeJam.public}" (click)="setPublicValue(true)">
+              <input type="radio" name="public" id="jamPublic" (checked)="activeJam.public" (click)="setPublicValue(true)"> Public
             </label>
             <label [ngClass]="{'btn btn-secondary col-sm-6':true, 'active':!activeJam.public}" (click)="setPublicValue(false)">
               <input type="radio" name="public" id="jamSecret" (checked)="!activeJam.public" (click)="setPublicValue(false)"> Secret
