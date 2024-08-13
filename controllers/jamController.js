@@ -18,8 +18,6 @@ const createJam = async(req, res) => {
             return res.status(403).json({success: false, error: 'Session is invalid'});
         }
 
-        console.log(req.body);
-
         const jam = new Jam({
             title: req.body.title,
             open: true,
@@ -60,16 +58,12 @@ const updateJam = async(req, res) => {
             return res.status(403).json({success: false, message: 'Session is invalid'});
         }
 
-        console.log("User is valid");
-
         const jamId = req.params.id;
         const jam = await Jam.findOne({ _id: jamId });
         if(jam === undefined || jam == null)
         {
             return res.status(400).json({ success: false, message: 'No jam found with that id' });
-        }        
-
-        console.log(req.body);
+        }
 
         jam.title = req.body.title;
         jam.open = req.body.open;
@@ -134,7 +128,6 @@ const listOpenJams = async(req, res) => {
 
 // Joins one site to one open jam
 const joinSiteToJam = async(req, res) => {
-    console.log(req.body);
     const { siteId, jamId } = req.body;
     try{
         const site = await Site.findOne({ _id: siteId });
