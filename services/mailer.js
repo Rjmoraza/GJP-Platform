@@ -17,10 +17,10 @@ function replaceTokens(HTML, replacements) {
 const sendEmail = async (email, subject, message, link) => {
     try {
         let transporter = nodemailer.createTransport({
-            host: "smtp.office365.com",
-            port: 587,
+            host: process.env.EMAILHOST,
+            port: process.env.SMTPPORT,
             auth: {
-                user: process.env.EMAIL,
+                user: process.env.EMAILUSER,
                 pass: process.env.EMAILPASSWORD
             },
             secureConnection: false,
