@@ -78,9 +78,13 @@ This will install all the packages and dependencies required by the project. The
 
 ```bash
 EMAIL=[email address for the SMTP service]
-EMAILPASSWORD=[email password for the SMTP service]
+EMAILUSER=[email user for the SMTP service]
+EMAILHOST=[host of the SMTP server]
+SMTPPORT=[port of the SMTP server]
+EMAILPASSWORD=[password for the email user]
 URL=[Full URL of the system]
 TARGET=[DEV|PROD]
+ADMIN_EMAIL=[email address of the admin user]
 ```
 
 The system requires a functioning email account to send files through SMTP.
