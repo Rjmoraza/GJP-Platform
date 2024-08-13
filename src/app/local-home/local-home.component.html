@@ -131,7 +131,7 @@
             <h2 class="col-12">Toolbox</h2>
             <div class="col-3 p-2">
               <div class="card">
-                here be the toolbox
+                here be the toolbox <fa-icon [icon]="faCoffee"></fa-icon>
               </div>
             </div>
           </div>
@@ -287,10 +287,17 @@
 
           <div class="col-12">
             <h3>Description and Instructions</h3>
+            <editor
+              apiKey="no-api-key"
+              licenseKey="gpl"
+              [init]="init"
+              formControlName="description"
+            ></editor>
+            <!--
             <div class="form-group">
               <small class="form-text text-muted my-2">Include any additional description and information about your venue like special instructions, address, requirements, etc... This information will be visible <b>only to your site's jammers</b>.</small>
               <textarea rows="20" class="form-control" formControlName="description" placeholder="Site Description"></textarea>
-            </div>
+            </div>-->
           </div>
 
           <button type="submit" class="navbutton navL1 flex-center m-3">SAVE CHANGES</button>

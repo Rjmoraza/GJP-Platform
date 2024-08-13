@@ -9,6 +9,10 @@ import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } 
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { MessagesComponent } from '../messages/messages.component';
 import { environment } from '../../environments/environment.prod';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCoffee } from '@fortawesome/free-solid-svg-icons';
+import { EditorComponent } from '@tinymce/tinymce-angular';
+import tinymce from 'tinymce';
 
 @Component({
   selector: 'app-local-home',
@@ -17,7 +21,9 @@ import { environment } from '../../environments/environment.prod';
     CommonModule,
     MessagesComponent,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FontAwesomeModule,
+    EditorComponent
   ],
   templateUrl: './local-home.component.html',
   styleUrl: './local-home.component.css',
@@ -37,6 +43,12 @@ export class LocalHomeComponent implements OnDestroy {
   page: string = 'jam';
   deltaTime: string = '00:00:00:00';
   intervalId: any;
+  faCoffee = faCoffee;
+  init: EditorComponent['init'] = {
+    plugins: 'lists link image table code help wordcount',
+    base_url: '/tinymce',
+    suffix: '.min'
+  };
 
   constructor(private fb: FormBuilder, private regionService: RegionService, private siteService: SiteService, private userService: UserService, private jamService: JamService, private modalService: BsModalService){}
 
