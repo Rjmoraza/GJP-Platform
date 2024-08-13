@@ -46,6 +46,12 @@ const siteSchema = mongoose.Schema({
     phoneNumber: {
         type: String
     },
+    address: {
+        type: String
+    },
+    server: {
+        type: String
+    },
     email: {
         type: String
     },

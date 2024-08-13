@@ -74,9 +74,8 @@ const createSite = async (req, res) => {
 
 const updateSite = async (req, res) => {
     // TODO change this method to receive full country struct
-    const { name, regionId, country, city, open, modality, description, language, phoneNumber, email } = req.body;
+    const { name, regionId, country, city, open, address, server, modality, description, language, phoneNumber, email } = req.body;
     const id = req.params.id;
-    console.log(id);
     try {
         const creatorUser = await userController.validateUser(req);
         if(!creatorUser)
@@ -111,6 +110,8 @@ const updateSite = async (req, res) => {
             code: countryData.code
         };
         site.city = city;
+        site.address = address;
+        site.server = server;
         site.modality = modality;
         if(description) site.description = description;
         if(open) site.open = open;
@@ -119,8 +120,6 @@ const updateSite = async (req, res) => {
         if(email) site.email = email;
         site.lastUpdateUser = creatorUser;
         site.lastUpdateDate = new Date();
-
-        console.log(site);
 
         let newSite = await site.save();
 
