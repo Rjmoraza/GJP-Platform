@@ -12,7 +12,7 @@
 
       <!-- USER BUTTON -->
       <div class = "col-1 dashButton">
-          <img class="" data-toggle="modal" data-target="#accountModal" (click)="patchUserForm()" src="/assets/Images/menu.png" width="64" height="50">
+        <fa-icon [icon]="faCircleUser" class="pointer fa-2xl" data-toggle="modal" data-target="#accountModal" (click)="patchUserForm()"></fa-icon>
       </div>
     </div>
 
@@ -87,6 +87,7 @@
         </div>
 
         <div class="modal-footer">
+          <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal" (click)="logOut()">Log Out</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clearUserForm()" #closeUserModal>Close</button>
           <button type="submit" class="btn btn-primary">Save changes</button>
         </div>

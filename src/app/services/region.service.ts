@@ -18,13 +18,19 @@ export class RegionService {
   updateRegion(url: string, region: Region): Observable<any> {
     return this.http.put(url, region, { withCredentials: true });
   }
-  
-  getRegions(url: string): Observable<Region[]> { 
-    return this.http.get<any>(url).pipe( 
+
+  getRegion(url: string): Observable<Region> {
+    return this.http.get<any>(url).pipe(
       map(response => response.data)
     );
   }
-  
+
+  getRegions(url: string): Observable<Region[]> {
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
   deleteRegion(url: string): Observable<any> {
     return this.http.delete(url);
   }

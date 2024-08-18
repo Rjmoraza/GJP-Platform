@@ -106,19 +106,9 @@ export interface Jam {
   title: string,
   open: boolean,
   public: boolean,
-  sites: {
-    _id: string,
-    name: string,
-    region: string
-  }[],
-  jammers: {
-    _id: string,
-    team: string,
-    site: string,
-    name: string,
-    email: string
-  }[],
-  toolbox?: string,
+  toolboxGuides?: string,
+  toolboxArts?: string,
+  toolboxPresentations?: string,
   themes: {
     titlePT: string,
     titleES: string,

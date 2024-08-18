@@ -11,6 +11,10 @@ import { MessagesComponent } from '../messages/messages.component';
 import { environment } from '../../environments/environment.prod';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faSitemap } from '@fortawesome/free-solid-svg-icons';
+import { faPalette } from '@fortawesome/free-solid-svg-icons';
+import { faFilePowerpoint } from '@fortawesome/free-solid-svg-icons';
 import { EditorComponent } from '@tinymce/tinymce-angular';
 import tinymce from 'tinymce';
 
@@ -44,6 +48,10 @@ export class LocalHomeComponent implements OnDestroy {
   deltaTime: string = '00:00:00:00';
   intervalId: any;
   faCoffee = faCoffee;
+  faCircleInfo = faCircleInfo;
+  faSitemap = faSitemap;
+  faPalette = faPalette;
+  faFilePowerpoint = faFilePowerpoint;
   init: EditorComponent['init'] = {
     plugins: 'lists link image table code help wordcount',
     base_url: '/tinymce',
@@ -400,5 +408,14 @@ export class LocalHomeComponent implements OnDestroy {
         // DO NOTHING
       }
     );
+  }
+
+  goTo(url?: string)
+  {
+    if(url)
+    {
+      console.log(url);
+      window.open(url, '_blank');
+    }
   }
 }

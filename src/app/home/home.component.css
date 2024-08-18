@@ -37,8 +37,6 @@ img{
 .dashButton {
     display: flex;
     width: fit-content;
-    align-self: flex-end;
-    align-items: flex-end;
 }
 
 .logOutButton {

@@ -63,6 +63,8 @@
         <div *ngIf="jam && site">
           <h1 class="text-center">{{jam.title}}</h1>
 
+          <hr class="my-4">
+
           <div class="info d-block text-center p-5 mb-5" *ngIf="!jam.public">
             <p>Themes and categories are secret.</p>
             <p>Global Organizers will publish the themes and categories soon, check again later.</p>
@@ -70,7 +72,7 @@
 
           <!-- THEMES -->
           <div class="row" *ngIf="jam.public">
-            <h2 class="col-12">Themes</h2>
+            <h2 class="col-12 text-center">Themes</h2>
             <div class="col-4 p-2" *ngFor="let theme of jam.themes">
               <div class="card p-2">
                 <h3 *ngIf="site.language == 'PT'" class="text-center">{{ theme.titlePT }}</h3>
@@ -92,7 +94,7 @@
 
           <!-- CATEGORIES -->
           <div class="row" *ngIf="jam.public">
-            <h2 class="col-12">Categories</h2>
+            <h2 class="col-12 text-center">Categories</h2>
             <div class="col-4 p-2" *ngFor="let category of jam.categories">
               <div class="card p-2">
                 <h3 *ngIf="site.language == 'PT'" class="text-center">{{ category.titlePT }}</h3>
@@ -114,7 +116,7 @@
 
           <!-- STAGES -->
           <div class="row pb-3 align-items-end">
-            <h2 class="col-12">Stages</h2>
+            <h2 class="col-12 text-center">Stages</h2>
             <div class="col-3 p-2" *ngFor="let stage of jam.stages">
               <div [ngClass]="getStageClass(stage)">
                 <h3 class="text-center">{{ stage.stageName }}</h3>
@@ -128,10 +130,31 @@
 
           <!-- TOOLBOX -->
           <div class="row pb-3 align-items-end">
-            <h2 class="col-12">Toolbox</h2>
-            <div class="col-3 p-2">
-              <div class="card">
-                here be the toolbox <fa-icon [icon]="faCoffee"></fa-icon>
+            <h2 class="col-12 text-center">Toolbox</h2>
+            <div class="col-4 p-2 pointer" (click)="goTo(jam.toolboxGuides)">
+              <div class="card p-2">
+                <div class="text-center">
+                  <fa-icon [icon]="faCircleInfo" class="fa-5x"></fa-icon>
+                </div>
+                <h3 class="text-center">Guides</h3>
+              </div>
+            </div>
+
+            <div class="col-4 p-2 pointer" (click)="goTo(jam.toolboxArts)">
+              <div class="card p-2">
+                <div class="text-center">
+                  <fa-icon [icon]="faPalette" class="fa-5x"></fa-icon>
+                </div>
+                <h3 class="text-center">Arts</h3>
+              </div>
+            </div>
+
+            <div class="col-4 p-2 pointer" (click)="goTo(jam.toolboxPresentations)">
+              <div class="card p-2">
+                <div class="text-center">
+                  <fa-icon [icon]="faFilePowerpoint" class="fa-5x"></fa-icon>
+                </div>
+                <h3 class="text-center">Presentations</h3>
               </div>
             </div>
           </div>
@@ -330,7 +353,20 @@
     </div>
 
     <div id="localHomeSideBar" class="col-2">
-      THIS IS THE SIDEBAR
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <fa-icon [icon]="faCoffee" class="fa-3x"></fa-icon>
+          <p>Welcome to the new and improved GJ+ platform.</p>
+          <p>support&#64;gamejamplus.com</p>
+        </div>
+      </div>
+
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <img src="/assets/Images/cidev.png" style="width: 40%; margin: auto;">
+          <p>Powered by CIDeV</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

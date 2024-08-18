@@ -42,7 +42,9 @@ export class GlobalJamComponent {
 
     this.jamForm = this.fb.group({
       title: ['', Validators.required],
-      toolbox: [''],
+      toolboxGuides: [''],
+      toolboxArts: [''],
+      toolboxPresentations: [''],
       open: [''],
       public: ['']
     });
@@ -95,7 +97,9 @@ export class GlobalJamComponent {
 
     this.jamForm.setValue({
       title: this.activeJam?.title,
-      toolbox: this.activeJam?.toolbox,
+      toolboxGuides: this.activeJam?.toolboxGuides ? this.activeJam?.toolboxGuides : '',
+      toolboxArts: this.activeJam?.toolboxArts ? this.activeJam?.toolboxArts : '',
+      toolboxPresentations: this.activeJam?.toolboxPresentations ? this.activeJam?.toolboxPresentations : '',
       open: this.activeJam?.open,
       public: this.activeJam?.public
     })
@@ -130,12 +134,12 @@ export class GlobalJamComponent {
       title: 'New Game Jam',
       open: true,
       public: false,
-      sites: [],
-      jammers: [],
       themes: [],
       categories: [],
       stages: [],
-      toolbox: ''
+      toolboxGuides: '',
+      toolboxArts: '',
+      toolboxPresentations: '',
     }).subscribe({
       next: (data)=>{
         if(data.success)
@@ -159,15 +163,17 @@ export class GlobalJamComponent {
         let title: string = (this.jamForm.get('title')?.value) ? this.jamForm.get('title')?.value : this.activeJam.title;
         let open = this.jamForm.get('open')?.value;
         let published = this.jamForm.get('public')?.value;
-        let toolbox = this.jamForm.get('toolbox')?.value ? this.jamForm.get('toolbox')?.value : this.activeJam.toolbox;
+        let toolboxGuides = this.jamForm.get('toolboxGuides')?.value ? this.jamForm.get('toolboxGuides')?.value : this.activeJam.toolboxGuides;
+        let toolboxArts = this.jamForm.get('toolboxArts')?.value ? this.jamForm.get('toolboxArts')?.value : this.activeJam.toolboxArts;
+        let toolboxPresentations = this.jamForm.get('toolboxPresentations')?.value ? this.jamForm.get('toolboxPresentations')?.value : this.activeJam.toolboxPresentations;
 
         const jam: Jam = {
           title: title,
           open: open,
           public: published,
-          toolbox: toolbox,
-          sites: [],
-          jammers: [],
+          toolboxGuides: toolboxGuides,
+          toolboxArts: toolboxArts,
+          toolboxPresentations: toolboxPresentations,
           themes: this.activeJam.themes,
           categories: this.activeJam.categories,
           stages: this.activeJam.stages

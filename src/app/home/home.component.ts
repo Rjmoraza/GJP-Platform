@@ -5,12 +5,15 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { SiteService } from '../services/site.service';
+import { RegionService } from '../services/region.service';
 import { LocalHomeComponent } from '../local-home/local-home.component';
 import { JammerHomeComponent } from '../jammer-home/jammer-home.component';
 import { JuezMainComponent } from '../juez-main/juez-main.component';
 import { GlobalHomeComponent } from '../global-home/global-home.component';
 import { UserDashboardComponent } from '../user-dashboard/user-dashboard.component';
-import { User } from '../../types';
+import { User, Site, Region } from '../../types';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { environment } from '../../environments/environment.prod';
 @Component({
   selector: 'app-home',
@@ -23,7 +26,8 @@ import { environment } from '../../environments/environment.prod';
     JammerHomeComponent,
     JuezMainComponent,
     GlobalHomeComponent,
-    UserDashboardComponent
+    UserDashboardComponent,
+    FontAwesomeModule
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -33,10 +37,13 @@ export class HomeComponent{
   errorMessage: string = '';
   successMessage: string = '';
   user!: User;
+  site?: Site;
+  region?: Region;
   name: string = '';
   activeRole: string = "";
+  faCircleUser = faCircleUser;
 
-  constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private siteService: SiteService) {}
+  constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private siteService: SiteService, private regionService: RegionService) {}
 
   ngOnInit(): void {
     this.userForm = this.fb.group({
@@ -52,6 +59,20 @@ export class HomeComponent{
       next: (user:User) =>{
         this.user = user;
         this.activeRole = user.roles[0]; // select the highest role as the active role
+
+        if(user.site)
+        {
+          this.siteService.getSite(`http://${environment.apiUrl}:3000/api/site/get-site/${user.site._id}`).subscribe({
+            next : (site: Site) => { this.site = site }
+          });
+        }
+
+        if(user.region)
+        {
+          this.regionService.getRegion(`http://${environment.apiUrl}:3000/api/region/get-region/${user.region._id}`).subscribe({
+            next : (region: Region) => { this.region = region }
+          });
+        }
       },
       error: (error) => {
         this.router.navigate(['/login']);
@@ -60,9 +81,9 @@ export class HomeComponent{
   }
 
   getUserRegionName(): string {
-    if(this.user?.region)
+    if(this.region)
     {
-      return this.user.region.name;
+      return this.region.name;
     }
     else
     {
@@ -71,9 +92,9 @@ export class HomeComponent{
   }
 
   getUserSiteName(): string {
-    if(this.user?.site)
+    if(this.site)
     {
-      return this.user.site.name;
+      return this.site.name;
     }
     else
     {
