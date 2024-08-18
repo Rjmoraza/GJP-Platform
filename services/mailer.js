@@ -27,6 +27,8 @@ const sendEmail = async (email, subject, message, link) => {
             tls: { ciphers: 'SSLv3' }
         });
 
+        console.log(transporter);
+
         const htmlTemplate = await fs.promises.readFile('services/email_template.html', 'utf-8');
 
         const htmlContent = replaceTokens(htmlTemplate, { subject, message, link });

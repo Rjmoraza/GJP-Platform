@@ -24,7 +24,9 @@ const createJam = async(req, res) => {
             public: false,
             sites: [],
             jammers: [],
-            toolbox: req.body.toolbox,
+            toolboxGuides: req.body.toolboxGuides,
+            toolboxArts: req.body.toolboxArts,
+            toolboxPresentations: req.body.toolboxPresentations,
             themes: req.body.themes,
             categories: req.body.categories,
             stages: req.body.stages,
@@ -68,7 +70,9 @@ const updateJam = async(req, res) => {
         jam.title = req.body.title;
         jam.open = req.body.open;
         jam.public = req.body.public;
-        jam.toolbox = req.body.toolbox;
+        jam.toolboxGuides = req.body.toolboxGuides;
+        jam.toolboxArts = req.body.toolboxArts;
+        jam.toolboxPresentations = req.body.toolboxPresentations;
         jam.themes = req.body.themes;
         jam.categories = req.body.categories;
         jam.stages = req.body.stages;

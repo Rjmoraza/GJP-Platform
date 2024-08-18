@@ -14,35 +14,13 @@ const jamSchema = mongoose.Schema({
         type:Boolean,
         required:true
     },
-    sites: [{
-        _id: {
-            type: Schema.Types.ObjectId, ref: 'Site'
-        },
-        name: {
-            type: String
-        },
-        region: {
-            type: Schema.Types.ObjectId, ref: 'Region'
-        }
-    }],
-    jammers: [{
-        _id: {
-            type: Schema.Types.ObjectId, ref: 'User'
-        },
-        team: {
-            type: Schema.Types.ObjectId, ref: 'Team'
-        },
-        site: {
-            type: Schema.Types.ObjectId, ref: 'Site'
-        },
-        name: {
-            type: String
-        },
-        email: {
-            type: String
-        }
-    }],
-    toolbox: {
+    toolboxGuides: {
+        type: String
+    },
+    toolboxArts: {
+        type: String
+    },
+    toolboxPresentations: {
         type: String
     },
     themes: [{
