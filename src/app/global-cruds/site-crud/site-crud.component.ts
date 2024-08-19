@@ -87,12 +87,12 @@ export class SiteCrudComponent implements OnInit {
 
   listSites()
   {
-    console.log("Fetching sites...");
-    let start = new Date();
+    //console.log("Fetching sites...");
+    //let start = new Date();
     this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`).subscribe({
       next: (sites: Site[]) => {
-        let delta = (new Date()).getMilliseconds() - start.getMilliseconds();
-        console.log(`Sites loaded at ${delta / 1000} seconds`);
+        //let delta = (new Date()).getMilliseconds() - start.getMilliseconds();
+        //console.log(`Sites loaded at ${delta / 1000} seconds`);
         this.sites = sites;
       },
       error: (error) => {

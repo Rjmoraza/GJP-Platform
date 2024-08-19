@@ -149,6 +149,7 @@ export class JammerHomeComponent implements OnInit {
           next: (data) => {
             this.site = data.site;
             this.jam = data.jam;
+            this.listStaff();
           },
           error: (error) => {
             console.log(error);
