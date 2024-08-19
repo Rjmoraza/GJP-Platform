@@ -29,6 +29,7 @@ export class UserCrudComponent implements OnInit{
   users: User[] = [];
   regions: Region[] = [];
   sites: Site[] = [];
+  filteredSites: Site[] = [];
   roles = ['GlobalOrganizer', 'LocalOrganizer', 'Judge', 'Jammer', ['LocalOrganizer', 'Judge']];
   successMessage: string = '';
   errorMessage: string = '';
@@ -64,6 +65,7 @@ export class UserCrudComponent implements OnInit{
 
     this.listUsers();
     this.listRegions();
+    this.listSites();
     this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
@@ -95,35 +97,46 @@ export class UserCrudComponent implements OnInit{
     });
   }
 
-  listSites(regionId: string, siteId: string)
+  listSites()
   {
-    this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${regionId}`).subscribe({
-        next: (sites: Site[]) => {
-          this.sites = sites;
-
-          // If a site was selected, pick it from the list
-          if(siteId != "None")
-          {
-            const selectedSite = this.sites.find(site => site._id === siteId);
-            if (selectedSite) {
-              this.userForm.patchValue({site: selectedSite});
-            }
-          }
-          else
-          {
-            this.userForm.patchValue({site: null});
-          }
-        },
-        error: (error) => {
-          console.error('Error al obtener sitios:', error);
-        }
+    this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`).subscribe({
+      next: (sites: Site[]) => {
+        this.sites = sites;
+        console.log("Sites are ready");
+      },
+      error: (error) => {
+        console.log(error);
+      }
     });
+  }
+
+  listSitesByRegion(regionId: string, siteId: string)
+  {
+    console.log("Filtering Sites...");
+    if(this.sites.length > 0)
+    {
+      this.filteredSites = this.sites.filter((site) => site.regionId === regionId);
+      console.log(this.filteredSites);
+
+      if(siteId != "None")
+      {
+        console.log(siteId);
+        const selectedSite = this.filteredSites.find(site => site._id === siteId);
+        if (selectedSite) {
+          this.userForm.patchValue({site: selectedSite});
+        }
+      }
+      else
+      {
+        this.userForm.patchValue({site: null});
+      }
+    }
   }
 
   onRegionSelection() {
     const region = this.userForm.get('region')?.value;
     if (region && region._id) {
-      this.listSites(region._id, "None");
+      this.listSitesByRegion(region._id, "None");
     } else {
       console.error('La región seleccionada no tiene un ID válido.');
     }
@@ -132,7 +145,6 @@ export class UserCrudComponent implements OnInit{
   patchUserForm(user: User)
   {
     this.userToEdit = user;
-    console.log(this.userToEdit);
     const roleGlobal = user.roles.includes("GlobalOrganizer");
     const roleLocal = user.roles.includes("LocalOrganizer");
     const roleJudge = user.roles.includes("Judge");
@@ -158,7 +170,7 @@ export class UserCrudComponent implements OnInit{
 
     if(user.region && user.site)
     {
-      this.listSites(user.region._id, user.site._id);
+      this.listSitesByRegion(user.region._id, user.site._id);
     }
   }
 

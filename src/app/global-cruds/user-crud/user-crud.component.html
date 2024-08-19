@@ -137,7 +137,7 @@
               <label for="rol">Site</label>
               <select class="form-select" formControlName="site">
                 <option value="" disabled selected hidden>Site</option>
-                <option *ngFor="let site of sites" [ngValue]="site">{{ site.name }}</option>
+                <option *ngFor="let site of filteredSites" [ngValue]="site">{{ site.name }}</option>
               </select>
             </div>
           </div>
