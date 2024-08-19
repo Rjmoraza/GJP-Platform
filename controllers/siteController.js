@@ -202,10 +202,12 @@ const updateDescription = async (req, res) => {
 
 const getSites = async(req,res)=>{
     try{
+        console.log(`Sites query received at ${new Date()}...`);
         const allSites = await Site.find({});
-        res.status(200).send({ success:true, message:'Sites listed successfully', data: allSites });
+        console.log(`Sites query resolved at ${new Date()}...`);
+        return res.status(200).send({ success:true, message: 'Sites listed successfully', data: allSites });
     } catch(error) {
-        res.status(400).send({ success:false, message:error.message });
+        return res.status(400).send({ success:false, message: error.message });
     }
 };
 
