@@ -9,13 +9,20 @@ import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } 
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { MessagesComponent } from '../messages/messages.component';
 import { environment } from '../../environments/environment.prod';
+
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { faSitemap } from '@fortawesome/free-solid-svg-icons';
 import { faPalette } from '@fortawesome/free-solid-svg-icons';
 import { faFilePowerpoint } from '@fortawesome/free-solid-svg-icons';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+
 import { EditorComponent } from '@tinymce/tinymce-angular';
+
 import tinymce from 'tinymce';
 
 @Component({
@@ -43,15 +50,22 @@ export class LocalHomeComponent implements OnDestroy {
   jams: Jam[] = [];
   countries: Country[] = [];
   site?: Site;
+  staff: User[] = [];
   modalError: string = '';
   page: string = 'jam';
   deltaTime: string = '00:00:00:00';
   intervalId: any;
+
   faCoffee = faCoffee;
   faCircleInfo = faCircleInfo;
   faSitemap = faSitemap;
   faPalette = faPalette;
   faFilePowerpoint = faFilePowerpoint;
+  faUsers = faUsers;
+  faUser = faUser;
+  faDiscord = faDiscord;
+  faEnvelope = faEnvelope;
+  
   init: EditorComponent['init'] = {
     plugins: 'lists link image table code help wordcount',
     base_url: '/tinymce',
@@ -82,6 +96,11 @@ export class LocalHomeComponent implements OnDestroy {
         if(!this.user.region)
         {
           this.listRegions();
+        }
+
+        if(!this.user.site)
+        {
+          this.listSitesPerRegion();
         }
 
         if(this.user.site)
@@ -126,6 +145,18 @@ export class LocalHomeComponent implements OnDestroy {
       },
       error: (error) => {
         console.error('Error al obtener países:', error);
+      }
+    });
+  }
+
+  listSitesPerRegion() : void
+  {
+    this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${this.user!.region!._id}`).subscribe({
+      next: (sites: Site[]) => {
+        this.sites = sites;
+      },
+      error: (error) => {
+        console.log(error);
       }
     });
   }
@@ -185,16 +216,54 @@ export class LocalHomeComponent implements OnDestroy {
     });
   }
 
+  joinSite(site: Site)
+  {
+    console.log("Trying to join site");
+    this.message.showQuestion(
+      `Join site ${site.name} - ${site.country.code} - ${site.city}`,
+      "Type the site's secret code",
+      (code: string) => {
+        if(code == site.code)
+        {
+          this.site = site;
+          this.patchSiteForm();
+          this.assignSiteToUser(site);
+          this.getJam();
+          this.listStaff();
+        }
+        else
+        {
+          console.log("The code is incorrect");
+        }
+      },
+      () => {}
+    );
+  }
+
   getSite()
   {
     const url = `http://${environment.apiUrl}:3000/api/site/get-site/${this.user!.site!._id}`;
     this.siteService.getSite(url).subscribe({
       next: (site) => {
         this.site = site;
+        this.listStaff();
         this.patchSiteForm();
       },
       error: (error) => {
         console.error('Error when loading site:', error);
+      }
+    });
+  }
+
+  listStaff() : void
+  {
+    const url = `http://${environment.apiUrl}:3000/api/user/get-site-staff/${this.site!._id}`;
+    this.userService.getStaffPerSite(url).subscribe({
+      next: (staff: User[]) => {
+        this.staff = staff;
+      },
+      error: (error) => {
+        console.log(error);
       }
     });
   }
@@ -287,28 +356,34 @@ export class LocalHomeComponent implements OnDestroy {
         next: (data) => {
           this.site = data.site;
           this.patchSiteForm();
-          this.user.site = {
-            _id: data.site._id,
-            name: data.site.name
-          };
-
-          this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.user._id}`, this.user).subscribe({
-            next: (data) => {
-              if(data.success)
-              {
-                this.message.showMessage("Success", "Site created successfully, please edit your site information");
-              }
-            },
-            error: (error) => {
-              this.message.showMessage("Error", error.error.message);
-            }
-          });
+          this.assignSiteToUser(data.site);
+          this.getJam();
         },
         error: (error) => {
           console.log(error.error.message);
         }
       });
     }
+  }
+
+  assignSiteToUser(site: Site)
+  {
+    this.user.site = {
+      _id: site._id!,
+      name: site.name
+    };
+
+    this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.user._id}`, this.user).subscribe({
+      next: (data) => {
+        if(data.success)
+        {
+          this.message.showMessage("Success", 'Go to the "My Venue" section to edit your site');
+        }
+      },
+      error: (error) => {
+        this.message.showMessage("Error", error.error.message);
+      }
+    });
   }
 
   isCurrentStage(stage: any) : boolean{
@@ -414,6 +489,7 @@ export class LocalHomeComponent implements OnDestroy {
   {
     if(url)
     {
+      if(!url.includes("http")) url = `http://${url}`;
       console.log(url);
       window.open(url, '_blank');
     }

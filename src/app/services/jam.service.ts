@@ -32,6 +32,12 @@ export class JamService {
     );
   }
 
+  getJamByUser(url: string): Observable<any>{
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
   joinSiteToJam(url: string, link: any): Observable<Jam>{
     return this.http.post<any>(url, link).pipe(
       map(response => response.data)

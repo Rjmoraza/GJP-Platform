@@ -25,6 +25,12 @@ export class SiteService {
     );
   }
 
+  getSitesPerJam(url: string): Observable<Site[]> {
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
   getSite(url: string): Observable<Site> {
     return this.http.get<any>(url, { withCredentials: true }).pipe(
       map(response => response.data)
@@ -50,6 +56,12 @@ export class SiteService {
 
   getSitesPerRegion(url: string): Observable<Site[]> {
     return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
+  joinSite(url: string, data: any): Observable<any> {
+    return this.http.put<any>(url, data).pipe(
       map(response => response.data)
     );
   }

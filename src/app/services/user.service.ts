@@ -22,7 +22,7 @@ export class UserService {
   }
 
   loginUser(url: string, email: string): Observable<any> {
-    return this.http.post(url, { email });
+    return this.http.post(url, { email }); 
   }
 
   logOutUser(url: string): Observable<any> {
@@ -52,6 +52,12 @@ export class UserService {
   }
 
   getJammersSite(url: string): Observable<User[]> {
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
+  getStaffPerSite(url: string): Observable<User[]> {
     return this.http.get<any>(url).pipe(
       map(response => response.data)
     );

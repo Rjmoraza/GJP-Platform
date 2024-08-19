@@ -1,19 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TeamService } from '../services/team.service';
 import { UserService } from '../services/user.service';
 import { SiteService } from '../services/site.service';
-import { GamejamService } from '../services/gamejam.service';
+import { RegionService } from '../services/region.service';
+import { JamService } from '../services/jam.service';
 import { Router } from '@angular/router';
-import { JammerCreateTeamComponent } from './jammer-create-team/jammer-create-team.component';
-import { JammerTeamComponent } from './jammer-team/jammer-team.component';
-import { JammerSubmitComponent } from './jammer-submit/jammer-submit.component';
-import { GameInformationComponent } from "../game-information/game-information.component";
-import { JammerCategoriesComponent } from './jammer-categories/jammer-categories.component';
-import { JammerThemesComponent } from './jammer-themes/jammer-themes.component';
 import { environment } from '../../environments/environment.prod';
-import { GameInfoComponent } from './game-info/game-info.component';
-import { ChatJammerComponent } from "./chat-jammer/chat-jammer.component";
+import { MessagesComponent } from '../messages/messages.component';
+import { User, Site, Region, Jam, Country } from '../../types';
+
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCoffee } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faSitemap } from '@fortawesome/free-solid-svg-icons';
+import { faPalette } from '@fortawesome/free-solid-svg-icons';
+import { faFilePowerpoint } from '@fortawesome/free-solid-svg-icons';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+
+
 
 @Component({
     selector: 'app-jammer-home',
@@ -21,177 +29,177 @@ import { ChatJammerComponent } from "./chat-jammer/chat-jammer.component";
     templateUrl: './jammer-home.component.html',
     styleUrls: ['./jammer-home.component.css'],
     imports: [
-        JammerCategoriesComponent,
-        JammerThemesComponent,
-        JammerCreateTeamComponent,
         CommonModule,
-        JammerTeamComponent,
-        JammerSubmitComponent,
-        GameInformationComponent,
-        GameInfoComponent,
-        ChatJammerComponent
+        MessagesComponent,
+        FontAwesomeModule
     ]
 })
 export class JammerHomeComponent implements OnInit {
-  targetTime: Date | undefined;
-  timeRemaining: string | undefined;
-  username: string | undefined;
-  teamName: string | undefined;
-  isHovered: boolean = false;
-  isHoveredSub: boolean = false;
-  showCreateTeam :boolean = false;
-  showUpdateTeam :boolean = false;
-  showSubmit : boolean = false;
-  showSubmitButton: boolean = true;
-  showGames : boolean = false;
-  games: any[] = [];
-  showCategories : boolean =false;
-  showThemes : boolean =false;
+  @Input() user!: User;
+  @ViewChild(MessagesComponent) message!: MessagesComponent;
+  regions: Region[] = [];
+  sites: Site[] = [];
+  staff: User[] = [];
+  selectedRegion?: Region;
+  filteredSites: Site[] = [];
+  deltaTime: string = '00:00:00:00';
+  page: string = "site";
+  intervalId: any;
 
-  constructor(private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private gamejamService: GamejamService) {}
+  site?: Site;
+  jam?: Jam;
 
-  ngOnInit(): void {
-    this.userService.getCurrentUser(`http://${environment.apiUrl}:3000/api/user/get-user`)
-      .subscribe(
-        user => {
-          /*
-          if (user.roles.includes('LocalOrganizer')) {
-            this.router.navigate(['/Games']);
-          } else if (user.roles.includes('GlobalOrganizer')) {
-            this.router.navigate(['/DataManagement']);
+  faCoffee = faCoffee;
+  faCircleInfo = faCircleInfo;
+  faSitemap = faSitemap;
+  faPalette = faPalette;
+  faFilePowerpoint = faFilePowerpoint;
+  faUsers = faUsers;
+  faUser = faUser;
+  faDiscord = faDiscord;
+  faEnvelope = faEnvelope;
+
+  constructor(private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private jamService: JamService) {}
+
+  ngOnInit(): void 
+  {
+    this.getJamOfUser();
+
+    this.intervalId = setInterval(() => {
+      this.getDeltaTime();
+    }, 1000);
+  }
+
+  getJamOfUser() : void
+  {
+    const url = `http://${environment.apiUrl}:3000/api/jam/get-jam-by-user/${this.user._id}`;
+    this.jamService.getJamByUser(url).subscribe({
+      next: (data) => {
+        this.jam = data.jam;
+        this.site = data.site;
+        this.listStaff();
+      },
+      error: (error) => {
+        if(error.status === 404)
+        this.listRegions();
+        this.listSites();
+      }
+    });
+  }
+
+  listStaff() : void
+  {
+    const url = `http://${environment.apiUrl}:3000/api/user/get-site-staff/${this.site!._id}`;
+    this.userService.getStaffPerSite(url).subscribe({
+      next: (staff: User[]) => {
+        this.staff = staff;
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
+
+  listRegions() : void
+  {
+    const url = `http://${environment.apiUrl}:3000/api/region/get-regions`;
+    this.regionService.getRegions(url).subscribe({
+      next: (regions: Region[]) => {
+        this.regions = regions;
+        this.selectedRegion = regions[0];
+      },
+      error: (error) => {
+        console.error('Error loading regions:', error);
+      }
+    });
+  }
+
+  listSites() : void
+  {
+    const url = `http://${environment.apiUrl}:3000/api/site/get-sites-per-jam/open`;
+    this.siteService.getSitesPerJam(url).subscribe({
+      next: (sites: Site[]) => {
+        this.sites = sites;
+      },
+      error: (error) => {
+        console.error('Error loading sites:', error);
+      }
+    });
+  }
+
+  selectRegion(region: Region) : void
+  {
+    this.selectedRegion = region;
+    this.filteredSites = this.sites.filter((site) => site.regionId == region._id);
+  }
+
+  // Creates a link between this jammer the site and the jam
+  // Relation user-site is not permanent for Jammer, only for LocalOrganizer
+  joinSite(site: Site)
+  {
+    this.message.showDialog(
+      "Confirm Action", 
+      `Join site ${site.name}?`,
+      () => {
+        const url = `http://${environment.apiUrl}:3000/api/site/join-site`;
+        this.siteService.joinSite(url, {
+          userId: this.user._id,
+          siteId: site._id
+        }).subscribe({
+          next: (data) => {
+            this.site = data.site;
+            this.jam = data.jam;
+          },
+          error: (error) => {
+            console.log(error);
           }
-            */
-          this.username = user.name + "(" + user.discordUsername + ")";
-          this.teamName = user.team?.name;
-          console.log(user)
-          
-          this.gamejamService.getTimeRemainingData(`http://${environment.apiUrl}:3000/api/game-jam/get-time-left`)
-            .subscribe(
-              timeLeft => {
-                const timeParts = timeLeft.split(':').map((part: string) => parseInt(part, 10));
-  
-                if (timeParts.length !== 4 || timeParts.some(isNaN)) {
-                  console.error("Invalid target time format");
-                  return;
-                }
-  
-                const [days, hours, minutes, seconds] = timeParts;
-                const totalMilliseconds = (days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds) * 1000;
-                this.targetTime = new Date(Date.now() + totalMilliseconds);
-  
-                if (this.targetTime instanceof Date) {
-                  setInterval(() => {
-                    this.updateTimer();
-                  }, 1000);
-                } else {
-                  console.error("Invalid target time format");
-                }
-              },
-              () => {}
-            );
-          if (user.site && user.site._id) {
-            
-            this.siteService.getSubmissions(`http://${environment.apiUrl}:3000/api/submission/get-submissions-site/${user.site._id}`)
-              .subscribe(
-                submissions => {
-                  this.games = submissions;
-                  console.log(this.games);
-                },
-                error => {
-                  console.error('Error al obtener las entregas:', error);
-                }
-              );
-          } else {
-            console.error('Site or Site ID is not defined.');
-          }
-        },
-        error => {
-          console.error('Error al obtener el usuario:', error);
+        });
+      }
+    );
+  }
+
+  getDeltaTime() : void
+  {
+    if(this.jam)
+    {
+      let endDate = new Date();
+      let now = new Date();
+      this.jam.stages.forEach(stage => {
+        if(this.isCurrentStage(stage))
+        {
+          endDate = new Date(stage.endDate);
         }
-      );
-  }
+      });
 
-  hideAll(){
-    this.showGames = false;
-    this.showSubmit = false;
-    this.showUpdateTeam = false;
-    this.showCreateTeam = false;
-    this.showCategories = false;
-    this.showThemes = false;
-  }
-  toggleSubmit() {
-    this.hideAll();
-    this.showSubmit = !this.showSubmit;
-  }
+      const delta = endDate.getTime() - now.getTime();
+      const days = Math.floor(delta / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+      const hours = Math.floor((delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+      const minutes = Math.floor((delta % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+      const seconds = Math.floor((delta % (1000 * 60)) / 1000).toString().padStart(2, '0');
 
-  toggleCreateTeam() {
-    this.hideAll();
-    this.showCreateTeam = !this.showCreateTeam;
-  }
-
-  toggleUpdateTeam() {
-    this.hideAll();
-    this.showUpdateTeam = !this.showUpdateTeam;
-  }
-
-  toggleGames() {
-    this.hideAll();
-    this.showGames = !this.showGames;
-  }
-  toggleCategories(){
-    this.hideAll();
-    this.showCategories = !this.showCategories;
-  }
-  toggleThemes(){
-    this.hideAll();
-    this.showThemes = !this.showThemes;
-  }
-
-  updateTimer() {
-    const now = new Date();
-  
-    if (this.targetTime instanceof Date) {
-      const difference = this.targetTime.getTime() - now.getTime();
-  
-      if (difference <= 0) {
-        this.timeRemaining = '0d 0h 0m 0s';
-        return;
-      }
-  
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-  
-      let timeRemainingStr = '';
-      if (days > 0) {
-        timeRemainingStr += `${days}d `;
-      }
-      if (hours > 0) {
-        timeRemainingStr += `${hours}h `;
-      }
-      if (minutes > 0) {
-        timeRemainingStr += `${minutes}m `;
-      }
-      if (seconds > 0) {
-        timeRemainingStr += `${seconds}s`;
-      }
-  
-      this.timeRemaining = timeRemainingStr.trim();
-    } else {
-      this.timeRemaining = 'Target time not set';
+      this.deltaTime = `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
     }
   }
 
-  logOut(): void {
-    this.userService.logOutUser(`http://${environment.apiUrl}:3000/api/user/log-out-user`)
-      .subscribe(
-        () => {
-          this.router.navigate(['/login']);
-        },
-        error => {
-          console.error('Error al cerrar sesión:', error);
-        }
-      );
+  isCurrentStage(stage: any) : boolean{
+    let startDate = new Date(stage.startDate).getTime();
+    let endDate = new Date(stage.endDate).getTime();
+    let now = new Date().getTime();
+
+    if(startDate < now && now < endDate) return true;
+    else return false;
   }
+
+  getStageClass(stage: any)
+  {
+    if(this.isCurrentStage(stage))
+    {
+      return 'card inverted border border-dark';
+    }
+    else
+    {
+      return 'card';
+    }
+  }
+  
 }

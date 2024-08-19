@@ -14,7 +14,21 @@
     <p>NOTE: this action is not reversible, get in touch with a Global Organizer if you require to change your site.</p>
 
     <button type="button" class="btn btn-primary m-1" (click)="createNewSite()">Create new site</button>
-    <button type="button" class="btn btn-primary m-1">Join a site</button>
+
+    <hr>
+
+    <p>Or join an existing site (ask the site's organizer of the secret code)</p>
+    <div class="row mb-2">
+      <div class="col-3 p-2" *ngFor="let site of sites">
+        <div class="card text-center p-2 shadow">
+          <h3>{{ site.name }}</h3>
+          <p><b>Country:</b> {{ site.country.code }} - {{ site.country.name }}</p>
+          <p><b>City:</b> {{ site.city }}</p>
+          <p><b>Modality:</b> {{ site.modality }}</p>
+          <button class="btn btn-primary" (click)="joinSite(site)">JOIN SITE</button>
+        </div>
+      </div>
+    </div>
   </div>
   <!-- #endregion -->
 
@@ -35,6 +49,7 @@
       <div class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">My Venue</div>
       <ul #venueMenu id="venueMenu" class="collapse">
         <li class="navbutton navL2" (click)="page = 'site'">Site Information</li>
+        <li class="navbutton navL2" (click)="page = 'organizers'">My Staff</li>
         <li class="navbutton navL2" (click)="page = 'jammers'">Jammers and Teams</li>
         <li class="navbutton navL2" (click)="page = 'games'">Submissions</li>
         <li class="navbutton navL2" (click)="page = 'fellows'">Fellowship</li>
@@ -163,7 +178,7 @@
 
       <div *ngIf="page == 'calendar'" class="container container-lg p-3">
         <h1>EVENT CALENDAR</h1>
-        <p>Here be the calendar</p>
+        <p>This section is still under construction</p>
       </div>
 
       <div *ngIf="page == 'news'" class="container container-lg p-3">
@@ -336,6 +351,20 @@
         <h1>SUBMISSIONS</h1>
         <p>Submission list and tools</p>
       </div>
+
+      <div *ngIf="page == 'organizers'" class="container container-lg p-3">
+        <h1>MY STAFF</h1>
+        <div class="row">
+          <div class="col-3 p-2 text-center" *ngFor="let member of staff">
+            <div class="card p-2">
+              <fa-icon [icon]="faUser" class="fa-2x"></fa-icon>
+              <h3>{{ member.name }}</h3>
+              <p><fa-icon [icon]="faEnvelope"></fa-icon> {{ member.email }}</p>
+              <p><fa-icon [icon]="faDiscord"></fa-icon> {{ member.discordUsername ? member.discordUsername : 'None' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- #endregion -->
 
       <!-- #region ORG -->
@@ -352,6 +381,7 @@
       <!-- #endregion -->
     </div>
 
+    <!-- #region SIDEBAR -->
     <div id="localHomeSideBar" class="col-2">
       <div class="p-2 mb-2">
         <div class="card text-center p-2 shadow">
@@ -367,7 +397,16 @@
           <p>Powered by CIDeV</p>
         </div>
       </div>
+
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <fa-icon [icon]="faUsers" class="fa-3x"></fa-icon>
+          <p><b>Special Thanks</b></p>
+          <p>Sharon Chacón<br>David Pastor<br>Jeffry Cuendiz<br>Paulo Ávila</p>
+        </div>
+      </div>
     </div>
+    <!-- #endregion -->
   </div>
 </div>
 

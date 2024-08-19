@@ -1,142 +1,231 @@
-<div class="d2">
-  <div *ngIf="teamName" class="teamName1">
-    Time Remaining To Submit:
-  </div>
-  
-  <div *ngIf="teamName" class="contador">
-    {{timeRemaining}}
-  </div>
-
-  <nav class="navbar">
-    <div class="tabButton">
-      
-      <div *ngIf="teamName">
-        <div *ngIf="showSubmitButton">
-          <div 
-            class="btn btn-default crudButton" 
-            (click)="toggleSubmit()" 
-            (mouseenter)="isHovered = true" 
-            (mouseleave)="isHovered = false" 
-            [ngClass]="{'active': showSubmit}"
-          >
-            <span [style.textDecoration]="isHovered ? 'black' : 'black'">My Submission</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div 
-          *ngIf="!teamName" 
-          class="btn btn-default notTeamName" 
-          (click)="toggleCreateTeam()" 
-          (mouseenter)="isHovered = true" 
-          (mouseleave)="isHovered = false" 
-          [ngClass]="{'active': showCreateTeam}"
-        >
-          <span [style.textDecoration]="isHovered ? 'darkgray' : 'none'">Create Team</span>
-        </div>
-        <div 
-          *ngIf="teamName" 
-          class="btn btn-default crudButton" 
-          (click)="toggleUpdateTeam()" 
-          (mouseenter)="isHoveredSub = true" 
-          (mouseleave)="isHoveredSub = false" 
-          [ngClass]="{'active': showUpdateTeam}"
-        >
-          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Team {{teamName}}</span>
-        </div>
-      </div>
-      <div>
-        <div class="btn btn-default chatButton" data-toggle="modal" [attr.data-target]="'#chat'">
-          Chat
-        </div>
-        <div class="modal fade" [id]="'chat'" tabindex="-1" role="dialog" aria-labelledby="teamChat" aria-hidden="true" data-backdrop="static" style="max-width: 100%;">
-            <div class="modal-dialog" role="document" style="max-width: 85%;">
-                <app-chat-jammer [team]="teamName"></app-chat-jammer>
-            </div>
-        </div>
-        <div 
-          *ngIf="teamName" 
-          class="btn btn-default crudButton" 
-          (click)="toggleGames()" 
-          (mouseenter)="isHoveredSub = true" 
-          (mouseleave)="isHoveredSub = false" 
-          [ngClass]="{'active': showGames}"
-        >
-          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Site Submissions</span>
-        </div>
-      </div>
-      <div *ngIf="teamName">
-        <div 
-          (click)="toggleCategories()" 
-          class="btn btn-default crudButton" 
-          (mouseenter)="isHovered = true" 
-          (mouseleave)="isHovered = false" 
-          [ngClass]="{'active': showCategories}"
-        >
-          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Site Categories Info</span>
-        </div>
-        <div 
-          (click)="toggleThemes()" 
-          class="btn btn-default crudButton" 
-          (mouseenter)="isHovered = true" 
-          (mouseleave)="isHovered = false" 
-          [ngClass]="{'active': showThemes}"
-        >
-          <span [style.textDecoration]="isHoveredSub ? 'darkgray' : 'none'">Site Themes Info</span>
-        </div>
-      </div>
-    </div>
-  </nav>
-  
-  <!-- Lista de juegos -->
-  <div *ngIf="showGames">
-    <div class="row title">
-      <h1>Site Submissions</h1>
-    </div>
+<div>
+  <!-- #region NO JAM -->
+  <div *ngIf="!jam" class="warning p-5 text-center m-2">
+    <p>You haven't been assigned to a Site yet.</p>
+    <p>Select a site from the list below to proceed.</p>
 
     <div class="row">
-      <div class="col-sm-6" *ngFor="let game of games">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ game.name }}</h5>
-            <p class="card-text">Team: {{ game.team }}</p>
-            <button type="button" class="btn btn-primary" data-toggle="modal" [attr.data-target]="'#gameInfoModal-' + game.id">More Info</button>
+      <div class="col-3 border">
+        <h2>Regions</h2>
+        <div *ngFor="let region of regions" class="p-2" (click)="selectRegion(region)">
+          <div class="card p-2 shadow pointer">
+            <h3>{{ region.name }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedRegion" class="col-9">
+        <h2>Sites of {{ selectedRegion!.name }}</h2>
+        <div class="row">
+          <div class="col-3" *ngFor="let site of filteredSites">
+            <div class="card p-2 shadow">
+              <h3>{{ site.name }}</h3>
+              <p>{{ site.country.name }} - {{ site.city }}</p>
+              <p>Modality: {{ site.modality }}</p>
+              <p *ngIf="site.email">{{ site.email }}</p>
+              <p *ngIf="site.phoneNumber">{{ site.phoneNumber }}</p>
+              
+              <p *ngIf="site.open">Status: Open for registration</p>
+              <button *ngIf="site.open" class="btn btn-primary" (click)="joinSite(site)">Join site</button>
+
+              <p *ngIf="!site.open">Status: Closed</p>
+              <p *ngIf="!site.open">Contact the site's organizers for more information on how to join this site</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div *ngFor="let game of games">
-      <div class="modal fade" [id]="'gameInfoModal-' + game.id" tabindex="-1" role="dialog" aria-labelledby="gameInfoModal" aria-hidden="true" data-backdrop="static" style="max-width: 100%;">
-        <div class="modal-dialog" role="document" style="max-width: 85%;">
-          <app-game-info [game]="game.id"></app-game-info>
+  <!-- #endregion -->
+  
+  <div *ngIf="jam && site" class="row w-100 p-3">
+
+    <div class="p-3 mb-2 bg-dark d-block text-white text-center timer">{{ deltaTime }}</div>
+
+    <!-- #region NAV BAR -->
+    <div id="localHomeNavBar" class="col-2 container-fluid">
+      <div class="navbutton navL1" data-toggle="collapse" data-target="#homeMenu">Home</div>
+      <ul #homeMenu id="homeMenu" class="collapse">
+        <li class="navbutton navL2" (click)="page = 'site'">Site Info</li>
+        <li class="navbutton navL2" (click)="page = 'jam'">Jam Info</li>
+        <li class="navbutton navL2" (click)="page = 'games'">Games from Site</li>
+        <!--<li class="navbutton navL2" (click)="page = 'news'">Notifications</li>-->
+      </ul>
+
+      <div class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">My Jam</div>
+      <ul #venueMenu id="venueMenu" class="collapse">
+        <li class="navbutton navL2" (click)="page = 'team'">My Team</li>
+        <li class="navbutton navL2" (click)="page = 'submission'">My Submission</li>
+        <li class="navbutton navL2" (click)="page = 'feedback'">Feedback</li>
+      </ul>
+    </div>
+    <!-- #endregion -->
+
+    <div id="jammerHomeContent" class="col-8">
+      <!-- #region HOME -->
+      <div *ngIf="page == 'site' && site" class="container container-lg p-3">
+        <h1 class="text-center">{{ site.name.toUpperCase() }}</h1>
+        <div class="row">
+          <div class="col-2">
+            <h3 class="text-center">Location:</h3>
+            <p class="text-center">{{ site.country?.code }} - {{ site.country?.name }}</p>
+            <p class="text-center">{{ site.city }}</p>
+          </div>
+
+          <div class="col-4">
+            <h3 class="text-center">Staff:</h3>
+            <p class="text-center" *ngFor="let member of staff">
+              <fa-icon [icon]="faUser"></fa-icon> {{ member.name }}<br>
+              <fa-icon [icon]="faEnvelope"></fa-icon> {{ member.email }}<br>
+              <fa-icon [icon]="faDiscord"></fa-icon> {{ member.discordUsername ? member.discordUsername : 'None' }}
+            </p>
+          </div>
+
+          <div class="col-4">
+            <h3 class="text-center">Contact Information:</h3>
+            <p class="text-center" *ngIf="site.email">{{ site.code }}</p>
+            <p class="text-center" *ngIf="site.phoneNumber">{{ site.phoneNumber }}</p>
+            <p class="text-center" *ngIf="site.address">{{ site.address }}</p>
+          </div>
+
+          <div class="col-2">
+            <h3 class="text-center">Site Status:</h3>
+            <p class="text-center">Modality: {{ site.modality }}</p>
+            <p class="text-center">{{ site.open ? 'Open for Registration' : 'Full/Closed' }}</p>
+            <p class="text-center">Language: {{ site.language }}</p>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row p-2">
+          <div [innerHTML]="site.description"></div>
+        </div>
+      </div>
+
+      <div *ngIf="page == 'jam' && jam" class="container container-lg p-3">
+        <div *ngIf="jam && site">
+          <h1 class="text-center">{{jam.title}}</h1>
+
+          <hr class="my-4">
+
+          <div class="info d-block text-center p-5 mb-5" *ngIf="!jam.public">
+            <p>Themes and categories are secret.</p>
+            <p>Global Organizers will publish the themes and categories soon, check again later.</p>
+          </div>
+
+          <!-- THEMES -->
+          <div class="row" *ngIf="jam.public">
+            <h2 class="col-12 text-center">Themes</h2>
+            <div class="col-4 p-2" *ngFor="let theme of jam.themes">
+              <div class="card p-2">
+                <h3 *ngIf="site.language == 'PT'" class="text-center">{{ theme.titlePT }}</h3>
+                <h3 *ngIf="site.language == 'ES'" class="text-center">{{ theme.titleES }}</h3>
+                <h3 *ngIf="site.language == 'EN'" class="text-center">{{ theme.titleEN }}</h3>
+
+                <p *ngIf="site.language == 'PT'">{{ theme.descriptionPT }}</p>
+                <p *ngIf="site.language == 'ES'">{{ theme.descriptionES }}</p>
+                <p *ngIf="site.language == 'EN'">{{ theme.descriptionEN }}</p>
+
+                <a *ngIf="site.language == 'PT'" href="{{ theme.manualPT }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'ES'" href="{{ theme.manualES }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'EN'" href="{{ theme.manualEN }}" class="navbutton navL1 my-2">Manual</a>
+              </div>
+            </div>
+          </div>
+
+          <hr *ngIf="jam.public" class="my-4">
+
+          <!-- CATEGORIES -->
+          <div class="row" *ngIf="jam.public">
+            <h2 class="col-12 text-center">Categories</h2>
+            <div class="col-4 p-2" *ngFor="let category of jam.categories">
+              <div class="card p-2">
+                <h3 *ngIf="site.language == 'PT'" class="text-center">{{ category.titlePT }}</h3>
+                <h3 *ngIf="site.language == 'ES'" class="text-center">{{ category.titleES }}</h3>
+                <h3 *ngIf="site.language == 'EN'" class="text-center">{{ category.titleEN }}</h3>
+
+                <p *ngIf="site.language == 'PT'">{{ category.descriptionPT }}</p>
+                <p *ngIf="site.language == 'ES'">{{ category.descriptionES }}</p>
+                <p *ngIf="site.language == 'EN'">{{ category.descriptionEN }}</p>
+
+                <a *ngIf="site.language == 'PT'" href="{{ category.manualPT }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'ES'" href="{{ category.manualES }}" class="navbutton navL1 my-2">Manual</a>
+                <a *ngIf="site.language == 'EN'" href="{{ category.manualEN }}" class="navbutton navL1 my-2">Manual</a>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- STAGES -->
+          <div class="row pb-3 align-items-end">
+            <h2 class="col-12 text-center">Stages</h2>
+            <div class="col-3 p-2" *ngFor="let stage of jam.stages">
+              <div [ngClass]="getStageClass(stage)">
+                <h3 class="text-center">{{ stage.stageName }}</h3>
+                <p class="text-center">{{ stage.startDate | date: 'dd/MM/yyyy' }} - {{ stage.endDate | date: 'dd/MM/yyyy' }}</p>
+                <p class="text-center" *ngIf="isCurrentStage(stage)">Current Stage</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="page == 'games'" class="container container-lg p-3">
+        <h1>Games of this site</h1>
+        <p>This section is still under construction</p>
+      </div>
+
+      <!-- #endregion -->
+
+      <!-- #region JAM -->
+      <div *ngIf="page == 'team'" class="container container-lg p-3">
+        <h1>My Team</h1>
+        <p>This section is still under construction</p>
+      </div>
+
+      <div *ngIf="page == 'submission'" class="container container-lg p-3">
+        <h1>My Submission</h1>
+        <p>This section is still under construction</p>
+      </div>
+
+      <div *ngIf="page == 'feedback'" class="container container-lg p-3">
+        <h1>Feedback from the Judges</h1>
+        <p>This section is still under construction</p>
+      </div>
+
+      <!-- #endregion -->
+    </div>
+
+    <!-- #region SIDEBAR -->
+    <div id="localHomeSideBar" class="col-2">
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <fa-icon [icon]="faCoffee" class="fa-3x"></fa-icon>
+          <p>Welcome to the new and improved GJ+ platform.</p>
+          <p>support&#64;gamejamplus.com</p>
+        </div>
+      </div>
+
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <img src="/assets/Images/cidev.png" style="width: 40%; margin: auto;">
+          <p>Powered by CIDeV</p>
+        </div>
+      </div>
+
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <fa-icon [icon]="faUsers" class="fa-3x"></fa-icon>
+          <p><b>Special Thanks</b></p>
+          <p>Sharon Chacón<br>David Pastor<br>Jeffry Cuendiz<br>Paulo Ávila</p>
         </div>
       </div>
     </div>
-  </div>
-
-  <div *ngIf="showCategories">
-    <h1>Site Categories</h1>
-    <app-jammer-categories></app-jammer-categories>
-  </div>
-
-  <div *ngIf="showThemes">
-    <h1>Site Themes</h1>
-    <app-jammer-themes></app-jammer-themes>
-  </div>
-
-  <!-- Componentes de actualización y creación del equipo -->
-  <div>
-    <div *ngIf="showUpdateTeam">
-      <h1>Team Management</h1>
-      <app-jammer-team></app-jammer-team>
-    </div>
-    <div *ngIf="showCreateTeam">
-      <app-jammer-create-team></app-jammer-create-team>
-    </div>
-  </div>  
-  <div *ngIf="showSubmit">
-    <h1>My Submission</h1>
-    <app-jammer-submit></app-jammer-submit>
+    <!-- #endregion -->
   </div>
 </div>
+
+<app-messages></app-messages>
