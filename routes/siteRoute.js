@@ -19,8 +19,10 @@ site_route.get('/get-sites', siteController.getSites);
 site_route.get('/get-countries', siteController.getCountries);
 site_route.get('/change-status', siteController.changeStatus);
 site_route.put('/update-description', siteController.updateDescription);
+site_route.put('/join-site', siteController.joinJammerToSite);
 site_route.get('/get-sites-per-region/:regionId', siteController.getSitesPerRegion);
 site_route.get('/get-sites-per-region-open/:regionId', siteController.getSitesPerRegionOpen);
+site_route.get('/get-sites-per-jam/:id', siteController.getSitesByJam);
 site_route.delete('/delete-site/:id', siteController.deleteSite);
 
 module.exports = site_route;

@@ -22,7 +22,7 @@ user_route.get('/get-users', userController.getUsers);
 user_route.get('/get-user', userController.getCurrentUser);
 user_route.get('/get-jammers-per-site/:siteId', userController.getJammersPerSite);
 user_route.get('/get-free-jammers-per-site/:siteId', userController.getJammersNotInTeamPerSite);
-user_route.get('/get-site-staff/:region/:site', userController.getStaffPerSite);
+user_route.get('/get-site-staff/:siteId', userController.getStaffPerSite);
 user_route.put('/update-user/:id', upload.none(), userController.updateUser);
 user_route.put('/update-user-site/:id', userController.updateSite);
 user_route.delete('/delete-user/:id', userController.deleteUser);

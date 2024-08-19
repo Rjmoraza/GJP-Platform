@@ -182,9 +182,39 @@ const getJamBySite = async(req, res) => {
     }
 };
 
-// returns an open gamejam that is linked to a userID or error if not jam found
+// returns an open gamejam that is linked to a userID or error if no jam found
 const getJamByUser = async(req, res) => {
+    const id = req.params.id;
 
+    const jamsOfUser = await UserOnJam.find({ userId: id });
+
+    if(jamsOfUser.length <= 0) 
+    {
+        return res.status(404).send({success: false, message: 'No jam found'});
+    }
+
+    let jamIds = new Array();
+    jamsOfUser.forEach(jam => {
+        jamIds.push(jam.jamId);
+    });
+
+    const jam = await Jam.findOne({
+        _id: { "$in": jamIds },
+        open: true
+    });
+
+    if(jam)
+    {
+        const jamOfUser = await UserOnJam.findOne({
+            userId: id,
+            jamId: jam._id
+        });
+        const site = await Site.findById(jamOfUser.siteId);
+        return res.status(200).send({success: true, data: {jam: jam, site: site}});
+    }
+    else{
+        return res.status(404).send({success: false, message: 'No jam found'});
+    }
 };
 
 const getCurrentStage = async(req, res) => {};

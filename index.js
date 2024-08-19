@@ -14,7 +14,8 @@ const app = express();
 const port = 3000;
 
 // Connect with Database
-mongoose.connect("mongodb://localhost:27017/GameJamDB");
+// Use IPv4 home addr since Node 17+ prefers IPv6 when 'localhost' is used makes mongod connection fail
+mongoose.connect("mongodb://127.0.0.1:27017/GameJamDB");
 
 // Set Environment
 if(process.env.TARGET == "PROD")

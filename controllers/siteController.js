@@ -1,8 +1,10 @@
 const Site = require('../models/siteModel');
 const Region = require('../models/regionModel');
 const Team = require('../models/teamModel');
-const GameJam = require('../models/gameJamEventModel');
 const User = require('../models/userModel');
+const Jam = require('../models/jamModel');
+const SiteOnJam = require('../models/siteOnJamModel');
+const UserOnJam = require('../models/userOnJamModel');
 const userController = require('./userController');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -229,7 +231,6 @@ const getCountries = async (req, res) => {
 const getSitesPerRegion = async (req, res) => {
     try {
         const regionId = req.params.regionId;
-        console.log(regionId);
         if (!mongoose.Types.ObjectId.isValid(regionId)) {
             return res.status(400).json({ success: false, error: 'Region ID is invalid' });
         } else {
@@ -245,11 +246,11 @@ const getSitesPerRegionOpen = async (req, res) => {
     try {
         const region = req.params.regionId;
         if (!mongoose.Types.ObjectId.isValid(region)) {
-            return res.status(400).json({ success: false, error: 'Region ID is invalid' });
+            return res.status(400).json({ success: false, message: 'Region ID is invalid' });
         } else {
             const existingRegion = await Region.findById(region);
             if (!existingRegion) {
-                return res.status(404).json({ success: false, error: "Region not found" });
+                return res.status(404).json({ success: false, message: "Region not found" });
             } else {
                 const selectedSites = await Site.find({ 'region._id': region, 'open': 0  });
                 return res.status(200).json({ success: true, message: 'Sites listed successfully', data: selectedSites });
@@ -257,6 +258,44 @@ const getSitesPerRegionOpen = async (req, res) => {
         }
     } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+const getSitesByJam = async (req, res) => {
+    try{
+        let jamId = req.params.id;
+
+        if(jamId == "open")
+        {
+            console.log("Finding open jam...");
+            const jam = await Jam.findOne({ open: true });
+            if(!jam)
+            {
+                return res.status(404).json({ success: false, message: "There are no open jams"});
+            }
+            jamId = jam._id;
+        }
+
+        const sitesOfJam = await SiteOnJam.find({ jamId : jamId});
+        let siteIds = Array();
+        sitesOfJam.forEach(soj => {
+            siteIds.push(soj.siteId);
+        });
+
+        const sites = await Site.find({
+            _id : {"$in" : siteIds }
+        });
+
+        if(sites.length > 0)
+        {            
+            return res.status(200).json({success: true, data: sites});
+        }
+        else
+        {
+            return res.status(400).json({success: false, message: "No sites found"});
+        }
+    } catch (error) {
+        return res.status(400).json({success: false, message: error.message});
     }
 };
 
@@ -280,6 +319,40 @@ const deleteSite = async(req,res)=>{
     }
 };
 
+const joinJammerToSite = async(req, res)=>{
+    try{
+        let { siteId, userId, jamId } = req.body;
+
+        if(!jamId)
+        {
+            const jam = await Jam.findOne({ open: true });
+            if(!jam) return res.status(400).json({success: false, message: "No open jams available"});
+            jamId = jam._id;
+        }
+
+        const uoj = await UserOnJam.find({
+            userId: userId,
+            siteId: siteId,
+            jamId: jamId
+        });
+
+        if(uoj.length > 0) return res.status(400).json({success: false, message: "User already registered to this site"});
+
+        const userOnJam = new UserOnJam({
+            userId: userId,
+            siteId: siteId,
+            jamId: jamId
+        });
+        await userOnJam.save();
+
+        const site = await Site.findById(siteId);
+        const jam = await Jam.findById(jamId);
+        return res.status(200).json({success: true, data: {jam: jam, site: site}});
+    } catch (error) {
+        return res.status(400).send({success: false, message: error.message});
+    }
+};
+
 const findCountry = (countryName) =>
 {
     const countriesPath = path.join(__dirname, '..', 'staticData', 'countries.json');
@@ -296,6 +369,8 @@ module.exports = {
     getCountries,
     getSitesPerRegion,
     getSitesPerRegionOpen,
+    getSitesByJam,
+    joinJammerToSite,
     deleteSite,
     changeStatus,
     updateDescription
