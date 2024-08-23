@@ -20,7 +20,7 @@ user_route.get('/magic-link/:token', userController.magicLink);
 user_route.get('/log-out-user', userController.logOutUser);
 user_route.get('/get-users', userController.getUsers);
 user_route.get('/get-user', userController.getCurrentUser);
-user_route.get('/get-jammers-per-site/:siteId', userController.getJammersPerSite);
+user_route.get('/get-jammers-per-site/:siteId/:jamId', userController.getJammersPerSite);
 user_route.get('/get-free-jammers-per-site/:siteId', userController.getJammersNotInTeamPerSite);
 user_route.get('/get-site-staff/:siteId', userController.getStaffPerSite);
 user_route.put('/update-user/:id', upload.none(), userController.updateUser);

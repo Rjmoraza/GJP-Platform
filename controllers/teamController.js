@@ -192,19 +192,21 @@ const updateTeam = async (req, res) => {
 
 const getTeam = async(req,res)=>{
     try{
-        const id = req.params.id;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: 'El ID de equipo proporcionado no es válido.' });
-        } else {
-            const existingTeam = await Team.findById(id);
-            if (!existingTeam) {
-                return res.status(404).json({ success: false, error: "Ese equipo no existe" });
-            }
-        }
-        const selectedTeam = await Team.findById(id);
-        res.status(200).send({ success:true, msg:'Equipo encontrado correctamente', data: selectedTeam });
+        const {jammerId, siteId, jamId} = req.params;
+        if(!jammerId || !mongoose.Types.ObjectId.isValid(jammerId)) return res.status(400).json({ success: false, message: 'Jammer ID is invalid'});
+        if(!siteId || !mongoose.Types.ObjectId.isValid(siteId)) return res.status(400).json({ success: false, message: 'Site ID is invalid'});
+        if(!jamId || !mongoose.Types.ObjectId.isValid(jamId)) return res.status(400).json({ success: false, message: 'Jam ID is invalid'});
+        
+        const team = await Team.find({
+            jamId: jamId,
+            siteId: siteId,
+            "jammers._id": jammerId
+        })
+        
+        if(!team) return res.status(404).json({ success: false, message: 'No team found'});
+        else return res.status(200).send({ success:true, data: team });
     } catch(error) {
-        res.status(400).send({ success:false, msg:error.message });
+        return res.status(400).send({ success:false, message: error.message });
     }
 };
 

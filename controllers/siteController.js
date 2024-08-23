@@ -76,7 +76,7 @@ const createSite = async (req, res) => {
 
 const updateSite = async (req, res) => {
     // TODO change this method to receive full country struct
-    const { name, regionId, country, city, open, address, server, modality, description, language, phoneNumber, email } = req.body;
+    const { name, regionId, country, city, open, address, server, modality, description, language, phoneNumber, email, startTime } = req.body;
     const id = req.params.id;
     try {
         const creatorUser = await userController.validateUser(req);
@@ -120,6 +120,7 @@ const updateSite = async (req, res) => {
         if(language) site.language = language;
         if(phoneNumber) site.phoneNumber = phoneNumber;
         if(email) site.email = email;
+        if(startTime) site.startTime = startTime;
         site.lastUpdateUser = creatorUser;
         site.lastUpdateDate = new Date();
 

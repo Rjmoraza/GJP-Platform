@@ -55,6 +55,9 @@ const siteSchema = mongoose.Schema({
     email: {
         type: String
     },
+    startTime: {
+        type: String
+    },
     creatorUser:  {
         userId: {
             type: Schema.Types.ObjectId, 

@@ -216,8 +216,6 @@ const getJamByUser = async(req, res) => {
         return res.status(404).send({success: false, message: 'No jam found'});
     }
 };
-
-const getCurrentStage = async(req, res) => {};
 // #endregion
 
 module.exports = {
@@ -227,7 +225,6 @@ module.exports = {
     getCurrentJam,
     getJamBySite,
     getJamByUser,
-    getCurrentStage,
     joinSiteToJam,
     listJams,
     listOpenJams

@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const Team = require('../models/teamModel');
 const Site = require('../models/siteModel');
-const GameJam = require('../models/gameJamEventModel');
+const UserOnJam = require('../models/userOnJamModel');
 const gamejamController = require('../controllers/gameJamController');
 const { sendEmail } = require('../services/mailer');
 const jwt = require('jsonwebtoken');
@@ -261,9 +261,24 @@ const getUsers = async (req, res) => {
 };
 
 const getJammersPerSite = async (req, res) => {
-    const { siteId } = req.params;
+    const { siteId, jamId } = req.params;
     try {
-        const jammers = await User.find({ "site._id": siteId, roles: 'Jammer' })
+        const jammersOnSite = await UserOnJam.find({
+            siteId: siteId,
+            jamId: jamId
+        });
+
+        if(jammersOnSite.length == 0) return res.status(404).send({ success: false, message: 'No jammers found for this venue'});
+
+        let jammerIds = new Array();
+        jammersOnSite.forEach((jos) => {
+            jammerIds.push(jos.userId);
+        });
+
+        const jammers = await User.find({
+            _id: { "$in": jammerIds }
+        });
+
         res.status(200).send({ success: true, msg: 'Users with the role "Jammer" have been found in the system.', data: jammers });
     } catch (error) {
         res.status(400).send({ success: false, msg: error.message });
