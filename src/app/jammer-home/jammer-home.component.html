@@ -65,35 +65,29 @@
     <div id="jammerHomeContent" class="col-8">
       <!-- #region HOME -->
       <div *ngIf="page == 'site' && site" class="container container-lg p-3">
-        <h1 class="text-center">{{ site.name.toUpperCase() }}</h1>
+        <h1 class="text-left">{{ site.name.toUpperCase() }} [{{ site.language }}]</h1>
         <div class="row">
-          <div class="col-2">
-            <h3 class="text-center">Location:</h3>
-            <p class="text-center">{{ site.country?.code }} - {{ site.country?.name }}</p>
-            <p class="text-center">{{ site.city }}</p>
-          </div>
-
-          <div class="col-4">
-            <h3 class="text-center">Staff:</h3>
-            <p class="text-center" *ngFor="let member of staff">
-              <fa-icon [icon]="faUser"></fa-icon> {{ member.name }}<br>
-              <fa-icon [icon]="faEnvelope"></fa-icon> {{ member.email }}<br>
-              <fa-icon [icon]="faDiscord"></fa-icon> {{ member.discordUsername ? member.discordUsername : 'None' }}
+          <div class="col-8">
+            <p><b>Country:</b> {{ site.country.code }} - {{ site.country.name }}</p>
+            <p><b>City:</b> {{ site.city }}</p>
+            <p *ngIf="site.address"><b>Address:</b> {{ site.address }}</p>
+            <p *ngIf="site.startTime"><b>Start Time:</b> {{ convertTo12h(site.startTime) }}</p>
+            <p>
+              <b>Site Staff:</b>
+              <span *ngFor="let member of staff">
+                <br>
+                <a [href]="'mailto:' + member.email">{{ member.name }}</a> 
+                <span *ngIf="member.discordUsername" class="ml-1">
+                  (<fa-icon [icon]="faDiscord"></fa-icon>{{ member.discordUsername }})
+                </span>
+              </span>
             </p>
           </div>
-
-          <div class="col-4">
-            <h3 class="text-center">Contact Information:</h3>
-            <p class="text-center" *ngIf="site.email">{{ site.email }}</p>
-            <p class="text-center" *ngIf="site.phoneNumber">{{ site.phoneNumber }}</p>
-            <p class="text-center" *ngIf="site.address">{{ site.address }}</p>
-          </div>
-
-          <div class="col-2">
-            <h3 class="text-center">Site Status:</h3>
-            <p class="text-center">Modality: {{ site.modality }}</p>
-            <p class="text-center">{{ site.open ? 'Open for Registration' : 'Full/Closed' }}</p>
-            <p class="text-center">Language: {{ site.language }}</p>
+          <div class="col-4 text-right">
+            <p><b>Modality:</b> {{ site.modality }}</p>
+            <p *ngIf="site.server"><a [href]="site.server">{{ site.server }}</a></p>
+            <p *ngIf="site.email"><a [href]="'mailto:'+site.email">{{ site.email }}</a></p>
+            <p *ngIf="site.phoneNumber"><a [href]="generateWhatsAppLink(site.phoneNumber)">{{ site.phoneNumber }}</a></p>
           </div>
         </div>
 

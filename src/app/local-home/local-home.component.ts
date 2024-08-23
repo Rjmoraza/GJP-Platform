@@ -51,6 +51,7 @@ export class LocalHomeComponent implements OnDestroy {
   countries: Country[] = [];
   site?: Site;
   staff: User[] = [];
+  jammers: User[] = [];
   modalError: string = '';
   page: string = 'jam';
   deltaTime: string = '00:00:00:00';
@@ -86,6 +87,7 @@ export class LocalHomeComponent implements OnDestroy {
       email: '',
       address: '',
       server: '',
+      startTime: '',
       language: 'PT'
     });
 
@@ -106,7 +108,6 @@ export class LocalHomeComponent implements OnDestroy {
         if(this.user.site)
         {
           this.getSite();
-          this.getJam();
         }
       }
     });
@@ -166,8 +167,9 @@ export class LocalHomeComponent implements OnDestroy {
     this.jamService.getJamBySite(url).subscribe({
       next: (jam: Jam) => {
         this.jam = jam;
+        this.listJammers();
       },
-      error: (error) => {
+      error: (error) => { // Try to get the current jam and automatically join
         // if 404 then automatically join the current jam
         // NOTE: do this in the front-end in case refactoring is required to support more than one open jam
         if(error.status == 404)
@@ -200,6 +202,7 @@ export class LocalHomeComponent implements OnDestroy {
               this.jamService.joinSiteToJam(`http://${environment.apiUrl}:3000/api/jam/join-site-jam`, link).subscribe({
                 next: (jam: Jam) => {
                   this.jam = jam;
+                  // Don't list jammers because this site should not have jammers at this point
                 },
                 error: (error) => {
                   console.log(error);
@@ -248,6 +251,7 @@ export class LocalHomeComponent implements OnDestroy {
         this.site = site;
         this.listStaff();
         this.patchSiteForm();
+        this.getJam();
       },
       error: (error) => {
         console.error('Error when loading site:', error);
@@ -261,6 +265,19 @@ export class LocalHomeComponent implements OnDestroy {
     this.userService.getStaffPerSite(url).subscribe({
       next: (staff: User[]) => {
         this.staff = staff;
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
+
+  listJammers() : void
+  {
+    const url = `http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${this.site!._id}/${this.jam!._id}`;
+    this.userService.getJammersPerSite(url).subscribe({
+      next: (jammers: User[]) => {
+        this.jammers = jammers;
       },
       error: (error) => {
         console.log(error);
@@ -318,7 +335,8 @@ export class LocalHomeComponent implements OnDestroy {
         email: this.site.email ? this.site.email : '',
         address: this.site.address ? this.site.address : '',
         server: this.site.server ? this.site.server : '',
-        language: this.site.language ? this.site.language : 'PT'
+        language: this.site.language ? this.site.language : 'PT',
+        startTime: this.site.startTime ? this.site.startTime : ''
       });
     }
   }
@@ -335,7 +353,8 @@ export class LocalHomeComponent implements OnDestroy {
       email: '',
       address: '',
       server: '',
-      language: 'PT'
+      language: 'PT',
+      startTime: ''
     });
   }
 
@@ -446,7 +465,8 @@ export class LocalHomeComponent implements OnDestroy {
         server : this.siteForm.get('server')?.value,
         email : this.siteForm.get('email')?.value,
         language : this.siteForm.get('language')?.value,
-        regionId : this.site.regionId
+        regionId : this.site.regionId,
+        startTime : this.siteForm.get('startTime')?.value
       };
 
       this.siteService.updateSite(`http://${environment.apiUrl}:3000/api/site/update-site/${this.site._id}`, site).subscribe({
@@ -482,6 +502,18 @@ export class LocalHomeComponent implements OnDestroy {
       () => { // NO?
         // DO NOTHING
       }
+    );
+  }
+
+  kickJammer(jammer: User)
+  {
+    this.message.showDialog(
+      "Confirm Action", 
+      `Are you sure you want to remove ${jammer.name} from this site?<br>THIS FEATURE IS STILL UNDER CONSTRUCTION`, 
+      ()=>{
+        console.log("Kicking Jammer...");
+      }, 
+      ()=>{}
     );
   }
 

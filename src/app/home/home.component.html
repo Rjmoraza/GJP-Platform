@@ -1,7 +1,7 @@
 <section class="backgroundGradient">
   <div class="container-fluid mainWindow">
     <div *ngIf="user" class="row headerGradient">
-      <div class = "col-lg GJrol">{{user?.name}} ({{activeRole}})</div>
+      <div class = "col-lg GJrol">{{user.name}} ({{activeRole}})</div>
 
       <!-- ROLE SWITCHER -->
       <div *ngIf="user.roles.length > 1" class="col-4 btn-group btn-group-toggle" data-toggle="buttons">

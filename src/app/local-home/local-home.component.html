@@ -198,7 +198,7 @@
 
           <div class="col-4">
             <h3 class="text-center">Country:</h3>
-            <p class="text-center">{{ site.country?.code }} - {{ site.country?.name }}</p>
+            <p class="text-center">{{ site.country.code }} - {{ site.country.name }}</p>
           </div>
 
           <div class="col-4">
@@ -249,6 +249,12 @@
               <label for="siteAddress">Venue Address</label>
               <input type="text" class="form-control" id="siteAddress" formControlName="address" placeholder="Venue address">
               <small class="form-text text-muted">If your venue has a physical location, specify the address.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="siteStartTime">Start Time</label>
+              <input type="time" class="form-control" id="siteStartTime" formControlName="startTime" placeholder="06:00 PM">
+              <small class="form-text text-muted">Set the time you will launch the gamejam at your venue.</small>
             </div>
 
             <div class="form-group">
@@ -344,7 +350,27 @@
 
       <div *ngIf="page == 'jammers'" class="container container-lg p-3">
         <h1>JAMMERS</h1>
-        <p>Jammer list and tools</p>
+        
+        <table class="table table-stripped rounded">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Discord</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let jammer of jammers; index as j">
+              <th scope="row">{{ j + 1 }}</th>
+              <td>{{ jammer.name }}</td>
+              <td><a [href]="'mailto:'+jammer.email">{{ jammer.email }}</a></td>
+              <td>{{ jammer.discordUsername }}</td>
+              <td><button class="btn btn-danger" (click)="kickJammer(jammer)">Kick</button></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div *ngIf="page == 'games'" class="container container-lg p-3">

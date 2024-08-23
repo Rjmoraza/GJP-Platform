@@ -141,7 +141,7 @@ export class LocalSiteInformationComponent implements OnInit{
               }
             );
 
-            this.userService.getJammersSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + user.site._id).subscribe(
+            this.userService.getJammersPerSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + user.site._id).subscribe(
               jammers => {
                 console.log(jammers);
                 this.jammers = jammers;
@@ -347,7 +347,7 @@ export class LocalSiteInformationComponent implements OnInit{
   {
     console.log("Updating Jammers");
 
-    this.userService.getJammersSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + this.siteID).subscribe(
+    this.userService.getJammersPerSite(`http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/` + this.siteID).subscribe(
       jammers => {
         console.log(jammers);
         this.jammers = jammers;

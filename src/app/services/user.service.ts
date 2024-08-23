@@ -51,7 +51,7 @@ export class UserService {
     );
   }
 
-  getJammersSite(url: string): Observable<User[]> {
+  getJammersPerSite(url: string): Observable<User[]> {
     return this.http.get<any>(url).pipe(
       map(response => response.data)
     );

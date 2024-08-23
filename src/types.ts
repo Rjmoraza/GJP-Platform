@@ -61,6 +61,7 @@ export interface Site {
     server?: string;
     language?: string;
     regionId: string;
+    startTime?: string;
     country: {
       name: string;
       code: string;

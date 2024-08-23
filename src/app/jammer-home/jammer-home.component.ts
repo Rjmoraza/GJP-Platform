@@ -40,6 +40,7 @@ export class JammerHomeComponent implements OnInit {
   regions: Region[] = [];
   sites: Site[] = [];
   staff: User[] = [];
+  jammers: User[] = [];
   selectedRegion?: Region;
   filteredSites: Site[] = [];
   deltaTime: string = '00:00:00:00';
@@ -78,6 +79,7 @@ export class JammerHomeComponent implements OnInit {
         this.jam = data.jam;
         this.site = data.site;
         this.listStaff();
+        this.listJammers();
       },
       error: (error) => {
         if(error.status === 404)
@@ -98,6 +100,11 @@ export class JammerHomeComponent implements OnInit {
         console.log(error);
       }
     });
+  }
+
+  listJammers() : void
+  {
+
   }
 
   listRegions() : void
@@ -180,6 +187,34 @@ export class JammerHomeComponent implements OnInit {
 
       this.deltaTime = `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
     }
+  }
+
+  convertTo12h(time24h: string) : string {
+    // Split the time into hours and minutes
+    let [hour, minute] = time24h.split(':').map(Number);
+
+    // Determine the period (AM/PM)
+    let period = hour < 12 ? 'AM' : 'PM';
+
+    // Convert hour to 12-hour format
+    hour = hour % 12 || 12; // Convert '0' to '12'
+
+    // Return the formatted time in 12-hour format
+    return `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
+  }
+
+  generateWhatsAppLink(phoneNumber: string) : string 
+  {
+    // Clean the phone number by removing non-numeric characters
+    const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");
+
+    // Base WhatsApp URL
+    const baseURL = "https://wa.me/";
+
+    // Generate the full WhatsApp link
+    const whatsappLink = `${baseURL}${cleanedPhoneNumber}`;
+        
+    return whatsappLink;
   }
 
   isCurrentStage(stage: any) : boolean{
