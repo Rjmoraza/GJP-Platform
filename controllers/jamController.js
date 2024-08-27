@@ -184,37 +184,46 @@ const getJamBySite = async(req, res) => {
 
 // returns an open gamejam that is linked to a userID or error if no jam found
 const getJamByUser = async(req, res) => {
-    const id = req.params.id;
+    try{
+        const id = req.params.id;
 
-    const jamsOfUser = await UserOnJam.find({ userId: id });
+        const jamsOfUser = await UserOnJam.find({ userId: id });
 
-    if(jamsOfUser.length <= 0) 
-    {
-        return res.status(404).send({success: false, message: 'No jam found'});
-    }
+        if(jamsOfUser.length <= 0) 
+        {
+            return res.status(404).send({success: false, message: 'No jam found'});
+        }
 
-    let jamIds = new Array();
-    jamsOfUser.forEach(jam => {
-        jamIds.push(jam.jamId);
-    });
+        let jamIds = new Array();
+        jamsOfUser.forEach(jam => {
+            jamIds.push(jam.jamId);
+        });
 
-    const jam = await Jam.findOne({
-        _id: { "$in": jamIds },
-        open: true
-    });
+        const jam = await Jam.findOne({
+            _id: { "$in": jamIds },
+            open: true
+        });
 
-    if(jam)
-    {
+        if(!jam) return res.status(404).send({success: false, message: 'No jam found'});
+
         const jamOfUser = await UserOnJam.findOne({
             userId: id,
             jamId: jam._id
         });
         const site = await Site.findById(jamOfUser.siteId);
-        return res.status(200).send({success: true, data: {jam: jam, site: site}});
+
+        if(!site) return res.status(400).send({success: false, message: 'Site is invalid'});
+
+        const team = await Team.findOne({
+            jamId: jam._id,
+            siteId: site._id,
+            "jammers._id" : id
+        })
+        return res.status(200).send({success: true, data: {jam: jam, site: site, team: team}});
+    } catch(error) {
+        if(!jam) return res.status(400).send({success: false, message: error.message});
     }
-    else{
-        return res.status(404).send({success: false, message: 'No jam found'});
-    }
+    
 };
 // #endregion
 

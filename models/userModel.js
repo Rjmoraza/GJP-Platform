@@ -36,17 +36,6 @@ const userSchema = new Schema({
             required: false 
         }
     },
-    team: {
-        _id: { 
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Team',
-            required: false
-        },
-        name: { 
-            type: String,
-            required: false
-        }
-    },
     roles: [{
         type: String,
         required: false

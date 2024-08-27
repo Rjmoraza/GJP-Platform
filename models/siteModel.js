@@ -52,6 +52,15 @@ const siteSchema = mongoose.Schema({
     server: {
         type: String
     },
+    instagram: {
+        type: String
+    },
+    whatsapp: {
+        type: String
+    },
+    discord: {
+        type: String
+    },
     email: {
         type: String
     },

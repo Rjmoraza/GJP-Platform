@@ -17,7 +17,7 @@ const teamSchema = mongoose.Schema({
     },
     jamId: { 
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'GameJam',
+            ref: 'Jam',
             required: true
     },
     // Keep jammers info in case the jammer exits the platform
@@ -33,6 +33,9 @@ const teamSchema = mongoose.Schema({
             type: String
         },
         discordUsername: { 
+            type: String
+        },
+        role: {
             type: String
         }
     }],

@@ -76,7 +76,7 @@ const createSite = async (req, res) => {
 
 const updateSite = async (req, res) => {
     // TODO change this method to receive full country struct
-    const { name, regionId, country, city, open, address, server, modality, description, language, phoneNumber, email, startTime } = req.body;
+    const { name, regionId, country, city, open, address, server, instagram, whatsapp, discord, modality, description, language, phoneNumber, email, startTime } = req.body;
     const id = req.params.id;
     try {
         const creatorUser = await userController.validateUser(req);
@@ -121,6 +121,9 @@ const updateSite = async (req, res) => {
         if(phoneNumber) site.phoneNumber = phoneNumber;
         if(email) site.email = email;
         if(startTime) site.startTime = startTime;
+        if(instagram) site.instagram = instagram;
+        if(whatsapp) site.whatsapp = whatsapp;
+        if(discord) site.discord = discord;
         site.lastUpdateUser = creatorUser;
         site.lastUpdateDate = new Date();
 
@@ -356,6 +359,49 @@ const joinJammerToSite = async(req, res)=>{
     }
 };
 
+const exitJammerFromSite = async(req, res)=>{
+    try{
+        const { userId, jamId, siteId } = req.body;
+
+        // check if this jammer has a team, and remove them from the team
+        const team = await Team.findOne({
+            siteId: siteId,
+            jamId: jamId,
+            'jammers._id' : userId
+        })
+
+        if(team)
+        {
+            // remove the jammer from the team
+            if(team.jammers.length > 1)
+            {
+                const index = team.jammers.findIndex(jammer => jammer._id === userId);
+                if (index !== -1) {
+                    const jammer = team.jammers[index];
+                    team.jammers.splice(index, 1); // Remove the item at the found index
+                    if(jammer.role === "owner") team.jammers[0].role = "owner";
+                    await team.save();
+                }
+            }
+            // if this is the only jammer in this team, remove the whole team
+            else
+            {
+                await team.remove();
+            }
+        }
+
+        // Finally, remove the jammer from the jam
+        const jos = await UserOnJam.findOneAndDelete({
+            userId: userId,
+            jamId: jamId,
+            siteId: siteId
+        });
+        return res.status(200).send({success: true, message: "Jammer successfully exited the site"});
+    }catch(error){
+        return res.status(400).send({success: false, message: error.message})
+    }
+}
+
 const findCountry = (countryName) =>
 {
     const countriesPath = path.join(__dirname, '..', 'staticData', 'countries.json');
@@ -374,6 +420,7 @@ module.exports = {
     getSitesPerRegionOpen,
     getSitesByJam,
     joinJammerToSite,
+    exitJammerFromSite,
     deleteSite,
     changeStatus,
     updateDescription
