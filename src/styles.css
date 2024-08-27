@@ -184,4 +184,19 @@ h4, h5, h6
   color: red;
 }
 
+.input-group>.input-group-prepend {
+  flex: 0 0 30%;
+}
 
+.input-group-text{
+  background-color: #00000022 !important;
+  width: 100%;
+}
+
+.tooltip-trigger{
+  padding-left: 5px;
+  font-size: 0.8em;
+  color: red;
+  vertical-align: top;
+  font-weight: bold;
+}

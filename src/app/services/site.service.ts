@@ -66,6 +66,10 @@ export class SiteService {
     );
   }
 
+  exitSite(url: string, data: any): Observable<any> {
+    return this.http.put(url, data);
+  }
+
   deleteSite(url: string): Observable<any> {
     return this.http.delete(url);
   }

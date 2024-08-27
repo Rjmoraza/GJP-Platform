@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, ViewChild, importProvidersFrom } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RegionService } from '../services/region.service';
 import { SiteService } from '../services/site.service';
@@ -8,6 +8,8 @@ import { User, Site, Region, Country, Jam } from '../../types'
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { MessagesComponent } from '../messages/messages.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { environment } from '../../environments/environment.prod';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -34,7 +36,8 @@ import tinymce from 'tinymce';
     FormsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    EditorComponent
+    EditorComponent,
+    MatTooltipModule
   ],
   templateUrl: './local-home.component.html',
   styleUrl: './local-home.component.css',
@@ -87,6 +90,10 @@ export class LocalHomeComponent implements OnDestroy {
       email: '',
       address: '',
       server: '',
+      website: '',
+      instagram: '',
+      whatsapp: '',
+      discord: '',
       startTime: '',
       language: 'PT'
     });
@@ -335,6 +342,10 @@ export class LocalHomeComponent implements OnDestroy {
         email: this.site.email ? this.site.email : '',
         address: this.site.address ? this.site.address : '',
         server: this.site.server ? this.site.server : '',
+        website: this.site.website ? this.site.website : '',
+        instagram: this.site.instagram ? this.site.instagram : '',
+        whatsapp: this.site.whatsapp ? this.site.whatsapp : '',
+        discord: this.site.discord ? this.site.discord : '',
         language: this.site.language ? this.site.language : 'PT',
         startTime: this.site.startTime ? this.site.startTime : ''
       });

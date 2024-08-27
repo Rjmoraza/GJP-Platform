@@ -11,18 +11,28 @@ export class TeamService {
 
   constructor(private http: HttpClient) { }
 
-  createTeam(url: string, team: Team): Observable<any> {
-    return this.http.post(url, team, { withCredentials: true });
+  createTeam(url: string, team: Team): Observable<Team> {
+    return this.http.post<any>(url, team, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  joinTeam(url: string, data: any) : Observable<Team> {
+    return this.http.post<any>(url, data, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
   }
 
   getTeamById(url: string): Observable<Team> { 
-    return this.http.get<any>(url, { withCredentials: true }).pipe(
+    return this.http.post<any>(url, { withCredentials: true }).pipe(
       map(response => response.data) 
     );
   }
 
-  addJammerToTeam(url: string): Observable<any> {
-    return this.http.post(url, { withCredentials: true });
+  addJammerToTeam(url: string): Observable<Team> {
+    return this.http.put<any>(url, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
   }
 
   removeJammerFromTeam(url: string): Observable<any> {
@@ -31,6 +41,12 @@ export class TeamService {
 
   updateTeam(url: string, team: Team): Observable<any> {
     return this.http.put(url, team, { withCredentials: true });
+  }
+
+  getTeam(url: string): Observable<Team> {
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
   }
   
   getTeams(url: string): Observable<Team[]> { 

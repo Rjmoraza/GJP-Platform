@@ -203,8 +203,10 @@
 
           <div class="col-4">
             <h3 class="text-center">Join Code:</h3>
-            <p class="text-center">{{ site.code }}</p>
-            <small class="form-text text-muted my-2">Share this code with other venue organizers so they can access your venue's dashboard.</small>
+            <p class="text-center">
+              {{ site.code }}
+              <a matTooltip="Share this code with other venue organizers so they can access your venue's dashboard." class="tooltip-trigger">?</a>
+            </p>
           </div>
         </div>
 
@@ -212,125 +214,134 @@
 
         <form (submit)="saveSite()" [formGroup]="siteForm" class="row">
 
+          <div class="col-12 input-group input-group-lg mb-3">
+            <div class="input-group-prepend"><span class="input-group-text required">Site Name</span></div>
+            <input type="text" class="form-control" id="siteName" formControlName="name">
+          </div>
+
           <div class="col-6">
-            <h3>Basic & Contact Information</h3>
-
-            <div class="form-group">
-              <label for="siteName" class="required">Site Name</label>
-              <input type="text" class="form-control" id="siteName" formControlName="name">
-            </div>
-
-            <div class="form-group">
-              <label for="siteName" class="required">Site Country</label>
+            <h3>Venue Main Info</h3>
+            <hr>
+            <div class="input-group"> <!--COUNTRY-->
+              <div class="input-group-prepend"><span class="input-group-text required">Country</span></div>
               <select class="form-control formList" id="countries" formControlName="country">
                 <option value="" disabled selected hidden>Country of the site</option>
                 <option *ngFor="let country of countries" [ngValue]="country">{{ country.name }}</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label for="siteCity" class="required">Site City</label>
+            <div class="input-group"> <!--CITY-->
+              <div class="input-group-prepend"><span class="input-group-text required">City</span></div>
               <input type="text" class="form-control" id="siteCity" formControlName="city">
             </div>
 
-            <div class="form-group">
-              <label for="siteEmail">Site Email</label>
-              <input type="email" class="form-control" id="sitePhone" formControlName="email" placeholder="info@your.venue.com">
-              <small class="form-text text-muted">An official email address for your venue. This address will be visible to jammers and other organizers.</small>
+            <div class="input-group"> <!--ADDRESS-->
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  Address
+                  <a matTooltip="If your venue has a physical location, specify the address." class="tooltip-trigger">?</a>
+                </span>
+              </div>
+              <input type="text" class="form-control" id="siteAddress" formControlName="address">
             </div>
 
-            <div class="form-group">
-              <label for="sitePhone">Phone Number</label>
-              <input type="tel" class="form-control" id="sitePhone" formControlName="phoneNumber" placeholder="+55 21 98765-4321">
-              <small class="form-text text-muted">An official phone number for your venue. This number will be visible to jammers and other organizers. Remember to include your country/area code.</small>
+            <div class="input-group"> <!--SERVER-->
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  Server
+                  <a matTooltip="An URL to your virtual venue if any (discord server, whatsapp group, telegram group, or any other that applies)" class="tooltip-trigger">?</a>
+                </span>
+              </div>
+              <input type="text" class="form-control" id="siteServer" formControlName="server">
+            </div> 
+
+            <h3 class="mt-3">Contact Info</h3>
+            <hr>
+
+            <div class="input-group input-group-sm"> <!--SERVER-->
+              <div class="input-group-prepend"><span class="input-group-text">Email</span></div>
+              <input type="email" class="form-control" id="siteEmail" formControlName="email">
+            </div> 
+
+            <div class="input-group input-group-sm"> <!--PHONE-->
+              <div class="input-group-prepend"><span class="input-group-text">Phone Number</span></div>
+              <input type="tel" class="form-control" id="sitePhone" formControlName="phoneNumber">
             </div>
 
-            <div class="form-group">
-              <label for="siteAddress">Venue Address</label>
-              <input type="text" class="form-control" id="siteAddress" formControlName="address" placeholder="Venue address">
-              <small class="form-text text-muted">If your venue has a physical location, specify the address.</small>
+            <div class="input-group input-group-sm"> <!--LINK-->
+              <div class="input-group-prepend"><span class="input-group-text">Link/Website</span></div>
+              <input type="url" class="form-control" id="siteWebsite" formControlName="website">
             </div>
-
-            <div class="form-group">
-              <label for="siteStartTime">Start Time</label>
-              <input type="time" class="form-control" id="siteStartTime" formControlName="startTime" placeholder="06:00 PM">
-              <small class="form-text text-muted">Set the time you will launch the gamejam at your venue.</small>
-            </div>
-
-            <div class="form-group">
-              <label for="siteServer">Online Server</label>
-              <input type="text" class="form-control" id="siteServer" formControlName="server" placeholder="https://discord.gg/mySiteURL">
-              <small class="form-text text-muted">An URL to your virtual venue if any (discord server, whatsapp group, telegram group, or any other that applies)</small>
-            </div>
+            
           </div>
 
           <div class="col-6">
-            <h3>Options</h3>
-            <div class="form-group">
-              <label for="sitePhone" class="required">Site Modality</label>
-              <div class="form-check">
-                <input type="radio" class="form-check-input" value="on site" name="modality" formControlName="modality">
-                <label class="form-check-label" for="modality">On Site</label>
-              </div>
+            <h3>Venue Options</h3>
+            <hr>
 
-              <div class="form-check">
-                <input type="radio" class="form-check-input" value="online" name="modality" formControlName="modality">
-                <label class="form-check-label" for="modality">Online</label>
+            <div class="input-group"> <!--STATUS-->
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  Status
+                  <a matTooltip="Is your venue open for new jammers to sign in?" class="tooltip-trigger">?</a>
+                </span>
               </div>
-
-              <div class="form-check">
-                <input type="radio" class="form-check-input" value="hybrid" name="modality" formControlName="modality">
-                <label class="form-check-label" for="modality">Hybrid</label>
-              </div>
-
-              <small class="form-text text-muted">Is your venue on site, online, or both?</small>
+              <select class="form-select" formControlName="open">
+                <option [value]="true">Open</option>
+                <option [value]="false">Closed</option>
+              </select>
             </div>
 
-            <div class="form-group">
-              <label for="sitePhone" class="required">Site Status</label>
-              <div class="form-check">
-                <input type="radio" class="form-check-input" [value]="true" name="open" formControlName="open">
-                <label class="form-check-label" for="open">Open</label>
-              </div>
-
-              <div class="form-check">
-                <input type="radio" class="form-check-input" [value]="false" name="open" formControlName="open">
-                <label class="form-check-label" for="open">Closed</label>
-              </div>
-
-              <small class="form-text text-muted">Is your site open for new jammers to sign up?</small>
+            <div class="input-group"> <!--MODALITY-->
+              <div class="input-group-prepend"><span class="input-group-text">Modality</span></div>
+              <select class="form-select" formControlName="modality">
+                <option value="on site">On Site</option>
+                <option value="online">Online</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
             </div>
 
-            <div class="form-group">
-              <label for="sitePhone">Site Language</label>
-              <div class="form-check">
-                <input type="radio" class="form-check-input" value="PT" name="language" formControlName="language">
-                <label class="form-check-label" for="open">Português (PT)</label>
+            <div class="input-group"> <!--LANGUAGE-->
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  Language
+                  <a matTooltip="GameJam+ supports three official languages: Português, Español (limited support), and English (limited support)" class="tooltip-trigger">?</a>
+                </span>
               </div>
+              <select class="form-select" formControlName="language">
+                <option value="PT">Português (PT)</option>
+                <option value="ES">Español (ES)</option>
+                <option value="EN">English (EN)</option>
+              </select>
+            </div>
 
-              <div class="form-check">
-                <input type="radio" class="form-check-input" value="ES" name="language" formControlName="language">
-                <label class="form-check-label" for="open">Español (ES)</label>
-              </div>
+            <div class="input-group input-group"> <!--START TIME-->
+              <div class="input-group-prepend"><span class="input-group-text">Start time</span></div>
+              <input type="time" class="form-control" id="siteStartTime" formControlName="startTime">
+            </div>
 
-              <div class="form-check">
-                <input type="radio" class="form-check-input" value="EN" name="language" formControlName="language">
-                <label class="form-check-label" for="open">English (EN)</label>
-              </div>
+            <h3 class="mt-3">Social Media</h3>
+            <hr>
 
-              <small class="form-text text-muted">GameJam+ supports three official languages:
-                <ul>
-                  <li>Portuguese (main)</li>
-                  <li>Spanish (limited support)</li>
-                  <li>English (limited support)</li>
-                </ul>
-                If your site supports another language, please add it to your site's description.
-              </small>
+            <div class="input-group input-group-sm"> <!--INSTAGRAM-->
+              <div class="input-group-prepend"><span class="input-group-text">Instagram</span></div>
+              <input type="url" class="form-control" id="siteInstagram" formControlName="instagram">
+            </div>
+
+            <div class="input-group input-group-sm"> <!--WHATSAPP-->
+              <div class="input-group-prepend"><span class="input-group-text">Whatsapp</span></div>
+              <input type="url" class="form-control" id="siteWhatsapp" formControlName="whatsapp">
+            </div>
+            
+            <div class="input-group input-group-sm"> <!--DISCORD-->
+              <div class="input-group-prepend"><span class="input-group-text">Discord</span></div>
+              <input type="url" class="form-control" id="siteDiscord" formControlName="discord">
             </div>
           </div>
 
-          <div class="col-12">
+          <div class="col-12 mt-3">
             <h3>Description and Instructions</h3>
+            <hr>
             <editor
               apiKey="no-api-key"
               licenseKey="gpl"
@@ -385,25 +396,17 @@
             <div class="card p-2">
               <fa-icon [icon]="faUser" class="fa-2x"></fa-icon>
               <h3>{{ member.name }}</h3>
-              <p><fa-icon [icon]="faEnvelope"></fa-icon> {{ member.email }}</p>
+              <p><fa-icon [icon]="faEnvelope"></fa-icon> <a [href]="'mailto:' + member.email" class="ml-2">{{ member.email }}</a></p>
               <p><fa-icon [icon]="faDiscord"></fa-icon> {{ member.discordUsername ? member.discordUsername : 'None' }}</p>
             </div>
           </div>
         </div>
-      </div>
-      <!-- #endregion -->
-
-      <!-- #region ORG -->
-      <div *ngIf="page == 'contact'" class="container container-lg p-3">
-        <h1>CONTACT INFORMATION</h1>
-        <p>contact information form</p>
       </div>
 
       <div *ngIf="page == 'fellows'" class="container container-lg p-3">
         <h1>MY FELLOWSHIP</h1>
         <p>This section is still under construction</p>
       </div>
-
       <!-- #endregion -->
     </div>
 

@@ -6,8 +6,8 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <div class="modal-body">
-      {{ message }}
+    <div class="modal-body" [innerHTML]="message">
+      
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="closeMessage()">Close</button>
@@ -23,8 +23,7 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <div class="modal-body">
-      {{ message }}
+    <div class="modal-body" [innerHTML]="message">
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-success" (click)="closeDialog(true)">Accept</button>
@@ -42,7 +41,7 @@
       </button>
     </div>
     <div class="form-group modal-body">
-      <label for="answer">{{ message }}</label>
+      <label for="answer" [innerHTML]="message"></label>
       <input type="text" class="form-control" name="answer" [(ngModel)]="answer">
     </div>
     <div class="modal-footer">

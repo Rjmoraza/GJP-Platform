@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TeamService } from '../services/team.service';
 import { UserService } from '../services/user.service';
@@ -8,7 +9,8 @@ import { JamService } from '../services/jam.service';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { MessagesComponent } from '../messages/messages.component';
-import { User, Site, Region, Jam, Country } from '../../types';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { User, Site, Region, Jam, Team } from '../../types';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons';
@@ -31,7 +33,10 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
     imports: [
         CommonModule,
         MessagesComponent,
-        FontAwesomeModule
+        FontAwesomeModule,
+        MatTooltipModule,
+        FormsModule,
+        ReactiveFormsModule
     ]
 })
 export class JammerHomeComponent implements OnInit {
@@ -49,6 +54,7 @@ export class JammerHomeComponent implements OnInit {
 
   site?: Site;
   jam?: Jam;
+  team?: Team;
 
   faCoffee = faCoffee;
   faCircleInfo = faCircleInfo;
@@ -59,6 +65,26 @@ export class JammerHomeComponent implements OnInit {
   faUser = faUser;
   faDiscord = faDiscord;
   faEnvelope = faEnvelope;
+
+  randomAdjectives = [
+    "quick", "happy", "bright", "calm", "gentle", "smooth", "kind", "warm", "polite", "cheerful",
+    "brave", "intelligent", "strong", "friendly", "generous", "honest", "creative", "thoughtful", "graceful", "charming",
+    "reliable", "wise", "caring", "loyal", "patient", "elegant", "fair", "witty", "resourceful", "inspiring",
+    "adventurous", "curious", "playful", "bold", "confident", "diligent", "respectful", "determined", "helpful", "motivated",
+    "optimistic", "energetic", "supportive", "passionate", "ambitious", "artistic", "sincere", "trustworthy", "humble", "organized"
+  ];
+
+  randomColors = [
+    "red", "blue", "green", "yellow", "purple", "orange", "pink", "brown", "black", "white"
+  ];
+
+  randomPluralNouns = [
+      "apples", "bananas", "cars", "dogs", "elephants", "fishes", "guitars", "houses", "islands", "jackets",
+      "kangaroos", "lions", "mountains", "notebooks", "oranges", "pencils", "queens", "rabbits", "suns", "tigers",
+      "umbrellas", "vases", "whales", "xylophones", "yachts", "zebras", "balloons", "cakes", "desks", "engines",
+      "flowers", "globes", "hats", "ices", "juices", "kites", "lamps", "moons", "nests", "oceans",
+      "pianos", "quilts", "roses", "stars", "trees", "violins", "windows", "yogurts", "zoos", "bridges"
+  ];
 
   constructor(private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private jamService: JamService) {}
 
@@ -78,6 +104,7 @@ export class JammerHomeComponent implements OnInit {
       next: (data) => {
         this.jam = data.jam;
         this.site = data.site;
+        this.team = data.team;
         this.listStaff();
         this.listJammers();
       },
@@ -87,6 +114,92 @@ export class JammerHomeComponent implements OnInit {
         this.listSites();
       }
     });
+  }
+
+  getTeam() : void
+  {
+    if(this.site && this.jam)
+    {
+      const url = `http://${environment.apiUrl}:3000/api/team/get-team/${this.user._id}/${this.site._id}/${this.jam._id}`;
+      this.teamService.getTeam(url).subscribe({
+        next: (team: Team) => {
+          this.team = team;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
+  }
+
+  createTeam() : void
+  {
+    if(this.site && this.jam && this.user)
+    {
+      const url = `http://${environment.apiUrl}:3000/api/team/create-team`;
+      const teamName = `${this.randomAdjectives[this.getRandomInt(0,50)]} ${this.randomColors[this.getRandomInt(0,10)]} ${this.randomPluralNouns[this.getRandomInt(0,50)]}`;
+      const team: Team = {
+        teamName: teamName,
+        jamId: this.jam._id!,
+        siteId: this.site._id!,
+        jammers: [{
+          _id: this.user._id!,
+          name: this.user.name,
+          email: this.user.email,
+          discordUsername: this.user.discordUsername,
+          role: 'owner'
+        }]
+      };
+      this.teamService.createTeam(url, team).subscribe({
+        next: (team: Team) => {
+          console.log(team);
+          this.team = team;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
+  }
+
+  getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  joinTeam(): void 
+  {
+    this.message.showQuestion(
+      "Join a Team", 
+      "Enter the team's secret code",
+      (code: string) => {
+        const url = `http://${environment.apiUrl}:3000/api/team/join-jammer/${code}/${this.user._id}`;
+        this.teamService.addJammerToTeam(url).subscribe({
+          next: (team: Team) => {
+            this.team = team;
+          },
+          error: (error) => {
+            console.log(error.error.message);
+          }
+        });
+      }
+    );
+  }
+
+  saveTeam()
+  {
+    if(this.site && this.jam && this.team)
+    {
+      console.log(this.team.teamName);
+      const url = `http://${environment.apiUrl}:3000/api/team/update-team/${this.team._id}`;
+      this.teamService.updateTeam(url, this.team).subscribe({
+        next: (data)=>{
+          this.message.showMessage("Success", data.message);
+        },
+        error: (error)=>{
+          this.message.showMessage("Error", error.error.message);
+        }
+      });
+    }
   }
 
   listStaff() : void
@@ -164,6 +277,44 @@ export class JammerHomeComponent implements OnInit {
         });
       }
     );
+  }
+
+  exitSite() : void
+  {
+    if(this.site && this.jam && this.user)
+    {
+      this.message.showQuestion(
+        "Confirm Action",
+        `Are you sure you want to exit site ${this.site.name}?<br>Write the name of the site in the field below to confirm.`,
+        (answer: string) => {
+          if(this.site && this.jam && answer === this.site.name)
+          {
+            const url = `http://${environment.apiUrl}:3000/api/site/exit-site`;
+            this.siteService.exitSite(url, {
+              userId: this.user._id,
+              siteId: this.site._id,
+              jamId: this.jam._id
+            }).subscribe({
+              next: (data) => {
+                console.log(data);
+                this.message.showMessage(
+                  "Success", 
+                  data.message, 
+                  ()=>{ 
+                    console.log("Reloading the system...");
+                    window.location.reload();
+                  }
+                );
+              },
+              error: (error) => {
+                console.log(error);
+              }
+            });
+          }
+        },
+        () => {}
+      );
+    }
   }
 
   getDeltaTime() : void

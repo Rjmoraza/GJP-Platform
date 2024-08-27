@@ -22,11 +22,11 @@
               {{ successMessage }}
             </div>
 
-            <form *ngIf=" !successMessage " (submit)="handleSubmit($event)">
+            <form *ngIf=" !successMessage " (submit)="sendEmail()">
               <!-- Input -->
               <div class="row">
                 <div class="form-group inputContainer">
-                  <input #emailInput type="email" class="form-control" id="emailInput" required placeholder="Email">
+                  <input type="email" class="form-control" id="emailInput" name="email" required placeholder="Email" [(ngModel)]="email">
                 </div>
               </div>
               <!-- boton -->

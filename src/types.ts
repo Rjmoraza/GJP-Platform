@@ -59,6 +59,10 @@ export interface Site {
     email?: string;
     address?: string;
     server?: string;
+    website?: string;
+    instagram?: string;
+    discord?: string;
+    whatsapp?: string;
     language?: string;
     regionId: string;
     startTime?: string;
@@ -158,7 +162,7 @@ export interface Stage {
 export interface Team {
   _id?: string;
   teamName: string;
-  teamCode: string;
+  teamCode?: string;
   siteId: string;
   jamId: string;
   jammers: [{
@@ -166,6 +170,7 @@ export interface Team {
     name: string;
     email: string;
     discordUsername: string;
+    role?: string;
   }]
 }
 

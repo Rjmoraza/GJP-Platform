@@ -65,7 +65,7 @@
     <div id="jammerHomeContent" class="col-8">
       <!-- #region HOME -->
       <div *ngIf="page == 'site' && site" class="container container-lg p-3">
-        <h1 class="text-left">{{ site.name.toUpperCase() }} [{{ site.language }}]</h1>
+        <h1 class="text-center">{{ site.name.toUpperCase() }} [{{ site.language }}]</h1>
         <div class="row">
           <div class="col-8">
             <p><b>Country:</b> {{ site.country.code }} - {{ site.country.name }}</p>
@@ -93,8 +93,13 @@
 
         <hr class="my-4">
 
-        <div class="row p-2">
+        <div class="row m-2 p-2 bg-light rounded border border-secondary">
           <div [innerHTML]="site.description"></div>
+        </div>
+
+        <div class="row m-2 p-2 warning">
+          <h3 class="col-12 text-center">Danger Zone</h3>
+          <button class="btn btn-danger m-2" (click)="exitSite()">Exit Site</button>
         </div>
       </div>
 
@@ -176,8 +181,49 @@
 
       <!-- #region JAM -->
       <div *ngIf="page == 'team'" class="container container-lg p-3">
-        <h1>My Team</h1>
-        <p>This section is still under construction</p>
+        <div *ngIf="!team" class="warning text-center p-2">
+          <p>You don't have a team yet.</p>
+          <p>Create a new team or join an existing team with the secret code.</p>
+          <button class="btn btn-primary m-2" (click)="createTeam()">Create a new team</button>
+          <button class="btn btn-primary m-2" (click)="joinTeam()">Join an existing team</button>
+        </div>
+
+        <div *ngIf="team">
+          <h1 class="text-center">My Team: {{ team.teamName.toUpperCase() }}</h1>
+          
+          <div class="row mt-3">
+            <div class="col-8">
+              <h3 class="text-center">Team Name:</h3>
+              <div class="input-group input-group-lg">
+                <input type="text" class="form-control d-block" [(ngModel)]="team.teamName">
+                <div class="input-group-append">
+                  <button class="navbutton navL1 text-center" (click)="saveTeam()">Update Team Name</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <h3 class="text-center">Join Code:</h3>
+              <p class="text-center">
+                {{ team.teamCode }}
+                <a matTooltip="Share this code with your fellow jammers to invite them to your team." class="tooltip-trigger">?</a>
+              </p>
+            </div>
+          </div>
+
+          
+          <h2 class="text-center mt-3">Team Members</h2>
+          <hr>
+          <div class="row">
+            <div class="col-3 m-2" *ngFor="let jammer of team.jammers">
+              <div class="card text-center">
+                <h3>{{ jammer.name }}</h3>
+                <p><fa-icon [icon]="faEnvelope" class="mr-2"></fa-icon><a [href]="'mailto:' + jammer.email">{{ jammer.email }}</a></p>
+                <p><fa-icon [icon]="faDiscord" class="mr-2"></fa-icon> {{ jammer.discordUsername ? jammer.discordUsername : 'None' }}</p>
+                <p *ngIf="jammer.role && jammer.role === 'owner'">Team Leader</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="page == 'submission'" class="container container-lg p-3">
