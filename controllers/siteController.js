@@ -31,9 +31,15 @@ const createSite = async (req, res) => {
         }
 
         let countryData = findCountry(country);
-
-        if (!countryData) {
-            return res.status(400).json({ success: false, message: "The provided country is not valid" });
+        let countryValue = {
+            name: "None",
+            code: "00"
+        };
+        if (countryData) {
+            countryValue = {
+                name: countryData.name,
+                code: countryData.code
+            }
         }
 
         // Generate a unique code for this team (make sure it's a unique code)
@@ -50,14 +56,12 @@ const createSite = async (req, res) => {
             name: name,
             code: uniqueCode,
             modality: modality,
-            country: {
-                name: countryData.name,
-                code: countryData.code 
-            },
+            country: countryValue,
             regionId: regionId,
             city: city,
             open: false,
             description: "",
+            language: "PT",
             creatorUser: {
                 userId: creatorUser._id,
                 name: creatorUser.name,
@@ -100,17 +104,17 @@ const updateSite = async (req, res) => {
         if (!site) {
             return res.status(404).json({ success: false, message: 'Site not found' });
         }
-        let countryData = findCountry(country);
+        let countryData = { name: "None", code: "00" };
+        countryData = findCountry(country);
+        /*
         if (!countryData) {
             return res.status(400).json({ success: false, message: "The country is not valid" });
         }
+        */
         
         site.name = name;
         site.regionId = regionId;
-        site.country = {
-            name: countryData.name,
-            code: countryData.code
-        };
+        if(countryData) site.country = { name: countryData.name, code: countryData.code };
         site.city = city;
         site.address = address;
         site.server = server;
@@ -143,12 +147,8 @@ const getSite = async(req,res)=>{
             return res.status(400).json({ success: false, message: 'Site ID is not valid' });
         } else {
             const site = await Site.findById(id);
-            if (!site) {
-                return res.status(404).json({ success: false, message: "Site not found" });
-            }
-            else {
-                return res.status(200).send({ success:true, message:'Site found', data: site });
-            }
+            if (!site) return res.status(404).json({ success: false, message: "Site not found" });
+            return res.status(200).send({ success:true, message:'Site found', data: site });
         }
     } catch(error) {
         return res.status(400).send({ success:false, message:error.message });
@@ -308,17 +308,17 @@ const getSitesByJam = async (req, res) => {
 const deleteSite = async(req,res)=>{
     try{
         const id = req.params.id;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, message: 'Site ID is invalid' });
-        } else {
-            const existingRegion = await Site.findById(id);
-            if (!existingRegion) {
-                return res.status(404).json({ success: false, message: "Site not found" });
-            }
-        }
-        const deletedSite = await Site.findOneAndDelete({ _id: id });
+        if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ success: false, message: 'Site ID is invalid' });
         
-        await User.updateMany({ 'site._id' : id } , { site : null });
+        const userCount = await User.countDocuments({ 'site._id':id });
+        if(userCount > 0) return res.status(400).send({ success: false, message: "Cannot delete a site that has users linked to it"});
+
+        const existingSite = await Site.findById(id);
+        if (!existingSite) return res.status(404).json({ success: false, message: "Site not found" });
+
+        const deletedSite = await Site.findOneAndDelete({ _id: id });
+
+        await SiteOnJam.deleteMany({ siteId: id });
         return res.status(200).send({ success: true, message:'Site deleted successfully' });
     } catch(error) {
         return res.status(400).send({ success:false, message:error.message });
@@ -375,7 +375,7 @@ const exitJammerFromSite = async(req, res)=>{
             // remove the jammer from the team
             if(team.jammers.length > 1)
             {
-                const index = team.jammers.findIndex(jammer => jammer._id === userId);
+                const index = team.jammers.findIndex(jammer => jammer._id == userId);
                 if (index !== -1) {
                     const jammer = team.jammers[index];
                     team.jammers.splice(index, 1); // Remove the item at the found index
@@ -386,7 +386,7 @@ const exitJammerFromSite = async(req, res)=>{
             // if this is the only jammer in this team, remove the whole team
             else
             {
-                await team.remove();
+                await Team.findOneAndDelete({ _id : team._id })
             }
         }
 

@@ -79,7 +79,9 @@ const updateUser = async (req, res) => {
 
         if (name) existingUser.name = name;
         if (region) existingUser.region = { _id: region._id, name: region.name };
+        else existingUser.region = undefined;
         if (site) existingUser.site = { _id: site._id, name: site.name };
+        else existingUser.site = undefined;
         if (team) existingUser.team = { _id: team._id, name: team.name };
         if (roles) existingUser.roles = roles;
         if (coins) existingUser.coins = coins;
