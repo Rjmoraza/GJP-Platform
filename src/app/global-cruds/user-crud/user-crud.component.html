@@ -128,6 +128,7 @@
               <label for="rol">Region</label>
               <select class="form-select" formControlName="region" (change)="onRegionSelection()">
                 <option value="" disabled selected hidden>Region</option>
+                <option [ngValue]="null">None</option>
                 <option *ngFor="let region of regions" [ngValue]="region">{{ region.name }}</option>
               </select>
             </div>
@@ -137,6 +138,7 @@
               <label for="rol">Site</label>
               <select class="form-select" formControlName="site">
                 <option value="" disabled selected hidden>Site</option>
+                <option [ngValue]="null">None</option>
                 <option *ngFor="let site of filteredSites" [ngValue]="site">{{ site.name }}</option>
               </select>
             </div>

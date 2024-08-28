@@ -110,7 +110,7 @@ export class UserCrudComponent implements OnInit{
     });
   }
 
-  listSitesByRegion(regionId: string, siteId: string)
+  listSitesByRegion(regionId: string, siteId: string | undefined)
   {
     console.log("Filtering Sites...");
     if(this.sites.length > 0)
@@ -118,7 +118,7 @@ export class UserCrudComponent implements OnInit{
       this.filteredSites = this.sites.filter((site) => site.regionId === regionId);
       console.log(this.filteredSites);
 
-      if(siteId != "None")
+      if(siteId && siteId != "None")
       {
         console.log(siteId);
         const selectedSite = this.filteredSites.find(site => site._id === siteId);
@@ -138,6 +138,7 @@ export class UserCrudComponent implements OnInit{
     if (region && region._id) {
       this.listSitesByRegion(region._id, "None");
     } else {
+      this.filteredSites = [];
       console.error('La región seleccionada no tiene un ID válido.');
     }
   }
@@ -168,9 +169,9 @@ export class UserCrudComponent implements OnInit{
       this.userForm.patchValue({region: selectedRegion});
     }
 
-    if(user.region && user.site)
+    if(user.region)
     {
-      this.listSitesByRegion(user.region._id, user.site._id);
+      this.listSitesByRegion(user.region._id, user.site?._id);
     }
   }
 
@@ -269,6 +270,9 @@ export class UserCrudComponent implements OnInit{
         discordUsername: this.userForm.get('discordUsername')?.value
       };
 
+      console.log('Adding user: ');
+      console.log(user);
+
       this.userService.registerUser(`http://${environment.apiUrl}:3000/api/user/register-user`, user).subscribe({
         next: (data) => {
           if(data.success)
@@ -323,7 +327,6 @@ export class UserCrudComponent implements OnInit{
       if(this.userForm.get('roleJudge')!.value) roles.push("Judge");
       if(this.userForm.get('roleJammer')!.value) roles.push("Jammer");
 
-      console.log(roles);
       if(roles.length == 0)
       {
         this.errorMessage = "Please select at least one role for this user";
@@ -341,6 +344,7 @@ export class UserCrudComponent implements OnInit{
       };
 
       console.log('Editing user: ');
+      console.log(user);
 
       this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.userToEdit._id}`, user).subscribe({
         next: (data) => {

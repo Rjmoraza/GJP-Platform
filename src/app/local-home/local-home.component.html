@@ -25,7 +25,7 @@
           <p><b>Country:</b> {{ site.country.code }} - {{ site.country.name }}</p>
           <p><b>City:</b> {{ site.city }}</p>
           <p><b>Modality:</b> {{ site.modality }}</p>
-          <button class="btn btn-primary" (click)="joinSite(site)">JOIN SITE</button>
+          <button class="btn btn-black" (click)="joinSite(site)">JOIN SITE</button>
         </div>
       </div>
     </div>
@@ -88,19 +88,21 @@
           <!-- THEMES -->
           <div class="row" *ngIf="jam.public">
             <h2 class="col-12 text-center">Themes</h2>
-            <div class="col-4 p-2" *ngFor="let theme of jam.themes">
-              <div class="card p-2">
+            <div class="col-md-4 p-2" *ngFor="let theme of jam.themes">
+              <div class="card p-2 minh-2">
                 <h3 *ngIf="site.language == 'PT'" class="text-center">{{ theme.titlePT }}</h3>
                 <h3 *ngIf="site.language == 'ES'" class="text-center">{{ theme.titleES }}</h3>
                 <h3 *ngIf="site.language == 'EN'" class="text-center">{{ theme.titleEN }}</h3>
 
-                <p *ngIf="site.language == 'PT'">{{ theme.descriptionPT }}</p>
-                <p *ngIf="site.language == 'ES'">{{ theme.descriptionES }}</p>
-                <p *ngIf="site.language == 'EN'">{{ theme.descriptionEN }}</p>
+                <p *ngIf="site.language == 'PT'" class="maxh-1 scroll p-2">{{ theme.descriptionPT }}</p>
+                <p *ngIf="site.language == 'ES'" class="maxh-1 scroll p-2">{{ theme.descriptionES }}</p>
+                <p *ngIf="site.language == 'EN'" class="maxh-1 scroll p-2">{{ theme.descriptionEN }}</p>
 
-                <a *ngIf="site.language == 'PT'" href="{{ theme.manualPT }}" class="navbutton navL1 my-2">Manual</a>
-                <a *ngIf="site.language == 'ES'" href="{{ theme.manualES }}" class="navbutton navL1 my-2">Manual</a>
-                <a *ngIf="site.language == 'EN'" href="{{ theme.manualEN }}" class="navbutton navL1 my-2">Manual</a>
+                <span style="flex-grow: 1;"></span>
+
+                <a *ngIf="site.language == 'PT'" href="{{ theme.manualPT }}" class="btn btn-black align-bottom">Manual</a>
+                <a *ngIf="site.language == 'ES'" href="{{ theme.manualES }}" class="btn btn-black align-bottom">Manual</a>
+                <a *ngIf="site.language == 'EN'" href="{{ theme.manualEN }}" class="btn btn-black align-bottom">Manual</a>
               </div>
             </div>
           </div>
@@ -110,19 +112,21 @@
           <!-- CATEGORIES -->
           <div class="row" *ngIf="jam.public">
             <h2 class="col-12 text-center">Categories</h2>
-            <div class="col-4 p-2" *ngFor="let category of jam.categories">
-              <div class="card p-2">
+            <div class="col-md-4 p-2" *ngFor="let category of jam.categories">
+              <div class="card p-2 minh-2">
                 <h3 *ngIf="site.language == 'PT'" class="text-center">{{ category.titlePT }}</h3>
                 <h3 *ngIf="site.language == 'ES'" class="text-center">{{ category.titleES }}</h3>
                 <h3 *ngIf="site.language == 'EN'" class="text-center">{{ category.titleEN }}</h3>
 
-                <p *ngIf="site.language == 'PT'">{{ category.descriptionPT }}</p>
-                <p *ngIf="site.language == 'ES'">{{ category.descriptionES }}</p>
-                <p *ngIf="site.language == 'EN'">{{ category.descriptionEN }}</p>
+                <p *ngIf="site.language == 'PT'" class="maxh-1 scroll p-2">{{ category.descriptionPT }}</p>
+                <p *ngIf="site.language == 'ES'" class="maxh-1 scroll p-2">{{ category.descriptionES }}</p>
+                <p *ngIf="site.language == 'EN'" class="maxh-1 scroll p-2">{{ category.descriptionEN }}</p>
 
-                <a *ngIf="site.language == 'PT'" href="{{ category.manualPT }}" class="navbutton navL1 my-2">Manual</a>
-                <a *ngIf="site.language == 'ES'" href="{{ category.manualES }}" class="navbutton navL1 my-2">Manual</a>
-                <a *ngIf="site.language == 'EN'" href="{{ category.manualEN }}" class="navbutton navL1 my-2">Manual</a>
+                <span style="flex-grow: 1;"></span>
+
+                <a *ngIf="site.language == 'PT'" href="{{ category.manualPT }}" class="btn btn-black align-bottom">Manual</a>
+                <a *ngIf="site.language == 'ES'" href="{{ category.manualES }}" class="btn btn-black align-bottom">Manual</a>
+                <a *ngIf="site.language == 'EN'" href="{{ category.manualEN }}" class="btn btn-black align-bottom">Manual</a>
               </div>
             </div>
           </div>

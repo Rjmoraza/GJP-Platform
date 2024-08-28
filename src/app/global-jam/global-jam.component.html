@@ -75,7 +75,7 @@
             <tbody class="text-xs">
               <tr *ngFor="let row of activeJam.themes; index as i">
                 <td>PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
-                <td><p>{{ row.descriptionPT }}</p></td>
+                <td><p class="maxh-05 scroll">{{ row.descriptionPT }}</p></td>
                 <td>
                   <a href="{{ row.manualPT }}">Manual PT</a><br>
                   <a href="{{ row.manualES }}">Manual ES</a><br>
@@ -107,7 +107,7 @@
             <tbody class="text-xs">
               <tr *ngFor="let row of activeJam.categories; index as i">
                 <td>{{ i }} PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
-                <td><p>{{ row.descriptionPT }}</p></td>
+                <td><p class="maxh-05 scroll">{{ row.descriptionPT }}</p></td>
                 <td>
                   <a href="{{ row.manualPT }}">Manual PT</a><br>
                   <a href="{{ row.manualES }}">Manual ES</a><br>

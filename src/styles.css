@@ -179,6 +179,13 @@ h4, h5, h6
   padding: 0.6em;
 }
 
+.btn-black{
+  background-color: #222222 !important;
+  color: white !important;
+  border-radius: 0 !important;
+  padding: 12px !important;
+}
+
 .required:after{
   content: "*";
   color: red;
@@ -199,4 +206,44 @@ h4, h5, h6
   color: red;
   vertical-align: top;
   font-weight: bold;
+}
+
+.maxh-05{
+  max-height: 50px;
+}
+
+.maxh-1{
+  max-height: 100px;
+}
+
+.maxh-2{
+  max-height: 200px;
+}
+
+.minh-1{
+  height: 100%;
+  min-height: 150px;
+}
+
+.minh-2{
+  height: 100%;
+  min-height: 230px;
+}
+
+.minh-3{
+  height: 100%;
+  min-height: 330px;
+}
+
+.minh-4{
+  height: 100%;
+  min-height: 430px;
+}
+
+.crop{
+  overflow: hidden;
+}
+
+.scroll{
+  overflow: scroll;
 }

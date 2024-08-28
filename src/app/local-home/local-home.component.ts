@@ -69,7 +69,127 @@ export class LocalHomeComponent implements OnDestroy {
   faUser = faUser;
   faDiscord = faDiscord;
   faEnvelope = faEnvelope;
-  
+
+  locationAdjectives = [
+    "Spacious",
+    "Charming",
+    "Sturdy",
+    "Vintage",
+    "Majestic",
+    "Quiet",
+    "Bustling",
+    "Picturesque",
+    "Ancient",
+    "Rustic",
+    "Modern",
+    "Serene",
+    "Vibrant",
+    "Grand",
+    "Remote",
+    "Secluded",
+    "Lively",
+    "Peaceful",
+    "Historic",
+    "Luxurious",
+    "Cozy",
+    "Idyllic",
+    "Enormous",
+    "Inviting",
+    "Elegant",
+    "Scenic",
+    "Fortified",
+    "Welcoming",
+    "Traditional",
+    "Sunny",
+    "Leafy",
+    "Breathtaking",
+    "Harmonious",
+    "Artistic",
+    "Inspiring",
+    "Expansive",
+    "Tranquil",
+    "Cultural",
+    "Sophisticated",
+    "Awe-inspiring",
+    "Picturesque",
+    "Bright",
+    "Bustling",
+    "Refined",
+    "Invigorating",
+    "Verdant",
+    "Charming",
+    "Warm",
+    "Eclectic",
+    "Pristine"
+  ];
+
+  locations = [
+    "Castle",
+    "Village",
+    "School",
+    "Forest",
+    "Tower",
+    "Harbor",
+    "Temple",
+    "Mountain",
+    "Riverbank",
+    "Cave",
+    "Desert",
+    "Island",
+    "Lighthouse",
+    "Mansion",
+    "Fortress",
+    "Garden",
+    "Lake",
+    "Bridge",
+    "Plaza",
+    "Market",
+    "Farm",
+    "Inn",
+    "Ruins",
+    "Valley",
+    "Beach",
+    "Arena",
+    "Palace",
+    "Cliff",
+    "Shrine",
+    "Outpost",
+    "Quarry",
+    "Dockyard",
+    "Labyrinth",
+    "Grove",
+    "Waterfall",
+    "Camp",
+    "Sanctuary",
+    "Library",
+    "Bay",
+    "Monastery",
+    "Oasis",
+    "Cemetery",
+    "Meadow",
+    "Citadel",
+    "Docks",
+    "Square",
+    "Garrison",
+    "Park",
+    "Observatory",
+    "Mine"
+  ];
+
+  locationModifiers = [
+    "of the South",
+    "by the River",
+    "at the Mountain",
+    "in the Woods",
+    "near the Sea",
+    "on the Hill",
+    "under the Stars",
+    "within the Valley",
+    "beside the Lake",
+    "across the Plains"
+  ];
+
+
   init: EditorComponent['init'] = {
     plugins: 'lists link image table code help wordcount',
     base_url: '/tinymce',
@@ -174,6 +294,7 @@ export class LocalHomeComponent implements OnDestroy {
     this.jamService.getJamBySite(url).subscribe({
       next: (jam: Jam) => {
         this.jam = jam;
+        console.log(jam);
         this.listJammers();
       },
       error: (error) => { // Try to get the current jam and automatically join
@@ -235,11 +356,7 @@ export class LocalHomeComponent implements OnDestroy {
       (code: string) => {
         if(code == site.code)
         {
-          this.site = site;
-          this.patchSiteForm();
           this.assignSiteToUser(site);
-          this.getJam();
-          this.listStaff();
         }
         else
         {
@@ -254,7 +371,7 @@ export class LocalHomeComponent implements OnDestroy {
   {
     const url = `http://${environment.apiUrl}:3000/api/site/get-site/${this.user!.site!._id}`;
     this.siteService.getSite(url).subscribe({
-      next: (site) => {
+      next: (site: Site) => {        
         this.site = site;
         this.listStaff();
         this.patchSiteForm();
@@ -373,27 +490,29 @@ export class LocalHomeComponent implements OnDestroy {
   {
     if(this.user && !this.site)
     {
-      let countryName: any = 'Brazil';
+      let countryName: any = 'None';
       let site: Site = {
-        name: "New Site",
+        name: `${this.locationAdjectives[this.getRandomInt(0,50)]} ${this.locations[this.getRandomInt(0,50)]} ${this.locationModifiers[this.getRandomInt(0,10)]}`,
         country: countryName,
         city: "None",
         modality: 'on site',
+        language: 'PT',
         regionId: this.user.region!._id
       };
 
       this.siteService.createSite(`http://${environment.apiUrl}:3000/api/site/create-site`, site).subscribe({
         next: (data) => {
-          this.site = data.site;
-          this.patchSiteForm();
           this.assignSiteToUser(data.site);
-          this.getJam();
         },
         error: (error) => {
           console.log(error.error.message);
         }
       });
     }
+  }
+
+  getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min)) + min;
   }
 
   assignSiteToUser(site: Site)
@@ -407,7 +526,7 @@ export class LocalHomeComponent implements OnDestroy {
       next: (data) => {
         if(data.success)
         {
-          this.message.showMessage("Success", 'Go to the "My Venue" section to edit your site');
+          this.message.showMessage("Success", 'Go to the "My Venue" section to edit your site', ()=>{window.location.reload()});
         }
       },
       error: (error) => {
