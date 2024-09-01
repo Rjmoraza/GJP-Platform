@@ -7,21 +7,55 @@
         <th scope="col">City</th>
         <th scope="col">Name</th>
         <th scope="col">Modality</th>
-        <th scope="col">Update</th>
-        <th scope="col">Delete</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
       </tr>
     </thead>
-    <tbody>
-      <tr *ngFor="let row of getRows()">
+    <tbody class="table-striped">
+      <!-- FILTER ROW -->
+      <tr class="table-warning">
+        <td>
+          <select name="filterRegion" #filterRegion class="form-select" (change)="setFilter('region', filterRegion.selectedOptions)" multiple>
+            <option *ngFor="let region of regions" [value]="region._id">{{ region.name }}</option>
+          </select>
+        </td>
+        <td>
+          <select name="filterCountry" #filterCountry class="form-select" (change)="setFilter('country', filterCountry.selectedOptions)" multiple>
+            <option *ngFor="let country of countries" [value]="country.code">{{ country.name }}</option>
+          </select>
+        </td>
+        <td>
+          <input type="text" name="filterCity" #filterCity class="form-control" (change)="setFilter('city', filterCity.value)">
+        </td>
+        <td>
+          <input type="text" name="filterName" #filterName class="form-control" (change)="setFilter('name', filterName.value)">
+        </td>
+        <td>
+          <select name="filterModality" #filterModality class="form-select" (change)="setFilter('modality', filterModality.selectedOptions)" multiple>
+            <option value="on site">On Site</option>
+            <option value="online">Online</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </td>
+        <td>
+          <select name="filterStatus" #filterStatus class="form-select" (change)="setFilter('status', filterStatus.selectedOptions)" multiple>
+            <option value="{{true}}">Open</option>
+            <option value="{{false}}">Closed</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary" (click)="clearFilters(filterRegion, filterCountry, filterCity, filterName, filterModality, filterStatus)">Clear Filters</button>
+        </td>
+      </tr>
+      <tr *ngFor="let row of filteredSites">
         <td>{{ getRegionName(row.regionId) }}</td>
         <td>{{ row.country.name }}</td>
         <td>{{ row.city }}</td>
         <td>{{ row.name }}</td>
         <td>{{ row.modality }}</td>
-        <td>
+        <td>{{ row.open ? 'Open' : 'Closed' }}</td>
+        <td class="btn-group">
           <button class="btn btn-primary" data-toggle="modal" data-target="#siteModal" (click)="selectSite(row)">Update</button>
-        </td>
-        <td>
           <button class="btn btn-danger" (click)="deleteSite(row)">Delete</button>
         </td>
       </tr>

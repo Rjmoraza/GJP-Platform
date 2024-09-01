@@ -105,6 +105,7 @@ export class MessagesComponent {
     {
       this.cancelAction();
     }
+    this.answer = '';
     this.questionRef?.hide();
     this.acceptAction = null;
     this.cancelAction = null;

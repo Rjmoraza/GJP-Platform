@@ -49,7 +49,7 @@
                 <td>{{ row.stageName }}</td>
                 <td>{{ row.startDate | date: 'dd/MM/yyyy' }}<br>{{ row.endDate | date: 'dd/MM/yyyy' }}</td>
                 <td> <span *ngFor="let role of row.roles">{{ role.roleName }}<br></span></td>
-                <td>
+                <td class="btn-group">
                   <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#stageModal" (click)="patchStageForm(i)">Update</button>
                   <button type="button" class="btn btn-danger btn-sm" (click)="deleteStage(i)">Delete</button>
                 </td>
@@ -81,7 +81,7 @@
                   <a href="{{ row.manualES }}">Manual ES</a><br>
                   <a href="{{ row.manualEN }}">Manual EN</a>
                 </td>
-                <td>
+                <td class="btn-group">
                   <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#themeModal" (click)="patchThemeForm(i)">Update</button>
                   <button type="button" class="btn btn-danger btn-sm" (click)="deleteTheme(i)">Delete</button>
                 </td>
@@ -106,14 +106,14 @@
             </thead>
             <tbody class="text-xs">
               <tr *ngFor="let row of activeJam.categories; index as i">
-                <td>{{ i }} PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
+                <td>PT: {{ row.titlePT }}<br>ES: {{ row.titleES }}<br>EN: {{ row.titleEN }}</td>
                 <td><p class="maxh-05 scroll">{{ row.descriptionPT }}</p></td>
                 <td>
                   <a href="{{ row.manualPT }}">Manual PT</a><br>
                   <a href="{{ row.manualES }}">Manual ES</a><br>
                   <a href="{{ row.manualEN }}">Manual EN</a>
                 </td>
-                <td>
+                <td class="btn-group">
                   <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#categoryModal" (click)="patchCategoryForm(i)">Update</button>
                   <button type="button" class="btn btn-danger btn-sm" (click)="deleteCategory(i)">Delete</button>
                 </td>

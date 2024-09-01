@@ -9,22 +9,51 @@
         <th scope="col">Role</th>
         <th scope="col">Region</th>
         <th scope="col">Site</th>
-        <th scope="col">Update</th>
-        <th scope="col">Delete</th>
+        <th scope="col">Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of obtenerDatosPagina()">
+      <tr class="table-warning">
+        <td>
+          <input class="form-control" type="text" #filterName (change)="setFilter('name', filterName.value)">
+        </td>
+        <td>
+          <input class="form-control" type="text" #filterDiscord (change)="setFilter('discord', filterDiscord.value)">
+        </td>
+        <td>
+          <input class="form-control" type="text" #filterEmail (change)="setFilter('email', filterEmail.value)">
+        </td>
+        <td>
+          <select class="form-select" #filterRole (change)="setFilter('role', filterRole.selectedOptions)" multiple>
+            <option value="GlobalOrganizer">Global Organizer</option>
+            <option value="LocalOrganizer">Local Organizer</option>
+            <option value="Judge">Judge</option>
+            <option value="Jammer">Jammer</option>
+          </select>
+        </td>
+        <td>
+          <select class="form-select" #filterRegion (change)="setFilter('region', filterRegion.selectedOptions)" multiple>
+            <option *ngFor="let region of regions" [value]="region._id">{{ region.name }}</option>
+          </select>
+        </td>
+        <td>
+          <select class="form-select" #filterSite (change)="setFilter('site', filterSite.selectedOptions)" multiple>
+            <option *ngFor="let site of sites" [value]="site._id">{{ site.name }}</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary" (click)="clearFilters(filterName, filterDiscord, filterEmail, filterRole, filterRegion, filterSite)">Clear Filters</button>
+        </td>
+      </tr>
+      <tr *ngFor="let row of filteredUsers">
         <td>{{ row.name }}</td>
         <td>{{ row.discordUsername }}</td>
         <td>{{ row.email }}</td>
         <td>{{ row.roles }}</td>
         <td>{{ row.region ? row.region.name : 'None' }}</td>
         <td>{{ row.site ? row.site.name : 'None' }}</td>
-        <td>
+        <td class="btn-group">
           <button class="btn btn-primary" data-toggle="modal" data-target="#userModal" (click)="patchUserForm(row)">Update</button>
-        </td>
-        <td>
           <button class="btn btn-danger" (click)="deleteUser(row)">Delete</button>
         </td>
       </tr>

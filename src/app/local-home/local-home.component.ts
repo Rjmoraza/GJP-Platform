@@ -482,7 +482,11 @@ export class LocalHomeComponent implements OnDestroy {
       address: '',
       server: '',
       language: 'PT',
-      startTime: ''
+      startTime: '',
+      instagram: '',
+      whatsapp: '',
+      discord: '',
+      website: ''
     });
   }
 
@@ -596,7 +600,11 @@ export class LocalHomeComponent implements OnDestroy {
         email : this.siteForm.get('email')?.value,
         language : this.siteForm.get('language')?.value,
         regionId : this.site.regionId,
-        startTime : this.siteForm.get('startTime')?.value
+        startTime : this.siteForm.get('startTime')?.value,
+        website : this.siteForm.get('website')?.value,
+        instagram: this.siteForm.get('instagram')?.value,
+        discord: this.siteForm.get('discord')?.value,
+        whatsapp: this.siteForm.get('whatsapp')?.value
       };
 
       this.siteService.updateSite(`http://${environment.apiUrl}:3000/api/site/update-site/${this.site._id}`, site).subscribe({

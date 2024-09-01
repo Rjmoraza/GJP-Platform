@@ -69,28 +69,60 @@
       <div *ngIf="page == 'site' && site" class="container container-lg p-3">
         <h1 class="text-center">{{ site.name.toUpperCase() }} [{{ site.language }}]</h1>
         <div class="row">
-          <div class="col-8">
-            <p><b>Country:</b> {{ site.country.code }} - {{ site.country.name }}</p>
-            <p><b>City:</b> {{ site.city }}</p>
-            <p *ngIf="site.address"><b>Address:</b> {{ site.address }}</p>
-            <p *ngIf="site.startTime"><b>Start Time:</b> {{ convertTo12h(site.startTime) }}</p>
-            <p>
-              <b>Site Staff:</b>
-              <span *ngFor="let member of staff">
-                <br>
-                <a [href]="'mailto:' + member.email">{{ member.name }}</a> 
-                <span *ngIf="member.discordUsername" class="ml-1">
-                  (<fa-icon [icon]="faDiscord"></fa-icon>{{ member.discordUsername }})
-                </span>
-              </span>
-            </p>
+
+          <div class="col-md-4 p-2">
+            <div class="pseudocard inverted m-1 py-2 minh-3">
+              <div class="row align-items-start">
+                <fa-icon [icon]="faLandmark" class="fa-2x col-4 text-right maxh-05"></fa-icon>
+                <h2 class="col-8 maxh-05">Location</h2>
+                <hr>
+              </div>
+
+              <div class="row align-items-end p-2">
+                <span class="col-4 text-right heavy mb-1">Country</span> <span class="col-8">{{ site.country.code }} - {{ site.country.name }}</span>
+                <span class="col-4 text-right heavy mb-1">City</span> <span class="col-8">{{ site.city }}</span>
+                <span class="col-4 text-right heavy mb-1" *ngIf="site.address">Address</span> <span class="col-8" *ngIf="site.address">{{ site.address }}</span>
+                <span class="col-4 text-right heavy mb-1" *ngIf="site.server">Server</span> <a [href]="formatURL(site.server)" target="_blank" class="col-8" *ngIf="site.server">{{ site.server }}</a>
+              </div>
+            </div>
           </div>
-          <div class="col-4 text-right">
-            <p><b>Modality:</b> {{ site.modality }}</p>
-            <p *ngIf="site.server"><a [href]="site.server">{{ site.server }}</a></p>
-            <p *ngIf="site.email"><a [href]="'mailto:'+site.email">{{ site.email }}</a></p>
-            <p *ngIf="site.phoneNumber"><a [href]="generateWhatsAppLink(site.phoneNumber)">{{ site.phoneNumber }}</a></p>
+
+          <div class="col-md-4 p-2">
+            <div class="pseudocard inverted m-1 py-2 minh-3">
+              <div class="row align-items-start">
+                <fa-icon [icon]="faPeopleRoof" class="fa-2x col-4 text-right maxh-05"></fa-icon>
+                <h2 class="col-8 maxh-05">Format</h2>
+                <hr>
+              </div>
+
+              <div class="row align-items-end p-2">
+                <span class="col-4 text-right heavy mb-1">Modality</span> <span class="col-8">{{ site.modality }}</span>
+                <span class="col-4 text-right heavy mb-1">Status</span> <span class="col-8">{{ site.open ? 'Open' : 'Closed' }}</span>
+                <span class="col-4 text-right heavy mb-1">Start</span> <span class="col-8">{{ site.startTime ? convertTo12h(site.startTime) : '' }}</span>
+                <span class="col-4 text-right heavy mb-1">Language</span> <span class="col-8">{{ site.language }}</span>
+              </div>
+            </div>
           </div>
+          
+          <div class="col-md-4 p-2">
+            <div class="pseudocard inverted m-1 py-2 minh-3">
+              <div class="row align-items-start">
+                <fa-icon [icon]="faEnvelope" class="fa-2x col-4 text-right maxh-05"></fa-icon>
+                <h2 class="col-8 maxh-05">Contact Info</h2>
+                <hr>
+              </div>
+              
+              <div class="row align-items-end p-2">
+                <span class="col-4 text-right heavy mb-1 align-bottom" *ngIf="site.email">Email</span> <a *ngIf="site.email" [href]="'mailto:' + site.email" class="col-8">{{ site.email }}</a>
+                <span class="col-4 text-right heavy mb-1 align-bottom" *ngIf="site.phoneNumber">Phone</span> <span *ngIf="site.phoneNumber" class="col-8">{{ site.phoneNumber }}</span>
+                <span class="col-4 text-right heavy mb-1 align-bottom" *ngIf="site.website">Website</span> <a *ngIf="site.website" target="_blank" [href]="formatURL(site.website)" class="col-8">{{ site.website }}</a>
+                <fa-icon [icon]="faInstagram" class="col-4 text-right" *ngIf="site.instagram"></fa-icon><a *ngIf="site.instagram" [href]="formatURL(site.instagram)" class="col-8">{{ site.instagram }}</a>
+                <fa-icon [icon]="faWhatsapp" class="col-4 text-right" *ngIf="site.whatsapp"></fa-icon><a *ngIf="site.whatsapp" [href]="formatURL(site.whatsapp)" class="col-8">{{ site.whatsapp }}</a>
+                <fa-icon [icon]="faDiscord" class="col-4 text-right" *ngIf="site.discord"></fa-icon><a *ngIf="site.discord" [href]="formatURL(site.discord)" class="col-8">{{ site.discord }}</a>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <hr class="my-4">
@@ -228,6 +260,11 @@
                 <p *ngIf="jammer.role && jammer.role === 'owner'">Team Leader</p>
               </div>
             </div>
+          </div>
+
+          <div class="row m-2 p-2 warning">
+            <h3 class="col-12 text-center">Danger Zone</h3>
+            <button class="btn btn-danger m-2" (click)="exitTeam()">Exit Team</button>
           </div>
         </div>
       </div>

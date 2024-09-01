@@ -26,6 +26,7 @@ import { environment } from '../../../environments/environment.prod';
 export class SiteCrudComponent implements OnInit {
   siteForm!: FormGroup;
   sites: Site[] = [];
+  filteredSites: Site[] = [];
   regions: Region[] = [];
   countries: Country[] = [];
   columnOptions = [
@@ -39,6 +40,7 @@ export class SiteCrudComponent implements OnInit {
   indexSite = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
+  filter: any = {};
   selectedColumns: (keyof Site)[] = [];
   modalError: string = '';
   @ViewChild('closeSiteModal') closeSiteModal?: ElementRef;
@@ -94,6 +96,7 @@ export class SiteCrudComponent implements OnInit {
         //let delta = (new Date()).getMilliseconds() - start.getMilliseconds();
         //console.log(`Sites loaded at ${delta / 1000} seconds`);
         this.sites = sites;
+        this.filteredSites = this.getRows();
       },
       error: (error) => {
         console.error('Error al obtener sitios:', error);
@@ -233,6 +236,7 @@ export class SiteCrudComponent implements OnInit {
   // Función para cambiar de página
   cambiarPagina(page: number) {
     this.currentPage = page;
+    this.filteredSites = this.getRows();
   }
 
   changePageSize(e: any)
@@ -240,27 +244,88 @@ export class SiteCrudComponent implements OnInit {
     this.pageSize = e.srcElement.value;
     this.cambiarPagina(1);
     localStorage.setItem("PageSize", `${this.pageSize}`);
+    this.filteredSites = this.getRows();
+  }
+
+  setFilter(filterType: string, value: any)
+  {
+    switch(filterType)
+    {
+      case 'region':
+        let regions = new Array();
+        for(var o = 0; o < value.length; ++o)
+        {
+          regions.push(value[o].value);
+        }
+        this.filter.regions = regions;
+        break;
+      case 'country':
+        let countries = new Array();
+        for(var o = 0; o < value.length; ++o)
+        {
+          countries.push(value[o].value);
+        }
+        this.filter.countries = countries;
+        break;
+      case 'city':
+        this.filter.city = value;
+        break;
+      case 'name':
+        this.filter.name = value;
+        break;
+      case 'modality':
+        let modalities = new Array();
+        for(var o = 0; o < value.length; ++o)
+        {
+          modalities.push(value[o].value);
+        }
+        this.filter.modalities = modalities;
+        break;  
+      case 'status':
+        let statuses = new Array();
+        for(var o = 0; o < value.length; ++o)
+        {
+          statuses.push(value[o].value === "true");
+        }
+        this.filter.statuses = statuses;
+        break; 
+    }
+    console.log(this.filter);
+    this.filteredSites = this.getRows();
+  }
+
+  clearFilters(filterRegion: any, filterCountry: any, filterCity: any, filterName: any, filterModality: any, filterStatus: any)
+  {
+    filterRegion.selectedIndex = -1;
+    filterCountry.selectedIndex = -1;
+    filterCity.value = '';
+    filterName.value = '';
+    filterModality.selectedIndex = -1;
+    filterStatus.selectedIndex = -1;
+    this.filter = {};
+    this.filteredSites = this.getRows();
   }
 
   // Función para obtener los datos de la página actual
   getRows() {
     let filteredData = this.sites;
-
-    if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
-      const filterText = this.filterValue.trim().toLowerCase();
-      filteredData = filteredData.filter(item => {
-        switch (this.selectedHeader) {
-          case '_id':
-          case 'name':
-          case 'modality':
-          case 'region.name':
-          case 'country.name':
-            return this.getPropertyValue(item, this.selectedHeader).toLowerCase().startsWith(filterText);
-          default:
-            return false;
-        }
-      });
-    }
+    filteredData = filteredData.filter(item => {
+      let valid = true;
+      
+      if(this.filter.regions && this.filter.regions.length > 0)
+        valid = valid && this.filter.regions.includes(item.regionId);
+      if(this.filter.countries && this.filter.countries.length > 0)
+        valid = valid && this.filter.countries.includes(item.country.code);
+      if(this.filter.city)
+        valid = valid && (item.city ? item.city.toLowerCase().includes(this.filter.city.toLowerCase()) : false);
+      if(this.filter.name)
+        valid = valid && item.name.toLowerCase().includes(this.filter.name.toLowerCase());
+      if(this.filter.modalities && this.filter.modalities.length > 0)
+        valid = valid && item.modality ? this.filter.modalities.includes(item.modality) : false;
+      if(this.filter.statuses)
+        valid = valid && this.filter.statuses.includes(item.open);
+      return valid;
+    });
 
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filteredData.slice(startIndex, startIndex + this.pageSize);

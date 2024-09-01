@@ -48,8 +48,31 @@ h4, h5, h6
   background-color: #00000011;
 }
 
-.card.inverted{
+.heavy{
+  font-weight: 900;
+}
+
+.pseudocard{
+  border-radius: 5px;
+  box-shadow: 0 0 5px #00000011;
+  /*display: flex;*/
+}
+
+.pseudocard .bottom{
+  align-content: flex-end;
+  margin: 0;
+}
+
+.pseudocard .top{
+  align-content: flex-start;
+}
+
+.inverted{
   background-color: #222222;
+  color: white;
+}
+
+.inverted a{
   color: white;
 }
 

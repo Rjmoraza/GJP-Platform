@@ -27,6 +27,7 @@ import { Observable } from 'rxjs';
 export class UserCrudComponent implements OnInit{
   userForm!: FormGroup;
   users: User[] = [];
+  filteredUsers: User[] = [];
   regions: Region[] = [];
   sites: Site[] = [];
   filteredSites: Site[] = [];
@@ -37,6 +38,7 @@ export class UserCrudComponent implements OnInit{
   indexUser = 0;
   selectedHeader: string | undefined;
   filterValue: string = '';
+  filter: any = {};
   selectedColumns: (keyof User)[] = [];
   @ViewChild(MessagesComponent) message!: MessagesComponent;
   @ViewChild('closeUserModal') closeUserForm!: ElementRef;
@@ -89,7 +91,8 @@ export class UserCrudComponent implements OnInit{
         var empty = {
           name: "None"
         };
-        this.users = users
+        this.users = users;
+        this.getRows();
       },
       error: (error) => {
         console.log(error.error);
@@ -371,6 +374,7 @@ export class UserCrudComponent implements OnInit{
   // Función para cambiar de página
   changePage(page: number) {
     this.currentPage = page;
+    this.getRows();
   }
 
   changePageSize(e: any)
@@ -380,30 +384,87 @@ export class UserCrudComponent implements OnInit{
     localStorage.setItem("PageSize", `${this.pageSize}`);
   }
 
-  // Función para obtener los datos de la página actual
-  obtenerDatosPagina() {
-    let filteredData = this.users;
-
-    if (this.selectedHeader !== undefined && this.filterValue.trim() !== '') {
-        const filterText = this.filterValue.trim().toLowerCase();
-        filteredData = filteredData.filter(item => {
-            switch (this.selectedHeader) {
-                case '_id':
-                case 'name':
-                case 'email':
-                case 'discordUsername':
-                case 'region.name':
-                case 'site.name':
-                case 'team.name':
-                case 'roles':
-                    return this.getPropertyValue(item, this.selectedHeader).toLowerCase().startsWith(filterText);
-                default:
-                    return false;
-            }
-        });
+  setFilter(filterType: string, value: any)
+  {
+    switch(filterType)
+    {
+      case 'name':
+        this.filter.name = value;
+        break;
+      case 'discord':
+        this.filter.discordUsername = value;
+        break;
+      case 'email':
+        this.filter.email = value;
+        break;
+      case 'role':
+        let roles = new Array();
+        for(var r = 0; r < value.length; ++r)
+        {
+          roles.push(value[r].value);
+        }
+        this.filter.roles = roles;
+        break;
+      case 'region':
+        let regions = new Array();
+        for(var r = 0; r < value.length; ++r)
+        {
+          regions.push(value[r].value);
+        }
+        this.filter.regions = regions;
+        break;
+      case 'site':
+        let sites = new Array();
+        for(var s = 0; s < value.length; ++s)
+        {
+          sites.push(value[s].value);
+        }
+        this.filter.sites = sites;
+        break;
     }
+    this.getRows();
+  }
+
+  clearFilters(filterName: any, filterDiscord: any, filterEmail: any, filterRole: any, filterRegion: any, filterSite: any)
+  {
+    filterName.value = '';
+    filterDiscord.value = '';
+    filterEmail.value = '';
+    filterRole.selectedIndex = -1;
+    filterRegion.selectedIndex = -1;
+    filterSite.selectedIndex = -1;
+    this.filter = {};
+    this.getRows();
+  }
+
+  // Función para obtener los datos de la página actual
+  getRows() {
+    let filteredData = this.users;
+    filteredData = filteredData.filter(item => {
+        let valid = true;
+
+        if(this.filter.name)
+          valid = valid && item.name.toLowerCase().includes(this.filter.name.toLowerCase());
+        if(this.filter.discordUsername)
+          valid = valid && (item.discordUsername ? item.discordUsername.toLowerCase().includes(this.filter.discordUsername.toLowerCase()) : false);
+        if(this.filter.email)
+          valid = valid && item.email.toLowerCase().includes(this.filter.email.toLowerCase());
+        if(this.filter.roles && this.filter.roles.length > 0)
+        {
+          let validRole = false;
+          this.filter.roles.forEach((role: string) => {
+            validRole = validRole || item.roles.includes(role);
+          });
+          valid = valid && validRole;
+        }
+        if(this.filter.regions && this.filter.regions.length > 0)
+          valid = valid && (item.region ? this.filter.regions.includes(item.region._id) : false);
+        if(this.filter.sites && this.filter.sites.length > 0)
+          valid = valid && (item.site ? this.filter.sites.includes(item.site._id) : false);
+        return valid;
+    });
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    return filteredData.slice(startIndex, startIndex + this.pageSize);
+    this.filteredUsers = filteredData.slice(startIndex, startIndex + this.pageSize);
   }
 
   getPropertyValue(obj: any, key: string) {

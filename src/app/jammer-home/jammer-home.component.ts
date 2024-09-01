@@ -21,8 +21,13 @@ import { faFilePowerpoint } from '@fortawesome/free-solid-svg-icons';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { faInstagram } from '@fortawesome/free-brands-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import { faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
-
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faLandmark } from '@fortawesome/free-solid-svg-icons';
+import { faPeopleRoof } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -65,6 +70,12 @@ export class JammerHomeComponent implements OnInit {
   faUser = faUser;
   faDiscord = faDiscord;
   faEnvelope = faEnvelope;
+  faLocationDot = faLocationDot;
+  faLandmark = faLandmark;
+  faPeopleRoof = faPeopleRoof;
+  faInstagram = faInstagram;
+  faWhatsapp = faWhatsapp;
+  faShareNodes = faShareNodes;
 
   randomAdjectives = [
     "quick", "happy", "bright", "calm", "gentle", "smooth", "kind", "warm", "polite", "cheerful",
@@ -301,12 +312,48 @@ export class JammerHomeComponent implements OnInit {
                   "Success", 
                   data.message, 
                   ()=>{ 
-                    console.log("Reloading the system...");
                     window.location.reload();
                   }
                 );
               },
               error: (error) => {
+                console.log(error);
+              }
+            });
+          }
+        },
+        () => {}
+      );
+    }
+  }
+
+  exitTeam()
+  {
+    if(this.team)
+    {
+      this.message.showQuestion(
+        "Confirm Action",
+        `Are you sure you want to exit team ${this.team.teamName}?<br>Write the name of the team in the field below to confirm.`,
+        (answer: string) => {
+          if(this.team && answer === this.team.teamName)
+          {
+            const url = `http://${environment.apiUrl}:3000/api/team/remove-jammer/${this.team._id}/${this.user._id}`;
+            this.teamService.removeJammerFromTeam(url).subscribe({
+              next: (data) => {
+                console.log(data);
+                this.message.showMessage(
+                  "Success", 
+                  data.message, 
+                  ()=>{ 
+                    this.team = undefined;
+                  }
+                );
+              },
+              error: (error) => {
+                this.message.showMessage(
+                  'Error',
+                  error.error.message
+                );
                 console.log(error);
               }
             });
@@ -366,6 +413,12 @@ export class JammerHomeComponent implements OnInit {
     const whatsappLink = `${baseURL}${cleanedPhoneNumber}`;
         
     return whatsappLink;
+  }
+
+  formatURL(url: string)
+  {
+    if(!url.includes('http')) url = 'http://' + url;
+    return url;
   }
 
   isCurrentStage(stage: any) : boolean{
