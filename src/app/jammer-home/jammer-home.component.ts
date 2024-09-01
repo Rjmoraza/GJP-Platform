@@ -120,7 +120,7 @@ export class JammerHomeComponent implements OnInit {
         this.listJammers();
       },
       error: (error) => {
-        if(error.status === 404)
+        //if(error.status === 404)
         this.listRegions();
         this.listSites();
       }
