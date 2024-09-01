@@ -59,6 +59,9 @@ const siteSchema = mongoose.Schema({
     discord: {
         type: String
     },
+    website: {
+        type: String
+    },
     email: {
         type: String
     },

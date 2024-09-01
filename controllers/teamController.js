@@ -237,28 +237,35 @@ const removeJammerFromTeam = async (req, res) => {
     try {
         const team = await Team.findById(teamId);
         if (!team) {
-            return res.status(404).json({ success: false, error: "Team not found" });
+            return res.status(404).json({ success: false, message: "Team not found" });
         }
 
         const jammerIndex = team.jammers.findIndex(jammer => jammer._id.toString() === jammerId);
         if (jammerIndex === -1) {
-            return res.status(404).json({ success: false, error: "Jammer not found in team" });
+            return res.status(404).json({ success: false, message: "Jammer not found in team" });
         }
 
         const jammer = await User.findById(jammerId);
         if (!jammer) {
-            return res.status(404).json({ success: false, error: "User not found" });
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
+        let role = team.jammers[jammerIndex].role;
         team.jammers.splice(jammerIndex, 1);
-        await team.save();
 
-        jammer.team = null;
-        await jammer.save();
+        if(team.jammers.length > 0)
+        {
+            if(role == 'owner') team.jammers[0].role = "owner";
+            await team.save();
+        }
+        else
+        {
+            await Team.findOneAndDelete({ _id: team._id });
+        }
 
-        res.status(200).json({ success: true, msg: 'Jammer removed from team successfully', team });
+        res.status(200).json({ success: true, message: 'Jammer removed from team successfully', team });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
