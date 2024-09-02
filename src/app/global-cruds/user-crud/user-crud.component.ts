@@ -65,9 +65,9 @@ export class UserCrudComponent implements OnInit{
       discordUsername: ['']
     });
 
-    this.listUsers();
+    //this.listUsers();
     this.listRegions();
-    this.listSites();
+    //this.listSites();
     this.pageSize = localStorage.getItem("PageSize") ? +localStorage.getItem("PageSize")! : 20;
   }
 
@@ -76,6 +76,7 @@ export class UserCrudComponent implements OnInit{
     this.regionService.getRegions(`http://${environment.apiUrl}:3000/api/region/get-regions`).subscribe({
       next: (regions: Region[]) => {
         this.regions = regions;
+        this.listSites();
       },
       error: (error) => {
         this.message.showMessage("Error", error.error.message);
@@ -105,8 +106,8 @@ export class UserCrudComponent implements OnInit{
     this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`).subscribe({
       next: (sites: Site[]) => {
         this.sites = sites;
-        console.log(sites);
-        console.log("Sites are ready");
+        console.log(`Sites are ready ${this.sites.length}`);
+        this.listUsers();
       },
       error: (error) => {
         console.log(error);
@@ -116,7 +117,7 @@ export class UserCrudComponent implements OnInit{
 
   listSitesByRegion(regionId: string, siteId: string | undefined)
   {
-    console.log(`Filtering Sites by regionID ${regionId}`);
+    console.log(`Filtering Sites by regionID ${regionId} from ${this.sites.length} sites`);
     if(this.sites.length > 0)
     {
       this.filteredSites = this.sites.filter((site) => site.regionId == regionId);
@@ -192,7 +193,7 @@ export class UserCrudComponent implements OnInit{
       site: null,
       discordUsername: ''
     });
-    this.sites = [];
+    this.filteredSites = [];
     this.errorMessage = '';
   }
 
