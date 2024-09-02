@@ -105,6 +105,7 @@ export class UserCrudComponent implements OnInit{
     this.siteService.getSites(`http://${environment.apiUrl}:3000/api/site/get-sites`).subscribe({
       next: (sites: Site[]) => {
         this.sites = sites;
+        console.log(sites);
         console.log("Sites are ready");
       },
       error: (error) => {
@@ -115,16 +116,16 @@ export class UserCrudComponent implements OnInit{
 
   listSitesByRegion(regionId: string, siteId: string | undefined)
   {
-    console.log("Filtering Sites...");
+    console.log(`Filtering Sites by regionID ${regionId}`);
     if(this.sites.length > 0)
     {
-      this.filteredSites = this.sites.filter((site) => site.regionId === regionId);
+      this.filteredSites = this.sites.filter((site) => site.regionId == regionId);
       console.log(this.filteredSites);
 
       if(siteId && siteId != "None")
       {
         console.log(siteId);
-        const selectedSite = this.filteredSites.find(site => site._id === siteId);
+        const selectedSite = this.filteredSites.find(site => site._id == siteId);
         if (selectedSite) {
           this.userForm.patchValue({site: selectedSite});
         }
