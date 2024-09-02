@@ -15,7 +15,7 @@ const userController = require('../controllers/userController');
 
 user_route.post('/register-user', upload.none(), userController.registerUser);
 user_route.post('/login-user', upload.none(), userController.loginUser);
-user_route.post('/register-users-from-csv', upload.single('csvFile'), userController.registerUsersFromCSV);
+user_route.post('/register-users-from-csv/:siteId/:jamId', upload.none(), userController.registerUsersFromCSV);
 user_route.get('/magic-link/:token', userController.magicLink);
 user_route.get('/log-out-user', userController.logOutUser);
 user_route.get('/get-users', userController.getUsers);
