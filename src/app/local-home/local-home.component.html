@@ -1,4 +1,11 @@
-<div>
+<div *ngIf="loading">
+  <div class="warning p-5 text-center m-5">
+    <p>The system is loading your site's information, please wait...</p>
+  </div>
+</div>
+
+<div *ngIf="!loading">
+
   <!-- #region NO REGION -->
   <div *ngIf="!user.region" class="warning p-5 text-center m-2">
     <p>You haven't been assigned to a region, please select your region to proceed.</p>
@@ -364,8 +371,20 @@
       </div>
 
       <div *ngIf="page == 'jammers'" class="container container-lg p-3">
-        <h1>JAMMERS</h1>
+        <div class="d-flex justify-content-between">
+          <div>
+            <h1>JAMMERS: {{ jammers.length }}</h1>
+            <h2>TEAMS: {{ teamCount }}</h2>
+          </div>
+          
+          <button class="btn btn-black align-right" data-toggle="modal" data-target="#jammersModal">
+            <fa-icon [icon]="faUsers" class="fa-2x"></fa-icon><br>
+            Add Jammers
+          </button>
+        </div>
         
+        <hr>
+
         <table class="table table-stripped rounded">
           <thead>
             <tr>
@@ -373,15 +392,17 @@
               <th scope="col">Name</th>
               <th scope="col">Email</th>
               <th scope="col">Discord</th>
+              <th scope="col">Team</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let jammer of jammers; index as j">
+            <tr *ngFor="let jammer of jammers; index as j" [ngClass]="getJammerRowColor(jammer)">
               <th scope="row">{{ j + 1 }}</th>
               <td>{{ jammer.name }}</td>
               <td><a [href]="'mailto:'+jammer.email">{{ jammer.email }}</a></td>
               <td>{{ jammer.discordUsername }}</td>
+              <td>{{ jammer.team ? jammer.team.name : 'NO TEAM' }}</td>
               <td><button class="btn btn-danger" (click)="kickJammer(jammer)">Kick</button></td>
             </tr>
           </tbody>
@@ -435,7 +456,7 @@
         <div class="card text-center p-2 shadow">
           <fa-icon [icon]="faUsers" class="fa-3x"></fa-icon>
           <p><b>Special Thanks</b></p>
-          <p>Sharon Chacón<br>David Pastor<br>Jeffry Cuendiz<br>Paulo Ávila</p>
+          <p>Sharon Chacón<br>David Pastor<br>Jeffry Cuendiz<br>Paublo Ávila</p>
         </div>
       </div>
     </div>
@@ -443,5 +464,75 @@
   </div>
 </div>
 
+<!-- #region ADD JAMMERS MODAL -->
+<div class="modal fade" id="jammersModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content" *ngIf="!bulkResult">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Jammers in Bulk</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body row m-2">
+        <div class="col-12 warning p-2 mb-2 text-center">
+          <p>
+            Use this form to add new jammers into the system.<br>
+            Each jammer in a new line following this structure:
+          </p>
+          <p class="info mx-5 p-2">
+            Jammer Name, Jammer Email, Discord Username, Team Name
+          </p>
+          <p>If the jammer has no team, use the value 'None'</p>
+        </div>
+    
+        <textarea class="col-12" rows="10" #jammerInfo placeholder="Jammer Name, Jammer Email, Discord Username, Team Name"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" (click)="importJammers(jammerInfo.value)">Save changes</button>
+      </div>
+    </div>
+
+    <div class="modal-content" *ngIf="bulkResult">
+      <div class="modal-header">
+        <h5 class="modal-title">Bulk process result</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body row m-2">
+        <table class="table col-12">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Discord</th>
+              <th scope="col">Team</th>
+              <th scope="col">Processed</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of bulkResult; index as r" [ngClass]="{ 'table-success' : record.process, 'table-danger' : !record.process }">
+              <th scope="row">{{ r }}</th>
+              <td>{{ record.name }}</td>
+              <td>{{ record.email }}</td>
+              <td>{{ record.discord }}</td>
+              <td>{{ record.teamName }}</td>
+              <td>{{ record.process ? 'YES' : 'NO' }}</td>
+              <td>{{ record.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-dismiss="modal" (click)="reload()">Accept</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- #endregion -->
 
 <app-messages></app-messages>

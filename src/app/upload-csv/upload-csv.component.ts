@@ -79,6 +79,7 @@ export class UploadCsvComponent {
 
   uploadFile(): void {
     if (this.file) {
+      /*
       this.UserService.uploadUsersFromCSV(this.fileRecords).subscribe(
         (response) => {
           if (response.success) {
@@ -93,6 +94,7 @@ export class UploadCsvComponent {
           console.error('Error:', error);
         }
       );
+      */
     }
   }
 }

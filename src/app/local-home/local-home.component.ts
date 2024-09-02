@@ -4,7 +4,7 @@ import { RegionService } from '../services/region.service';
 import { SiteService } from '../services/site.service';
 import { UserService } from '../services/user.service';
 import { JamService } from '../services/jam.service';
-import { User, Site, Region, Country, Jam } from '../../types'
+import { User, Site, Region, Country, Jam, Team } from '../../types'
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { MessagesComponent } from '../messages/messages.component';
@@ -55,10 +55,16 @@ export class LocalHomeComponent implements OnDestroy {
   site?: Site;
   staff: User[] = [];
   jammers: User[] = [];
+  teamColors: any = {};
+  teamCount: number = 0;
   modalError: string = '';
   page: string = 'jam';
   deltaTime: string = '00:00:00:00';
   intervalId: any;
+
+  bulkResult: any = undefined;
+
+  loading: boolean = true;
 
   faCoffee = faCoffee;
   faCircleInfo = faCircleInfo;
@@ -257,6 +263,7 @@ export class LocalHomeComponent implements OnDestroy {
     this.regionService.getRegions(url).subscribe({
       next: (regions: Region[]) => {
         this.regions = regions;
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error al obtener regiones:', error);
@@ -282,6 +289,7 @@ export class LocalHomeComponent implements OnDestroy {
     this.siteService.getSitesPerRegion(`http://${environment.apiUrl}:3000/api/site/get-sites-per-region/${this.user!.region!._id}`).subscribe({
       next: (sites: Site[]) => {
         this.sites = sites;
+        this.loading = false;
       },
       error: (error) => {
         console.log(error);
@@ -402,6 +410,37 @@ export class LocalHomeComponent implements OnDestroy {
     this.userService.getJammersPerSite(url).subscribe({
       next: (jammers: User[]) => {
         this.jammers = jammers;
+        this.jammers.sort((a,b) =>{
+          if(!a.team && b.team) return -1;
+          if(a.team && !b.team) return 1;
+          if(a.team && b.team)
+          {
+            if(a.team.name.toLowerCase() < b.team.name.toLowerCase()) return -1;
+            if(a.team.name.toLowerCase() > b.team.name.toLowerCase()) return 1;
+          }
+          if(a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+          if(a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+          return 0;
+        });
+
+        let lastTeamName = '';
+        let colors = ['', 'table-secondary'];
+        let colorIndex = 0;
+        for(let j = 0; j < jammers.length; ++j)
+        {
+          if(jammers[j].team)
+          {
+            if(jammers[j].team!.name != lastTeamName)
+            {
+              lastTeamName = jammers[j].team!.name;
+              this.teamColors[lastTeamName] = colors[colorIndex];
+              colorIndex = colorIndex == 0 ? 1 : 0;
+              ++this.teamCount;
+            }
+          }
+        }
+        console.log(this.teamColors);
+        this.loading = false;
       },
       error: (error) => {
         console.log(error);
@@ -653,6 +692,53 @@ export class LocalHomeComponent implements OnDestroy {
       }, 
       ()=>{}
     );
+  }
+
+  getJammerRowColor(jammer: User)
+  {
+    if(jammer.team)
+    {
+      return this.teamColors[jammer.team.name];
+    }
+    else
+    {
+      return 'table-warning';
+    }
+  }
+
+  importJammers(jammerList: string)
+  {
+    if(this.site && this.jam)
+    {
+      let jammerRows = jammerList.split('\n');
+      let jammers = new Array();
+      for(let j = 0; j < jammerRows.length; ++j)
+      {
+        let jammerRow = jammerRows[j].split(',');
+        let jammer = {
+          name: jammerRow[0],
+          email: jammerRow[1],
+          discordUsername: jammerRow[2],
+          teamName: jammerRow[3]
+        };
+        jammers.push(jammer);
+      }
+
+      let url = `http://${environment.apiUrl}:3000/api/user/register-users-from-csv/${this.site!._id}/${this.jam!._id}`;
+      this.userService.uploadUsersFromCSV(url, jammers).subscribe({
+        next: (data) => {
+          this.bulkResult = data;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
+  }
+
+  reload()
+  {
+    window.location.reload();
   }
 
   goTo(url?: string)

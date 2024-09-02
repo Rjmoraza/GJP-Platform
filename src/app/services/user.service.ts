@@ -67,8 +67,10 @@ export class UserService {
     return this.http.put(url, siteId);
   }
 
-  uploadUsersFromCSV(data: any): Observable<any> {
-    return this.http.post<any>(`http://${environment.apiUrl}:3000/api/user/register-users-from-csv`, {data: data}, { withCredentials: true });
+  uploadUsersFromCSV(url: string, data: any): Observable<any> {
+    return this.http.post<any>(url, {data: data}, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
   }
 }
 
