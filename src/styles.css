@@ -6,6 +6,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 
+:root{
+  --darkbg: #4c4d54;
+}
+
 html, body
 {
   height: 100%;
@@ -20,11 +24,16 @@ body
 h1, h2, h3
 {
   font-family: 'Changa One', sans-serif;
+  color: var(--darkbg);
 }
 
 h4, h5, h6
 {
   font-family: 'Changa', sans-serif;
+}
+
+.darkbg{
+  background-color: var(--darkbg) !important;
 }
 
 .backgroundGradient
@@ -68,8 +77,8 @@ h4, h5, h6
 }
 
 .inverted{
-  background-color: #222222;
-  color: white;
+  background-color: var(--darkbg) !important;
+  color: white !important;
 }
 
 .inverted a{
@@ -184,7 +193,7 @@ h4, h5, h6
   flex: 1;
   color: white;
   margin: 1px;
-  border: solid black 1px;
+  border: solid var(--darkbg) 1px;
 }
 
 .navbutton:hover{
@@ -193,7 +202,7 @@ h4, h5, h6
 }
 
 .navL1{
-  background-color: #252525;
+  background-color: var(--darkbg);
   padding: 1em;
 }
 
@@ -203,7 +212,7 @@ h4, h5, h6
 }
 
 .btn-black{
-  background-color: #222222 !important;
+  background-color: var(--darkbg) !important;
   color: white !important;
   border-radius: 0 !important;
   padding: 12px !important;
