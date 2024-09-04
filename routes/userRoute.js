@@ -29,4 +29,10 @@ user_route.delete('/delete-user/:id', userController.deleteUser);
 user_route.get('/get-localPerSite/:siteId', userController.getLocalOrganizersPerSite);
 user_route.get('/addRol/:id', userController.addRol);
 user_route.get('/deleteRol/:id', userController.deleteRol);
+
+if(process.env.TARGET == "DEV")
+{
+    user_route.post('/get-link', upload.none(), userController.getLoginLink);
+}
+
 module.exports = user_route;

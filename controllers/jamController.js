@@ -225,6 +225,43 @@ const getJamByUser = async(req, res) => {
     }
     
 };
+
+const countJamData = async(req, res) => {
+    try{
+        const jamId = req.params.id;
+        let result = {
+            siteCount : 0,
+            countryCount : 0,
+            jammerCount : 0,
+            teamCount : 0,
+            submissionCount : 0
+        };
+
+        // Find all sites in this jam
+        let siteIds = await SiteOnJam.find({ jamId : jamId }, { siteId: 1, _id: 0 });
+        siteIds = siteIds.map(site => site.siteId );
+
+        result.siteCount = siteIds.length;
+
+        let countries = await Site.find({ _id: { "$in" : siteIds } }, { country: 1 });
+        countries = countries.map(record => record.country.code);
+        countries = Array.from(new Set(countries));
+        
+        result.countryCount = countries.length;
+
+        let jammers = await UserOnJam.countDocuments({ jamId: jamId });
+
+        result.jammerCount = jammers;
+
+        let teams = await Team.countDocuments({ jamId: jamId });
+
+        result.teamCount = teams;
+
+        return res.status(200).send({ success: true, data: result });
+    } catch(error) {
+        return res.status(400).send({ success: false, message: error.message })
+    }
+}
 // #endregion
 
 module.exports = {
@@ -232,6 +269,7 @@ module.exports = {
     updateJam,
     deleteJam,
     getCurrentJam,
+    countJamData,
     getJamBySite,
     getJamByUser,
     joinSiteToJam,

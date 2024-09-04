@@ -137,33 +137,62 @@ const updateUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-    const email = req.body.email;
-    const existingUser = await User.findOne({ email });
-    let roles;
-    let userId;
+    try{
+        const email = req.body.email;
+        const existingUser = await User.findOne({ email });
+        let roles;
+        let userId;
 
-    if (!existingUser) {
-        const registerLink = `http://${process.env.URL}/register`;
-        const subject = 'Login in GameJam Platform';
-        const message = `Hi, click on this link to create an account:`;
-        const link = registerLink;
-        await sendEmail(email, subject, message, link);
-        res.status(200).json({ success: true, msg: `Register form sent to user's email`, email, registerLink });
-    }
-    else
-    {
-        roles = existingUser.roles;
-        userId = existingUser._id;
-    
-        const token = jwt.sign({ userId, roles }, 'MY_JWT_SECRET', { expiresIn: 600000 });
-        const magicLink = `http://${process.env.URL}/api/user/magic-link/${token}`;
-        const subject = 'Login in GameJam Platform';
-        const message = `Hi, click on this link to continue to the app:`;
-        const link = magicLink;
-        await sendEmail(email, subject, message, link);
-        res.status(200).json({ success: true, msg: `Magic Link sent to user's email`, email, magicLink });
+        if (!existingUser) {
+            const registerLink = `http://${process.env.URL}/register`;
+            const subject = 'Login in GameJam Platform';
+            const message = `Hi, click on this link to create an account:`;
+            const link = registerLink;
+            await sendEmail(email, subject, message, link);
+            return res.status(200).json({ success: true, msg: `Register form sent to user's email`, email, registerLink });
+        }
+        else
+        {
+            roles = existingUser.roles;
+            userId = existingUser._id;
+        
+            const token = jwt.sign({ userId, roles }, 'MY_JWT_SECRET', { expiresIn: 6000000 });
+            const magicLink = `http://${process.env.URL}/api/user/magic-link/${token}`;
+            const subject = 'Login in GameJam Platform';
+            const message = `Hi, click on this link to continue to the app:`;
+            const link = magicLink;
+            await sendEmail(email, subject, message, link);
+            return res.status(200).json({ success: true, msg: `Magic Link sent to user's email`, email, magicLink });
+        }
+    }catch(error){
+        return res.status(400).send.json({ success: false, message: error.message })
     }
 };
+
+const getLoginLink = async (req, res) => {
+    try{
+        if(process.env.TARGET == "DEV")
+        {
+            const email = req.body.email;
+            console.log(`Login using dev backdoor with email ${email} - ${new Date()}`);
+            const user = await User.findOne({ email: email });
+            if(!user) return res.status(403).json({success: false, message: "Invalid email"});
+            const userId = user._id;
+            const roles = user.roles;
+            const token = jwt.sign({ userId, roles }, 'MY_JWT_SECRET', { expiresIn: 6000000 });
+            console.log(`http://${process.env.URL}/api/user/magic-link/${token}`);
+            
+            return res.status(200).json({ success: true, message: "Link sent to console" });
+        }
+        else
+        {
+            return res.status(403).json({success: false, message: "This action is not permitted"});
+        }
+    }catch(error){
+        return res.status(400).json({success: false, message: error.message});
+    }
+}
+
 
 const magicLink = async (req, res) => {
     try {
@@ -551,6 +580,7 @@ module.exports = {
     updateUser,
     deleteUser,
     loginUser,
+    getLoginLink,
     getCurrentUser,
     magicLink,
     logOutUser,

@@ -19,6 +19,7 @@ game_jam_route.delete('/delete-jam/:id', jamController.deleteJam);
 game_jam_route.get('/get-current-jam', jamController.getCurrentJam);
 game_jam_route.get('/get-jam-by-site/:id', jamController.getJamBySite);
 game_jam_route.get('/get-jam-by-user/:id', jamController.getJamByUser);
+game_jam_route.get('/count-jam-data/:id', jamController.countJamData);
 game_jam_route.get('/list-jams', jamController.listJams);
 game_jam_route.get('/list-open-jams', jamController.listOpenJams);
 
