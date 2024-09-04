@@ -26,6 +26,12 @@ export class JamService {
     );
   }
 
+  countJamData(url: string): Observable<any> {
+    return this.http.get<any>(url).pipe(
+      map(response => response.data)
+    );
+  }
+
   getJamBySite(url: string): Observable<Jam>{
     return this.http.get<any>(url).pipe(
       map(response => response.data)

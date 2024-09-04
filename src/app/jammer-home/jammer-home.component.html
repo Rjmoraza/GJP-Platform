@@ -288,7 +288,19 @@
         <div class="card text-center p-2 shadow">
           <fa-icon [icon]="faCoffee" class="fa-3x"></fa-icon>
           <p>Welcome to the new and improved GJ+ platform.</p>
-          <p>support&#64;gamejamplus.com</p>
+          <p><a href="mailto:support@gamejamplus.com">support&#64;gamejamplus.com</a></p>
+        </div>
+      </div>
+
+      <div class="p-2 mb-2">
+        <div class="card text-center p-2 shadow">
+          <fa-icon [icon]="faJar" class="fa-3x"></fa-icon>
+          <span><b>Venues:</b> {{ jamData.siteCount }}</span>
+          <span><b>Countries:</b> {{ jamData.countryCount }}</span>
+          <span><b>Jammers:</b>  {{ jamData.jammerCount }}</span>
+          <span><b>Teams:</b> {{ jamData.teamCount }} <br></span>
+          <span><b>Submissions:</b> {{ jamData.submissionCount }}</span>
+          <span class="mb-2"></span>
         </div>
       </div>
 

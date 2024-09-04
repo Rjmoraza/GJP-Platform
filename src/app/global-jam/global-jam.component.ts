@@ -1,7 +1,10 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
-import { Jam, Theme } from '../../types';
+import { Jam, Site, User, Team } from '../../types';
 import { JamService } from '../services/jam.service';
+import { SiteService } from '../services/site.service';
+import { TeamService } from '../services/team.service';
+import { UserService } from '../services/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { CommonModule, formatDate } from '@angular/common';
@@ -33,9 +36,11 @@ export class GlobalJamComponent {
   stageForm!: FormGroup;
   errorMessage: string = '';
   warningMessage: string = '';
+  jamData: any = {};
+
   @ViewChild(MessagesComponent) message!: MessagesComponent;
   @ViewChild('closeStageModal') closeStageModal?: ElementRef;
-  constructor(private route: ActivatedRoute, private jamService: JamService, private fb: FormBuilder){}
+  constructor(private route: ActivatedRoute, private jamService: JamService, private siteService: SiteService, private fb: FormBuilder){}
 
   ngOnInit(): void {
     this.loadActiveJam();
@@ -90,6 +95,45 @@ export class GlobalJamComponent {
 
 // #region Main Functions
 
+  loadActiveJam(): void {
+    this.jamService.getCurrentJam(`http://${environment.apiUrl}:3000/api/jam/get-current-jam`)
+      .subscribe({
+        next: (jam) => {
+          console.log(`Jam found with id: ${jam._id}`);
+          this.activeJam = jam;
+          this.countJamData();
+          this.patchJamForm();
+        },
+        error : (error) => {
+          console.log(error.error.message);
+        }
+      });
+  }
+
+  countJamData(): void{
+    if(this.activeJam)
+    {
+      this.jamService.countJamData(`http://${environment.apiUrl}:3000/api/jam/count-jam-data/${this.activeJam._id}`).subscribe({
+        next: (data) => {
+          this.jamData = data;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
+  }
+
+  listTeams()
+  {
+
+  }
+
+  listJammers()
+  {
+
+  }
+
   patchJamForm(): void{
     let now = new Date();
     let tzOffset = now.getTimezoneOffset();
@@ -115,19 +159,7 @@ export class GlobalJamComponent {
     this.jamForm.controls['public'].setValue(value);
   }
 
-  loadActiveJam(): void {
-    this.jamService.getCurrentJam(`http://${environment.apiUrl}:3000/api/jam/get-current-jam`)
-      .subscribe({
-        next: (jam) => {
-          console.log(`Jam found with id: ${jam._id}`);
-          this.activeJam = jam;
-          this.patchJamForm();
-        },
-        error : (error) => {
-          console.log(error.error.message);
-        }
-      });
-  }
+  
 
   createJam(): void{
     this.jamService.createJam(`http://${environment.apiUrl}:3000/api/jam/create-jam`, {

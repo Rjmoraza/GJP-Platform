@@ -28,6 +28,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faLandmark } from '@fortawesome/free-solid-svg-icons';
 import { faPeopleRoof } from '@fortawesome/free-solid-svg-icons';
+import { faJar } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -60,6 +61,7 @@ export class JammerHomeComponent implements OnInit {
   site?: Site;
   jam?: Jam;
   team?: Team;
+  jamData: any = {};
 
   faCoffee = faCoffee;
   faCircleInfo = faCircleInfo;
@@ -76,6 +78,7 @@ export class JammerHomeComponent implements OnInit {
   faInstagram = faInstagram;
   faWhatsapp = faWhatsapp;
   faShareNodes = faShareNodes;
+  faJar = faJar;
 
   randomAdjectives = [
     "quick", "happy", "bright", "calm", "gentle", "smooth", "kind", "warm", "polite", "cheerful",
@@ -118,6 +121,7 @@ export class JammerHomeComponent implements OnInit {
         this.team = data.team;
         this.listStaff();
         this.listJammers();
+        this.countJamData();
       },
       error: (error) => {
         //if(error.status === 404)
@@ -125,6 +129,20 @@ export class JammerHomeComponent implements OnInit {
         this.listSites();
       }
     });
+  }
+
+  countJamData(): void{
+    if(this.jam)
+    {
+      this.jamService.countJamData(`http://${environment.apiUrl}:3000/api/jam/count-jam-data/${this.jam._id}`).subscribe({
+        next: (data) => {
+          this.jamData = data;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
   }
 
   getTeam() : void

@@ -22,6 +22,7 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faJar } from '@fortawesome/free-solid-svg-icons';
 
 import { EditorComponent } from '@tinymce/tinymce-angular';
 
@@ -50,6 +51,7 @@ export class LocalHomeComponent implements OnDestroy {
   regions: Region[] = [];
   sites: Site[] = [];
   jam?: Jam;
+  jamData: any = {};
   jams: Jam[] = [];
   countries: Country[] = [];
   site?: Site;
@@ -75,6 +77,7 @@ export class LocalHomeComponent implements OnDestroy {
   faUser = faUser;
   faDiscord = faDiscord;
   faEnvelope = faEnvelope;
+  faJar = faJar;
 
   locationAdjectives = [
     "Spacious",
@@ -302,7 +305,7 @@ export class LocalHomeComponent implements OnDestroy {
     this.jamService.getJamBySite(url).subscribe({
       next: (jam: Jam) => {
         this.jam = jam;
-        console.log(jam);
+        this.countJamData();
         this.listJammers();
       },
       error: (error) => { // Try to get the current jam and automatically join
@@ -338,6 +341,7 @@ export class LocalHomeComponent implements OnDestroy {
               this.jamService.joinSiteToJam(`http://${environment.apiUrl}:3000/api/jam/join-site-jam`, link).subscribe({
                 next: (jam: Jam) => {
                   this.jam = jam;
+                  this.countJamData();
                   // Don't list jammers because this site should not have jammers at this point
                 },
                 error: (error) => {
@@ -353,6 +357,20 @@ export class LocalHomeComponent implements OnDestroy {
         }
       }
     });
+  }
+
+  countJamData(): void{
+    if(this.jam)
+    {
+      this.jamService.countJamData(`http://${environment.apiUrl}:3000/api/jam/count-jam-data/${this.jam._id}`).subscribe({
+        next: (data) => {
+          this.jamData = data;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
   }
 
   joinSite(site: Site)
