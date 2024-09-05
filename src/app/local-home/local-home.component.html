@@ -144,11 +144,11 @@
 
           <!-- STAGES -->
           <div class="row pb-3 align-items-end">
-            <h2 class="col-12 text-center">Stages</h2>
+            <h2 class="col-12 text-center">Stages<a matTooltip="All stages start at 00:00:00 and end at 11:59:59 in Brazilian Time (GMT-3)." class="tooltip-trigger">?</a></h2>
             <div class="col-3 p-2" *ngFor="let stage of jam.stages">
               <div [ngClass]="getStageClass(stage)">
                 <h3 class="text-center">{{ stage.stageName }}</h3>
-                <p class="text-center">{{ stage.startDate | date: 'dd/MM/yyyy' }} - {{ stage.endDate | date: 'dd/MM/yyyy' }}</p>
+                <p class="text-center">{{ formatDate(stage.startDate) }} - {{ formatDate(stage.endDate) }}</p>
                 <p class="text-center" *ngIf="isCurrentStage(stage)">Current Stage</p>
               </div>
             </div>
@@ -266,7 +266,7 @@
                 </span>
               </div>
               <input type="text" class="form-control" id="siteServer" formControlName="server">
-            </div> 
+            </div>
 
             <h3 class="mt-3">Contact Info</h3>
             <hr>
@@ -274,7 +274,7 @@
             <div class="input-group input-group-sm"> <!--SERVER-->
               <div class="input-group-prepend"><span class="input-group-text">Email</span></div>
               <input type="email" class="form-control" id="siteEmail" formControlName="email">
-            </div> 
+            </div>
 
             <div class="input-group input-group-sm"> <!--PHONE-->
               <div class="input-group-prepend"><span class="input-group-text">Phone Number</span></div>
@@ -285,7 +285,7 @@
               <div class="input-group-prepend"><span class="input-group-text">Link/Website</span></div>
               <input type="url" class="form-control" id="siteWebsite" formControlName="website">
             </div>
-            
+
           </div>
 
           <div class="col-6">
@@ -345,7 +345,7 @@
               <div class="input-group-prepend"><span class="input-group-text">Whatsapp</span></div>
               <input type="url" class="form-control" id="siteWhatsapp" formControlName="whatsapp">
             </div>
-            
+
             <div class="input-group input-group-sm"> <!--DISCORD-->
               <div class="input-group-prepend"><span class="input-group-text">Discord</span></div>
               <input type="url" class="form-control" id="siteDiscord" formControlName="discord">
@@ -378,13 +378,13 @@
             <h1>JAMMERS: {{ jammers.length }}</h1>
             <h2>TEAMS: {{ teamCount }}</h2>
           </div>
-          
+
           <button class="btn btn-black align-right" data-toggle="modal" data-target="#jammersModal">
             <fa-icon [icon]="faUsers" class="fa-2x"></fa-icon><br>
             Add Jammers
           </button>
         </div>
-        
+
         <hr>
 
         <table class="table table-stripped rounded">
@@ -439,7 +439,7 @@
 
     <!-- #region SIDEBAR -->
     <div id="localHomeSideBar" class="col-2">
-      
+
       <div class="p-2 mb-2">
         <div class="card text-center p-2 shadow">
           <fa-icon [icon]="faCoffee" class="fa-3x"></fa-icon>
@@ -500,7 +500,7 @@
           </p>
           <p>If the jammer has no team, use the value 'None'</p>
         </div>
-    
+
         <textarea class="col-12" rows="10" #jammerInfo placeholder="Jammer Name, Jammer Email, Discord Username, Team Name"></textarea>
       </div>
       <div class="modal-footer">

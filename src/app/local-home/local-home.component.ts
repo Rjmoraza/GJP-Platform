@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, ViewChild, importProvidersFrom } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { RegionService } from '../services/region.service';
 import { SiteService } from '../services/site.service';
 import { UserService } from '../services/user.service';
@@ -62,6 +62,7 @@ export class LocalHomeComponent implements OnDestroy {
   modalError: string = '';
   page: string = 'jam';
   deltaTime: string = '00:00:00:00';
+  timeZone: string = '';
   intervalId: any;
 
   bulkResult: any = undefined;
@@ -226,6 +227,12 @@ export class LocalHomeComponent implements OnDestroy {
       startTime: '',
       language: 'PT'
     });
+
+    let now = new Date();
+    let tzOffset = now.getTimezoneOffset();
+    console.log(`Time zone is: ` + tzOffset);
+    tzOffset = 180; // 3 hours * 60 minutes - BRT
+    this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
 
     this.listCountries(() => {
       // wait for the list of countries to be ready to load regions sites and the jam
@@ -397,7 +404,7 @@ export class LocalHomeComponent implements OnDestroy {
   {
     const url = `http://${environment.apiUrl}:3000/api/site/get-site/${this.user!.site!._id}`;
     this.siteService.getSite(url).subscribe({
-      next: (site: Site) => {        
+      next: (site: Site) => {
         this.site = site;
         this.listStaff();
         this.patchSiteForm();
@@ -640,6 +647,10 @@ export class LocalHomeComponent implements OnDestroy {
     }
   }
 
+  formatDate(date: Date){
+    return formatDate(date, 'yyyy-MM-dd', 'en', this.timeZone);
+  }
+
   saveSite() : void {
     if(this.site)
     {
@@ -703,11 +714,11 @@ export class LocalHomeComponent implements OnDestroy {
   kickJammer(jammer: User)
   {
     this.message.showDialog(
-      "Confirm Action", 
-      `Are you sure you want to remove ${jammer.name} from this site?<br>THIS FEATURE IS STILL UNDER CONSTRUCTION`, 
+      "Confirm Action",
+      `Are you sure you want to remove ${jammer.name} from this site?<br>THIS FEATURE IS STILL UNDER CONSTRUCTION`,
       ()=>{
         console.log("Kicking Jammer...");
-      }, 
+      },
       ()=>{}
     );
   }

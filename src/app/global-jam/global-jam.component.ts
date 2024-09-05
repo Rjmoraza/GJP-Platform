@@ -9,7 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { CommonModule, formatDate } from '@angular/common';
 import { MessagesComponent } from '../messages/messages.component';
-import { after } from 'node:test';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-global-jam',
@@ -135,10 +135,6 @@ export class GlobalJamComponent {
   }
 
   patchJamForm(): void{
-    let now = new Date();
-    let tzOffset = now.getTimezoneOffset();
-    let timeZone: string = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
-
     this.jamForm.setValue({
       title: this.activeJam?.title,
       toolboxGuides: this.activeJam?.toolboxGuides ? this.activeJam?.toolboxGuides : '',
@@ -159,7 +155,7 @@ export class GlobalJamComponent {
     this.jamForm.controls['public'].setValue(value);
   }
 
-  
+
 
   createJam(): void{
     this.jamService.createJam(`http://${environment.apiUrl}:3000/api/jam/create-jam`, {
@@ -423,6 +419,10 @@ export class GlobalJamComponent {
     }
   }
 
+  formatDate(date: Date){
+    return formatDate(date, 'yyyy-MM-dd', 'en', this.timeZone);
+  }
+
   clearStageForm(): void {
     this.stageForm.setValue({
       stageName: '',
@@ -448,8 +448,8 @@ export class GlobalJamComponent {
     if(this.stageForm.get('roleJudge')!.value) roles.push({roleName: "Judge"});
     if(this.stageForm.get('roleJammer')!.value) roles.push({roleName: "Jammer"});
 
-    const startDate = new Date(this.stageForm.get('startDate')!.value);
-    const endDate = new Date(this.stageForm.get('endDate')!.value);
+    const startDate = moment.tz(`${this.stageForm.get('startDate')!.value} 00:00:00`, `YYYY-MM-DD HH:mm:ss`, `America/Sao_Paulo`).toDate();
+    const endDate = moment.tz(`${this.stageForm.get('endDate')!.value} 11:59:59`, `YYYY-MM-DD HH:mm:ss`, `America/Sao_Paulo`).toDate();
     const delta = endDate.getTime() - startDate.getTime();
 
     if(delta < 0)
@@ -458,6 +458,7 @@ export class GlobalJamComponent {
       return;
     }
 
+    console.log(this.stageForm.get('endDate')!.value);
     console.log(`Start Date is: ${startDate} End Date is: ${endDate} Delta is ${endDate.getTime() - startDate.getTime()}`);
 
     let stage = {

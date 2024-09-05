@@ -47,7 +47,7 @@
             <tbody class="text-xs">
               <tr *ngFor="let row of activeJam.stages; index as i">
                 <td>{{ row.stageName }}</td>
-                <td>{{ row.startDate | date: 'dd/MM/yyyy' }}<br>{{ row.endDate | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ formatDate(row.startDate) }}<br>{{ formatDate(row.endDate) }}</td>
                 <td> <span *ngFor="let role of row.roles">{{ role.roleName }}<br></span></td>
                 <td class="btn-group">
                   <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#stageModal" (click)="patchStageForm(i)">Update</button>
