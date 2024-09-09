@@ -4,7 +4,7 @@
   <div id="localHomeNavBar" class="col-2 container-fluid">
     <div class="navbutton navL1" data-toggle="collapse" data-target="#homeMenu">Home</div>
     <ul #homeMenu id="homeMenu" class="collapse">
-      <li class="navbutton navL2" (click)="page = 'jam'">Active Jam</li>
+      <li class="navbutton navL2" (click)="page = 'jam-main'">Active Jam</li>
       <li class="navbutton navL2" (click)="page = 'jam-sites'">Sites</li>
       <li class="navbutton navL2" (click)="page = 'jam-jammers'">Jammers</li>
       <li class="navbutton navL2" (click)="page = 'jam-submissions'">Submissions</li>
@@ -22,8 +22,8 @@
   </div>
   <!-- #endregion -->
 
-  <div class="container card shadow col-10 p-2">
-    <app-global-jam *ngIf="page == 'jam'"></app-global-jam>
+  <div class="container card col-10 shadow background-gray">
+    <app-global-jam *ngIf="page.includes('jam-')" [page]="page"></app-global-jam>
     <app-gamejam-crud *ngIf="page == 'data-jams'"></app-gamejam-crud>
     <app-region-crud *ngIf="page == 'data-regions'"></app-region-crud>
     <app-site-crud *ngIf="page == 'data-sites'"></app-site-crud>

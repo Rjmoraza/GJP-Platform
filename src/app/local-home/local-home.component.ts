@@ -306,8 +306,7 @@ export class LocalHomeComponent implements OnDestroy {
   }
 
   getJam(): void{
-    const url = `http://${environment.apiUrl}:3000/api/jam/get-jam-by-site/${this.user!.site!._id}`;
-    this.jamService.getJamBySite(url).subscribe({
+    this.jamService.getJamBySite(this.user!.site!._id).subscribe({
       next: (jam: Jam) => {
         this.jam = jam;
         this.countJamData();
@@ -319,8 +318,7 @@ export class LocalHomeComponent implements OnDestroy {
         if(error.status == 404)
         {
           /* UNCOMMENT THIS IN CASE IT'S REQUIRED TO SUPPORT MORE THAN ONE OPEN JAM
-          const url = `http://${environment.apiUrl}:3000/api/jam/list-open-jams`;
-          this.jamService.listOpenJams(url).subscribe({
+          this.jamService.listOpenJams().subscribe({
             next: (jams: Jam[]) => {
               this.jams = jams;
             },
@@ -330,8 +328,7 @@ export class LocalHomeComponent implements OnDestroy {
 
           ///////// BEGIN OF AUTO JOIN JAM //////////
           // Comment this in case it's required to support more than one open jam
-          const url = `http://${environment.apiUrl}:3000/api/jam/get-current-jam`;
-          this.jamService.getCurrentJam(url).subscribe({
+          this.jamService.getCurrentJam().subscribe({
 
             // First get the current jam
             next: (jam: Jam) => {
@@ -343,7 +340,7 @@ export class LocalHomeComponent implements OnDestroy {
               };
 
               // Join this site with the current jam
-              this.jamService.joinSiteToJam(`http://${environment.apiUrl}:3000/api/jam/join-site-jam`, link).subscribe({
+              this.jamService.joinSiteToJam(link).subscribe({
                 next: (jam: Jam) => {
                   this.jam = jam;
                   this.countJamData();
@@ -367,7 +364,7 @@ export class LocalHomeComponent implements OnDestroy {
   countJamData(): void{
     if(this.jam)
     {
-      this.jamService.countJamData(`http://${environment.apiUrl}:3000/api/jam/count-jam-data/${this.jam._id}`).subscribe({
+      this.jamService.countJamData(this.jam._id!).subscribe({
         next: (data) => {
           this.jamData = data;
         },
@@ -694,7 +691,7 @@ export class LocalHomeComponent implements OnDestroy {
           jamId: jam._id,
           siteId: this.site!._id
         };
-        this.jamService.joinSiteToJam(`http://${environment.apiUrl}:3000/api/jam/join-site-jam`, link).subscribe({
+        this.jamService.joinSiteToJam(link).subscribe({
           next: (data) => {
             console.log(data);
           },

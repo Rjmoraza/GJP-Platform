@@ -47,7 +47,7 @@ export class GamejamCrudComponent implements OnInit {
       selectedTheme: ['']
     });
 
-    this.jamService.listJams(`http://${environment.apiUrl}:3000/api/jam/list-jams`).subscribe({
+    this.jamService.listJams().subscribe({
       next: (jams: Jam[]) => {
         this.jams = jams;
       },

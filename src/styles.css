@@ -48,6 +48,16 @@ h4, h5, h6
     background: linear-gradient(108deg, #3763FF 0%, #D052A5 25%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
 }
 
+.background-dark
+{
+  background-color: #555577FF !important;
+}
+
+.background-gray
+{
+  background-color: #00000022 !important;
+}
+
 .headerGradient {
   background: linear-gradient(108deg, #FEDE6E 0%, #FA7800 33%, #FF3131 50%, #D052A5 75%, #3763FF 100%);
 }
@@ -278,4 +288,8 @@ h4, h5, h6
 
 .scroll{
   overflow: scroll;
+}
+
+.table-filter{
+  background-color: #4c4d54;
 }

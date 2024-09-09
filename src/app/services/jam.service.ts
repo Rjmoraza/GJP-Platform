@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Jam } from '../../types';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment.prod';
 import { response } from 'express';
 
 @Injectable({
@@ -10,54 +11,56 @@ import { response } from 'express';
 })
 export class JamService {
 
+  url: string = `http://${environment.apiUrl}:3000/api/jam/`;
+
   constructor(private http: HttpClient) { }
 
-  createJam(url: string, jam: Jam): Observable<any>{
-    return this.http.post(url, jam, {withCredentials: true});
+  createJam(jam: Jam): Observable<any>{
+    return this.http.post(this.url + 'create-jam', jam, {withCredentials: true});
   }
 
-  updateJam(url: string, jam: Jam): Observable<any>{
-    return this.http.put(url, jam, {withCredentials: true});
+  updateJam(jamId: string, jam: Jam): Observable<any>{
+    return this.http.put(this.url + `update-jam/${jamId}`, jam, {withCredentials: true});
   }
 
-  getCurrentJam(url: string): Observable<Jam> {
-    return this.http.get<any>(url).pipe(
+  getCurrentJam(): Observable<Jam> {
+    return this.http.get<any>(this.url + 'get-current-jam').pipe(
       map(response => response.data)
     );
   }
 
-  countJamData(url: string): Observable<any> {
-    return this.http.get<any>(url).pipe(
+  countJamData(jamId: string): Observable<any> {
+    return this.http.get<any>(this.url + `count-jam-data/${jamId}`).pipe(
       map(response => response.data)
     );
   }
 
-  getJamBySite(url: string): Observable<Jam>{
-    return this.http.get<any>(url).pipe(
+  getJamBySite(siteId: string): Observable<Jam>{
+    return this.http.get<any>(this.url + `get-jam-by-site/${siteId}`).pipe(
       map(response => response.data)
     );
   }
 
-  getJamByUser(url: string): Observable<any>{
-    return this.http.get<any>(url).pipe(
+  getJamByUser(userId: string): Observable<any>{
+    return this.http.get<any>(this.url + `get-jam-by-user/${userId}`).pipe(
       map(response => response.data)
     );
   }
 
-  joinSiteToJam(url: string, link: any): Observable<Jam>{
-    return this.http.post<any>(url, link).pipe(
+  joinSiteToJam(link: any): Observable<Jam>{
+    return this.http.post<any>(this.url + 'join-site-jam', link).pipe(
       map(response => response.data)
     );
   }
 
-  listJams(url: string): Observable<Jam[]>{
-    return this.http.get<any>(url).pipe(
+  listJams(): Observable<Jam[]>{
+    return this.http.get<any>(this.url + 'list-jams').pipe(
       map(response => response.data)
     );
   }
 
-  listOpenJams(url: string): Observable<Jam[]>{
-    return this.http.get<any>(url).pipe(
+  listOpenJams(): Observable<Jam[]>{
+    return this.http.get<any>(this.url + 'list-open-jams').pipe(
       map(response => response.data)
     );
   }

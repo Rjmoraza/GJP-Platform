@@ -1,11 +1,11 @@
-<div class="p-3 mb-2 bg-danger d-block text-white">WORK IN PROGRESS</div>
-
 <div *ngIf="!activeJam" class="container containerLarge containerPlaceholder">
   <p>No active game jam found.</p>
   <button class="btn btn-primary" (click)="createJam()">Create New Jam</button>
 </div>
 
-<div *ngIf="activeJam" class="container containerLarge">
+<div *ngIf="activeJam && page == 'jam-main'" class="w-100 p-5">
+  <h1 class="text-center">Active GameJam Information</h1>
+
   <form (ngSubmit)="updateJam()" [formGroup]="jamForm" enctype="multipart/form-data">
     <div class="row">
 
@@ -189,6 +189,22 @@
     </div>
     <button type="submit" class="btn btn-primary btn-block btn-lg p-2 mt-4">Update Jam</button>
   </form>
+</div>
+
+<div *ngIf="activeJam && page == 'jam-sites'" class="w-100 p-5">
+  <h1 class="text-center">Active Sites</h1>
+</div>
+
+<div *ngIf="activeJam && page == 'jam-jammers'" class="w-100 p-5">
+  <h1 class="text-center">Active Jammers</h1>
+</div>
+
+<div *ngIf="activeJam && page == 'jam-submissions'" class="w-100 p-5">
+  <h1 class="text-center">Submissions</h1>
+</div>
+
+<div *ngIf="activeJam && page == 'jam-evaluations'" class="w-100 p-5">
+  <h1 class="text-center">Evaluations</h1>
 </div>
 
 <!-- MODALS -->

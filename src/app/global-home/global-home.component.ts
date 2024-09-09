@@ -25,5 +25,5 @@ import { CommonModule } from '@angular/common';
 export class GlobalHomeComponent {
   inJam : boolean = true;
   inData: boolean = false;
-  page: string = 'jam';
+  page: string = 'jam-main';
 }

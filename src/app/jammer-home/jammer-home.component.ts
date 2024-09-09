@@ -117,8 +117,7 @@ export class JammerHomeComponent implements OnInit {
 
   getJamOfUser() : void
   {
-    const url = `http://${environment.apiUrl}:3000/api/jam/get-jam-by-user/${this.user._id}`;
-    this.jamService.getJamByUser(url).subscribe({
+    this.jamService.getJamByUser(this.user._id!).subscribe({
       next: (data) => {
         this.jam = data.jam;
         this.site = data.site;
@@ -138,7 +137,7 @@ export class JammerHomeComponent implements OnInit {
   countJamData(): void{
     if(this.jam)
     {
-      this.jamService.countJamData(`http://${environment.apiUrl}:3000/api/jam/count-jam-data/${this.jam._id}`).subscribe({
+      this.jamService.countJamData(this.jam._id!).subscribe({
         next: (data) => {
           this.jamData = data;
         },

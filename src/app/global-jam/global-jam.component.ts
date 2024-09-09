@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
 import { Jam, Site, User, Team } from '../../types';
 import { JamService } from '../services/jam.service';
@@ -38,12 +38,16 @@ export class GlobalJamComponent {
   warningMessage: string = '';
   jamData: any = {};
 
+  @Input() page: string = '';
+
   @ViewChild(MessagesComponent) message!: MessagesComponent;
   @ViewChild('closeStageModal') closeStageModal?: ElementRef;
   constructor(private route: ActivatedRoute, private jamService: JamService, private siteService: SiteService, private fb: FormBuilder){}
 
   ngOnInit(): void {
     this.loadActiveJam();
+
+    console.log(`The page is ${this.page}`);
 
     this.jamForm = this.fb.group({
       title: ['', Validators.required],
@@ -96,24 +100,23 @@ export class GlobalJamComponent {
 // #region Main Functions
 
   loadActiveJam(): void {
-    this.jamService.getCurrentJam(`http://${environment.apiUrl}:3000/api/jam/get-current-jam`)
-      .subscribe({
-        next: (jam) => {
-          console.log(`Jam found with id: ${jam._id}`);
-          this.activeJam = jam;
-          this.countJamData();
-          this.patchJamForm();
-        },
-        error : (error) => {
-          console.log(error.error.message);
-        }
-      });
+    this.jamService.getCurrentJam().subscribe({
+      next: (jam) => {
+        console.log(`Jam found with id: ${jam._id}`);
+        this.activeJam = jam;
+        this.countJamData();
+        this.patchJamForm();
+      },
+      error : (error) => {
+        console.log(error.error.message);
+      }
+    });
   }
 
   countJamData(): void{
     if(this.activeJam)
     {
-      this.jamService.countJamData(`http://${environment.apiUrl}:3000/api/jam/count-jam-data/${this.activeJam._id}`).subscribe({
+      this.jamService.countJamData(this.activeJam._id!).subscribe({
         next: (data) => {
           this.jamData = data;
         },
@@ -158,7 +161,7 @@ export class GlobalJamComponent {
 
 
   createJam(): void{
-    this.jamService.createJam(`http://${environment.apiUrl}:3000/api/jam/create-jam`, {
+    this.jamService.createJam({
       title: 'New Game Jam',
       open: true,
       public: false,
@@ -209,7 +212,7 @@ export class GlobalJamComponent {
 
         console.log(jam);
 
-        this.jamService.updateJam(`http://${environment.apiUrl}:3000/api/jam/update-jam/${this.activeJam._id}`, jam).subscribe({
+        this.jamService.updateJam(this.activeJam._id!, jam).subscribe({
           next: (data) => {
             if(data.success)
             {

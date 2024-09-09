@@ -1,5 +1,5 @@
-<div class="card-body cardBackground">
-  <table class="table">
+<div class="w-100 p-5">
+  <table class="table table-dark table-striped">
     <thead>
       <tr>
         <th scope="col">Region</th>
@@ -13,7 +13,7 @@
     </thead>
     <tbody class="table-striped">
       <!-- FILTER ROW -->
-      <tr class="table-warning">
+      <tr class="table-filter">
         <td>
           <select name="filterRegion" #filterRegion class="form-select" (change)="setFilter('region', filterRegion.selectedOptions)" multiple>
             <option *ngFor="let region of regions" [value]="region._id">{{ region.name }}</option>

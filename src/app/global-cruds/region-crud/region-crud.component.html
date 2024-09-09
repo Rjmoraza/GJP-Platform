@@ -1,29 +1,27 @@
-<div class="card-body cardBackground">
-  <div class="table-responsive">
+<div class="w-100 p-5">
+  <table class="table table-dark table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Sites</th>
+        <th scope="col">Update</th>
+        <th scope="col">Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of getRows()">
+        <td>{{ row.name }}</td>
+        <td>{{ countSitesPerRegion(row._id) }}</td>
+        <td>
+          <button class="btn btn-primary" data-toggle="modal" data-target="#regionModal" (click)="selectRegion(row)">Update</button>
+        </td>
+        <td>
+          <button class="btn btn-danger" (click)="deleteRegion(row)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Sites</th>
-          <th scope="col">Update</th>
-          <th scope="col">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of getRows()">
-          <td>{{ row.name }}</td>
-          <td>{{ countSitesPerRegion(row._id) }}</td>
-          <td>
-            <button class="btn btn-primary" data-toggle="modal" data-target="#regionModal" (click)="selectRegion(row)">Update</button>
-          </td>
-          <td>
-            <button class="btn btn-danger" (click)="deleteRegion(row)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
   <div class="navBarStyle">
     <ul class="pagination">
       <!-- Botón para ir a la primera página -->
