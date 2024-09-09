@@ -195,14 +195,14 @@
           </div>
 
           <hr class="my-4">
-
+          
           <!-- STAGES -->
           <div class="row pb-3 align-items-end">
-            <h2 class="col-12 text-center">Stages</h2>
+            <h2 class="col-12 text-center">Stages<a matTooltip="All stages start at 00:00:00 and end at 11:59:59 in Brazilian Time (GMT-3)." class="tooltip-trigger">?</a></h2>
             <div class="col-3 p-2" *ngFor="let stage of jam.stages">
               <div [ngClass]="getStageClass(stage)">
                 <h3 class="text-center">{{ stage.stageName }}</h3>
-                <p class="text-center">{{ stage.startDate | date: 'dd/MM/yyyy' }} - {{ stage.endDate | date: 'dd/MM/yyyy' }}</p>
+                <p class="text-center">{{ formatDate(stage.startDate) }} - {{ formatDate(stage.endDate) }}</p>
                 <p class="text-center" *ngIf="isCurrentStage(stage)">Current Stage</p>
               </div>
             </div>

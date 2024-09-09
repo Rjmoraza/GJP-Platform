@@ -25,7 +25,7 @@ declare var $: any;
   styleUrl: './region-crud.component.css',
   providers: [BsModalService]
 })
-export class RegionCRUDComponent implements OnInit{
+export class RegionCrudComponent implements OnInit{
   regionForm!: FormGroup;
   regions: Region[] = [];
   sites: Site[] = [];

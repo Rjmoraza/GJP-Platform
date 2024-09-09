@@ -228,10 +228,8 @@ export class LocalHomeComponent implements OnDestroy {
       language: 'PT'
     });
 
-    let now = new Date();
-    let tzOffset = now.getTimezoneOffset();
-    console.log(`Time zone is: ` + tzOffset);
-    tzOffset = 180; // 3 hours * 60 minutes - BRT
+    
+    let tzOffset = 180; // 3 hours * 60 minutes - BRT
     this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
 
     this.listCountries(() => {

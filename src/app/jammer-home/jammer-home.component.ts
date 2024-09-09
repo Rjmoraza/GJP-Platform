@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { TeamService } from '../services/team.service';
 import { UserService } from '../services/user.service';
 import { SiteService } from '../services/site.service';
@@ -55,6 +55,7 @@ export class JammerHomeComponent implements OnInit {
   selectedRegion?: Region;
   filteredSites: Site[] = [];
   deltaTime: string = '00:00:00:00';
+  timeZone: string = '';
   page: string = "site";
   intervalId: any;
 
@@ -104,6 +105,9 @@ export class JammerHomeComponent implements OnInit {
 
   ngOnInit(): void 
   {
+    let tzOffset = 180; // 3 hours * 60 minutes - BRT
+    this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
+
     this.getJamOfUser();
 
     this.intervalId = setInterval(() => {
@@ -403,6 +407,10 @@ export class JammerHomeComponent implements OnInit {
 
       this.deltaTime = `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
     }
+  }
+
+  formatDate(date: Date){
+    return formatDate(date, 'yyyy-MM-dd', 'en', this.timeZone);
   }
 
   convertTo12h(time24h: string) : string {

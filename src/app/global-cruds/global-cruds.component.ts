@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgClass, NgIf } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { RegionCRUDComponent } from './region-crud/region-crud.component';
+import { RegionCrudComponent } from './region-crud/region-crud.component';
 import { SiteCrudComponent } from './site-crud/site-crud.component';
 import { CategoryCrudComponent } from './category-crud/category-crud.component';
 import { TeamCrudComponent } from './team-crud/team-crud.component';
@@ -21,7 +21,7 @@ import { environment } from '../../environments/environment.prod';
     NgIf,
     CommonModule,
     StageCrudComponent,
-    RegionCRUDComponent,
+    RegionCrudComponent,
     SiteCrudComponent,
     CategoryCrudComponent,
     TeamCrudComponent,

@@ -1,26 +1,35 @@
-<div class="containerMid">
-  <div class="row background">
-    <!-- Tab -->
-    <div class="tabButton" [style.background]="inJam ? '#3D3D3D' : '#D9D9D9'">
-      <div class="btn btn-default tabFont" [style.color]="inJam ? 'white' : 'black'" (click)="moveToJam()">
-          Game Jam
-      </div>
-    </div>
+<div class="row w-100 h-100 p-3">
 
-    <!-- Tab -->
-    <div class="tabButton" [style.background]="inData ? '#3D3D3D' : '#D9D9D9'">
-      <div class="btn btn-default tabFont" [style.color]="inData ? 'white' : 'black'" (click)="moveToCruds()">
-          Data Management
-      </div>
-    </div>
+  <!-- #region NAV BAR -->
+  <div id="localHomeNavBar" class="col-2 container-fluid">
+    <div class="navbutton navL1" data-toggle="collapse" data-target="#homeMenu">Home</div>
+    <ul #homeMenu id="homeMenu" class="collapse">
+      <li class="navbutton navL2" (click)="page = 'jam'">Active Jam</li>
+      <li class="navbutton navL2" (click)="page = 'jam-sites'">Sites</li>
+      <li class="navbutton navL2" (click)="page = 'jam-jammers'">Jammers</li>
+      <li class="navbutton navL2" (click)="page = 'jam-submissions'">Submissions</li>
+      <li class="navbutton navL2" (click)="page = 'jam-evaluations'">Evaluations</li>
+    </ul>
+
+    <div class="navbutton navL1" data-toggle="collapse" data-target="#venueMenu">Data Management</div>
+    <ul #venueMenu id="venueMenu" class="collapse">
+      <li class="navbutton navL2" (click)="page = 'data-jams'">Jams</li>
+      <li class="navbutton navL2" (click)="page = 'data-regions'">Regions</li>
+      <li class="navbutton navL2" (click)="page = 'data-sites'">Sites</li>
+      <li class="navbutton navL2" (click)="page = 'data-users'">Users</li>
+      <li class="navbutton navL2" (click)="page = 'data-teams'">Teams</li>
+    </ul>
   </div>
-  <div class="row h-100 tabBackground">
-    <div class="col centerCol">
-        <div class="Card tabCardBackground">
-            <app-global-jam *ngIf="inJam"></app-global-jam>
-            <app-global-cruds *ngIf="inData"></app-global-cruds>
-        </div>
-    </div>
+  <!-- #endregion -->
+
+  <div class="container card shadow col-10 p-2">
+    <app-global-jam *ngIf="page == 'jam'"></app-global-jam>
+    <app-gamejam-crud *ngIf="page == 'data-jams'"></app-gamejam-crud>
+    <app-region-crud *ngIf="page == 'data-regions'"></app-region-crud>
+    <app-site-crud *ngIf="page == 'data-sites'"></app-site-crud>
+    <app-user-crud *ngIf="page == 'data-users'"></app-user-crud>
+    <app-team-crud *ngIf="page == 'data-teams'"></app-team-crud>
   </div>
 </div>
+
 

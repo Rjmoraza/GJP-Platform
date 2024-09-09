@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
-import { GlobalSitesComponent } from '../global-sites/global-sites.component';
 import { GlobalJamComponent } from '../global-jam/global-jam.component';
-import { GlobalCRUDsComponent } from '../global-cruds/global-cruds.component';
+import { GamejamCrudComponent } from '../global-cruds/gamejam-crud/gamejam-crud.component';
+import { RegionCrudComponent } from '../global-cruds/region-crud/region-crud.component';
+import { SiteCrudComponent } from '../global-cruds/site-crud/site-crud.component';
+import { UserCrudComponent } from '../global-cruds/user-crud/user-crud.component';
+import { TeamCrudComponent } from '../global-cruds/team-crud/team-crud.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,9 +12,12 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [
     CommonModule,
-    GlobalSitesComponent,
     GlobalJamComponent,
-    GlobalCRUDsComponent
+    GamejamCrudComponent,
+    RegionCrudComponent,
+    SiteCrudComponent,
+    UserCrudComponent,
+    TeamCrudComponent
   ],
   templateUrl: './global-home.component.html',
   styleUrl: './global-home.component.css'
@@ -19,15 +25,5 @@ import { CommonModule } from '@angular/common';
 export class GlobalHomeComponent {
   inJam : boolean = true;
   inData: boolean = false;
-
-  moveToJam(){
-    this.inJam = true;
-    this.inData = false;
-  }
-
-  moveToCruds(){
-    this.inJam = false;
-    this.inData = true;
-  }
-
+  page: string = 'jam';
 }

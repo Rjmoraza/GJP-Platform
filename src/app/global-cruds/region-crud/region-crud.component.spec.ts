@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RegionCRUDComponent } from './region-crud.component';
+import { RegionCrudComponent } from './region-crud.component';
 
 describe('RegionCRUDComponent', () => {
-  let component: RegionCRUDComponent;
-  let fixture: ComponentFixture<RegionCRUDComponent>;
+  let component: RegionCrudComponent;
+  let fixture: ComponentFixture<RegionCrudComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RegionCRUDComponent]
+      imports: [RegionCrudComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(RegionCRUDComponent);
+    fixture = TestBed.createComponent(RegionCrudComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
