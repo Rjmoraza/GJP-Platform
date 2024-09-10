@@ -37,6 +37,8 @@ export class GlobalJamComponent {
   errorMessage: string = '';
   warningMessage: string = '';
   jamData: any = {};
+  activeSites: any[] = [];
+  inactiveSites: any[] = [];
 
   @Input() page: string = '';
 
@@ -46,6 +48,7 @@ export class GlobalJamComponent {
 
   ngOnInit(): void {
     this.loadActiveJam();
+    this.getSitesInfo();
 
     console.log(`The page is ${this.page}`);
 
@@ -119,6 +122,7 @@ export class GlobalJamComponent {
       this.jamService.countJamData(this.activeJam._id!).subscribe({
         next: (data) => {
           this.jamData = data;
+          console.log(data);
         },
         error: (error) => {
           console.log(error);
@@ -127,14 +131,17 @@ export class GlobalJamComponent {
     }
   }
 
-  listTeams()
-  {
-
-  }
-
-  listJammers()
-  {
-
+  getSitesInfo(): void{
+    this.siteService.getAllSitesInfo().subscribe({
+      next: (data) => {
+        this.activeSites = data.activeSites;
+        this.inactiveSites = data.inactiveSites;
+        console.log(data);
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
   }
 
   patchJamForm(): void{

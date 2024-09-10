@@ -228,7 +228,7 @@ export class LocalHomeComponent implements OnDestroy {
       language: 'PT'
     });
 
-    
+
     let tzOffset = 180; // 3 hours * 60 minutes - BRT
     this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
 
@@ -755,6 +755,7 @@ export class LocalHomeComponent implements OnDestroy {
         },
         error: (error) => {
           console.log(error);
+          this.message.showMessage("Error", error.error.message);
         }
       });
     }

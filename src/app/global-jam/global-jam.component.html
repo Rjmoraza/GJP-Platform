@@ -192,7 +192,50 @@
 </div>
 
 <div *ngIf="activeJam && page == 'jam-sites'" class="w-100 p-5">
-  <h1 class="text-center">Active Sites</h1>
+  <h1>Active Sites: {{ jamData.siteCount }}</h1>
+  <h2>Countries: {{ jamData.countryCount }}</h2>
+  <h2>Jammers: {{ jamData.jammerCount }}</h2>
+  <h2>Teams: {{ jamData.teamCount }}</h2>
+
+  <div class="row">
+    <div *ngFor="let site of activeSites" class="col-3 p-2">
+      <div class="bg-white shadow p-4 rounded">
+        <h3>{{ site.name }}</h3>
+        <b>Region: </b>{{ site.regionName }} <br>
+        <b>Country: </b>{{ site.country.name }} <br>
+        <b>City: </b>{{ site.city }} <br>
+        <b>Modality: </b>{{ site.modality }} <br>
+        <b>Jammers: </b>{{ site.jammers }} <br>
+        <b>Teams: </b>{{ site.teams }} <br>
+        <b>Organizers: </b> <br>
+        <ul>
+          <li *ngFor="let org of site.organizers">
+            <small>{{ org.name }} (<a [href]="'mailto:'+org.email">{{ org.email }}</a>)<br></small>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Inactive Sites: {{ inactiveSites.length }}</h2>
+
+  <div class="row">
+    <div *ngFor="let site of inactiveSites" class="col-3 p-2">
+      <div class="shadow p-4 rounded inverted">
+        <h3>{{ site.name }}</h3>
+        <b>Region: </b>{{ site.regionName }} <br>
+        <b>Country: </b>{{ site.country.name }} <br>
+        <b>City: </b>{{ site.city }} <br>
+        <b>Organizers: </b> <br>
+        <ul>
+          <li *ngFor="let org of site.organizers">
+            <small>{{ org.name }} (<a [href]="'mailto:'+org.email">{{ org.email }}</a>)<br></small>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div *ngIf="activeJam && page == 'jam-jammers'" class="w-100 p-5">

@@ -3,11 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Country, Site, Jam } from '../../types';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SiteService {
+
+  url: string = `http://${environment.apiUrl}:3000/api/site/`;
 
   constructor(private http: HttpClient) { }
 
@@ -33,6 +36,12 @@ export class SiteService {
 
   getSite(url: string): Observable<Site> {
     return this.http.get<any>(url, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  getAllSitesInfo(): Observable<any> {
+    return this.http.get<any>(this.url + "get-all-sites-info").pipe(
       map(response => response.data)
     );
   }
