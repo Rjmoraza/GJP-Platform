@@ -399,123 +399,128 @@ const registerUsersFromCSV = async (req, res) => {
         {
             for(let j = 0; j < jammerInfo.length; ++j)
             {
-                // Check if the user exists, add it if not
-                let user = await User.findOne({
-                    email: jammerInfo[j].email
-                });
-
-                if(!user)
-                {
-                    user = new User({
-                        name: jammerInfo[j].name,
-                        email: jammerInfo[j].email,
-                        discordUsername: jammerInfo[j].discordUsername,
-                        roles: ['Jammer'],
-                        creationDate: currentDate,
-                        lastUpdateDate: currentDate
+                try{
+                    // Check if the user exists, add it if not
+                    let user = await User.findOne({
+                        email: jammerInfo[j].email
                     });
-                    await user.save();
-                }
 
-                // Check if the user is already registered, register it if not
-                let userOnJam = await UserOnJam.findOne({
-                    userId : user._id,
-                    jamId : jamId
-                });
-
-                // If the user is already registered, stop processing this user
-                if(userOnJam)
-                {
-                    jammerInfo[j].status = 'already registered';
-                    jammerInfo[j].process = false;
-                    continue;
-                }
-
-                if(!userOnJam)
-                {
-                    userOnJam = new UserOnJam({
-                        userId: user._id,
-                        siteId: siteId,
-                        jamId: jamId
-                    });
-                    await userOnJam.save();
-                }
-
-                // If the user has no team, stop processing this user
-                if(jammerInfo[j].teamName.toLowerCase() == 'none')
-                {
-                    jammerInfo[j].status = 'no team';
-                    jammerInfo[j].proces = true;
-                    continue;
-                }
-
-                // Check if this jammer is already on a team
-                let team = await Team.findOne({
-                    jamId: jamId,
-                    'jammers._id': user._id
-                });
-
-                // If the user already has a team, stop processing this user
-                if(team)
-                {
-                    jammerInfo[j].status = 'already on a team';
-                    jammerInfo[j].process = true;
-                    continue;
-                }
-
-                if(!team)
-                {
-                    // Check if the team exists, create it if not
-                    team = await Team.findOne({
-                        teamName : jammerInfo[j].teamName,
-                        siteId: siteId,
-                        jamId: jamId
-                    });    
-                }
-                if(!team)
-                {
-                    // Generate a unique code for this team (make sure it's a unique code)
-                    let uniqueCode;
-                    do
+                    if(!user)
                     {
-                        uniqueCode = crypto.randomBytes(10).toString('hex').slice(0,6).toUpperCase();
-                        existingTeam = await Team.findOne({ teamCode: uniqueCode , jamId: jamId });
+                        user = new User({
+                            name: jammerInfo[j].name,
+                            email: jammerInfo[j].email,
+                            discordUsername: jammerInfo[j].discordUsername,
+                            roles: ['Jammer'],
+                            creationDate: currentDate,
+                            lastUpdateDate: currentDate
+                        });
+                        await user.save();
                     }
-                    while(existingTeam);
 
-                    team = new Team({
-                        teamName: jammerInfo[j].teamName,
-                        teamCode: uniqueCode,
-                        siteId: siteId,
-                        jamId: jamId,
-                        creatorUser: {
-                            userId: creatorUser._id,
-                            name: creatorUser.name,
-                            email: creatorUser.email
-                        },
-                        creationDate: currentDate,
-                        lastUpdatedUser: {
-                            userId: creatorUser._id,
-                            name: creatorUser.name,
-                            email: creatorUser.email
-                        },
-                        lastUpdateDate: currentDate
+                    // Check if the user is already registered, register it if not
+                    let userOnJam = await UserOnJam.findOne({
+                        userId : user._id,
+                        jamId : jamId
                     });
+
+                    // If the user is already registered, stop processing this user
+                    if(userOnJam)
+                    {
+                        jammerInfo[j].status = 'already registered';
+                        jammerInfo[j].process = false;
+                        continue;
+                    }
+
+                    if(!userOnJam)
+                    {
+                        userOnJam = new UserOnJam({
+                            userId: user._id,
+                            siteId: siteId,
+                            jamId: jamId
+                        });
+                        await userOnJam.save();
+                    }
+
+                    // If the user has no team, stop processing this user
+                    if(jammerInfo[j].teamName.toLowerCase().trim() == 'none')
+                    {
+                        jammerInfo[j].status = 'no team';
+                        jammerInfo[j].proces = true;
+                        continue;
+                    }
+
+                    // Check if this jammer is already on a team
+                    let team = await Team.findOne({
+                        jamId: jamId,
+                        'jammers._id': user._id
+                    });
+
+                    // If the user already has a team, stop processing this user
+                    if(team)
+                    {
+                        jammerInfo[j].status = 'already on a team';
+                        jammerInfo[j].process = true;
+                        continue;
+                    }
+
+                    if(!team)
+                    {
+                        // Check if the team exists, create it if not
+                        team = await Team.findOne({
+                            teamName : jammerInfo[j].teamName,
+                            siteId: siteId,
+                            jamId: jamId
+                        });    
+                    }
+                    if(!team)
+                    {
+                        // Generate a unique code for this team (make sure it's a unique code)
+                        let uniqueCode;
+                        do
+                        {
+                            uniqueCode = crypto.randomBytes(10).toString('hex').slice(0,6).toUpperCase();
+                            existingTeam = await Team.findOne({ teamCode: uniqueCode , jamId: jamId });
+                        }
+                        while(existingTeam);
+
+                        team = new Team({
+                            teamName: jammerInfo[j].teamName,
+                            teamCode: uniqueCode,
+                            siteId: siteId,
+                            jamId: jamId,
+                            creatorUser: {
+                                userId: creatorUser._id,
+                                name: creatorUser.name,
+                                email: creatorUser.email
+                            },
+                            creationDate: currentDate,
+                            lastUpdatedUser: {
+                                userId: creatorUser._id,
+                                name: creatorUser.name,
+                                email: creatorUser.email
+                            },
+                            lastUpdateDate: currentDate
+                        });
+                        await team.save();
+                    }
+
+                    team.jammers.push({
+                        _id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        discordUsername: user.discordUsername,
+                        role: team.jammers.length == 0 ? 'owner' : ''
+                    });
+
                     await team.save();
+
+                    jammerInfo[j].status = "added successfully";
+                    jammerInfo[j].process = true;
+                } catch (error) {
+                    jammerInfo[j].status = error.message;
+                    jammerInfo[j].process = false;
                 }
-
-                team.jammers.push({
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    discordUsername: user.discordUsername,
-                    role: team.jammers.length == 0 ? 'owner' : ''
-                });
-
-                await team.save();
-
-                jammerInfo[j].status = "added successfully";
-                jammerInfo[j].process = true;
             }
         }
         return res.status(200).json({ success: true, message: 'User registration completed.', data: jammerInfo });

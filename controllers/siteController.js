@@ -323,9 +323,8 @@ const getAllSitesInfo = async(req, res)=>{
             const orgs = await User.find({ roles: 'LocalOrganizer', "site._id": site._id });
             if(orgs) site.organizers = orgs;
 
-            const region = await Region.find({ _id: site.regionId });
-            if(region) site.region = region.name;
-
+            const region = await Region.findOne({ _id: site.regionId });
+            if(region) site.regionName = region.name;
 
             const soj = await SiteOnJam.findOne({ jamId: jam._id, siteId: site._id });
             if(soj) activeSites.push(site);
