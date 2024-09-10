@@ -24,6 +24,7 @@ site_route.put('/exit-site', siteController.exitJammerFromSite);
 site_route.get('/get-sites-per-region/:regionId', siteController.getSitesPerRegion);
 site_route.get('/get-sites-per-region-open/:regionId', siteController.getSitesPerRegionOpen);
 site_route.get('/get-sites-per-jam/:id', siteController.getSitesByJam);
+site_route.get('/get-all-sites-info', siteController.getAllSitesInfo);
 site_route.delete('/delete-site/:id', siteController.deleteSite);
 
 module.exports = site_route;

@@ -283,7 +283,7 @@ const getSitesByJam = async (req, res) => {
             jamId = jam._id;
         }
 
-        const sitesOfJam = await SiteOnJam.find({ jamId : jamId});
+        const sitesOfJam = await SiteOnJam.find({ jamId : jamId });
         let siteIds = Array();
         sitesOfJam.forEach(soj => {
             siteIds.push(soj.siteId);
@@ -305,6 +305,38 @@ const getSitesByJam = async (req, res) => {
         return res.status(400).json({success: false, message: error.message});
     }
 };
+
+const getAllSitesInfo = async(req, res)=>{
+    try{
+        const jam = await Jam.findOne({ open: true });
+        const sites = await Site.find();
+
+        let activeSites = new Array();
+        let inactiveSites = new Array();
+        for(let s = 0; s < sites.length; ++s)
+        {
+            let site = sites[s].toObject();
+
+            site.jammers = await UserOnJam.countDocuments({ jamId: jam._id, siteId: site._id });
+            site.teams = await Team.countDocuments({ jamId: jam._id, siteId: site._id });
+
+            const orgs = await User.find({ roles: 'LocalOrganizer', "site._id": site._id });
+            if(orgs) site.organizers = orgs;
+
+            const region = await Region.find({ _id: site.regionId });
+            if(region) site.region = region.name;
+
+
+            const soj = await SiteOnJam.findOne({ jamId: jam._id, siteId: site._id });
+            if(soj) activeSites.push(site);
+            else inactiveSites.push(site);
+        }
+        return res.status(200).json({success: true, data: {activeSites : activeSites, inactiveSites : inactiveSites}});
+
+    }catch(error){
+        return res.status(400).json({success: false, message: error.message});
+    }
+}
 
 const deleteSite = async(req,res)=>{
     try{
@@ -420,6 +452,7 @@ module.exports = {
     getSitesPerRegion,
     getSitesPerRegionOpen,
     getSitesByJam,
+    getAllSitesInfo,
     joinJammerToSite,
     exitJammerFromSite,
     deleteSite,
