@@ -1,15 +1,9 @@
 {
   "routes": [
-    "/DataManagement",
-    "/Games",
     "/home",
     "/Jammer",
-    "/Jammer/Team",
-    "/Jammer/team/createTeam",
-    "/Jammer/team/submit",
     "/Juez",
     "/login",
-    "/register",
-    "/Sites"
+    "/register"
   ]
 }
