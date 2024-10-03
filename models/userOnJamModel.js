@@ -10,6 +10,9 @@ const userOnJamSchema = new Schema({
     },
     jamId: {
         type: Schema.Types.ObjectId, ref: 'Jam'
+    },
+    jammerData: {
+        type: String
     }
 });
 

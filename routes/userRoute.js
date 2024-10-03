@@ -29,6 +29,7 @@ user_route.delete('/delete-user/:id', userController.deleteUser);
 user_route.get('/get-localPerSite/:siteId', userController.getLocalOrganizersPerSite);
 user_route.get('/addRol/:id', userController.addRol);
 user_route.get('/deleteRol/:id', userController.deleteRol);
+user_route.post('/save-jammer-data', upload.none(), userController.saveJammerData);
 
 if(process.env.TARGET == "DEV")
 {

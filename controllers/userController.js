@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
         }
 
         // Verificar si el email ya está registrado
-        const existingEmail = await User.findOne({ email: email });
+        const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
         if (existingEmail) {
             return res.status(409).json({ success: false, message: "The email is already in use." });
         }
@@ -36,7 +36,7 @@ const registerUser = async (req, res) => {
         // Crear nuevo usuario
         const user = new User({
             name: name,
-            email: email,
+            email: email.toLowerCase().trim(),
             region: region ? { _id: region._id, name: region.name } : undefined,
             site: site ? { _id: site._id, name: site.name } : undefined,
             team: team ? { _id: team._id, name: team.name } : undefined,
@@ -72,11 +72,11 @@ const updateUser = async (req, res) => {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 return res.status(403).json({ success: false, message: 'Invalid email address.' });
             }
-            const emailExists = await User.findOne({ email });
+            const emailExists = await User.findOne({ email: email.toLowerCase().trim() });
             if (emailExists) {
                 return res.status(409).json({ success: false, message: 'The email is already in use.' });
             }
-            existingUser.email = email;
+            existingUser.email = email.toLowerCase().trim();
         }
 
         if (name) existingUser.name = name;
@@ -138,7 +138,7 @@ const updateUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try{
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase().trim();
         const existingUser = await User.findOne({ email });
         let roles;
         let userId;
@@ -173,7 +173,7 @@ const getLoginLink = async (req, res) => {
     try{
         if(process.env.TARGET == "DEV")
         {
-            const email = req.body.email;
+            const email = req.body.email.toLowerCase().trim();
             console.log(`Login using dev backdoor with email ${email} - ${new Date()}`);
             const user = await User.findOne({ email: email });
             if(!user) return res.status(403).json({success: false, message: "Invalid email"});
@@ -402,14 +402,14 @@ const registerUsersFromCSV = async (req, res) => {
                 try{
                     // Check if the user exists, add it if not
                     let user = await User.findOne({
-                        email: jammerInfo[j].email
+                        email: jammerInfo[j].email.toLowerCase().trim()
                     });
 
                     if(!user)
                     {
                         user = new User({
                             name: jammerInfo[j].name,
-                            email: jammerInfo[j].email,
+                            email: jammerInfo[j].email.toLowerCase().trim(),
                             discordUsername: jammerInfo[j].discordUsername,
                             roles: ['Jammer'],
                             creationDate: currentDate,
@@ -545,7 +545,7 @@ const addRol = async (req, res) => {
         return res.status(200).json({ success: true, message: "Role added successfully" })
     }
     catch(error) {
-        res.status(500).json({ success: false, error: error.message });
+        return res.status(400).json({ success: false, error: error.message });
     }
 };
 
@@ -565,7 +565,29 @@ const deleteRol = async (req, res) => {
             return res.status(200).json({ success: true, message: "Rol removed successfully" })
     }
     catch(error){
-        res.status(500).json({ success: false, error: error.message });
+        return res.status(400).json({ success: false, error: error.message });
+    }
+};
+
+const saveJammerData = async (req, res) => {
+    try{
+        const { userId , siteId , jamId , data } = req.body;
+        
+        let uoj = await UserOnJam.findOne({
+            userId: userId,
+            siteId: siteId,
+            jamId: jamId
+        });
+        if(!uoj)
+        {
+            return res.status(400).json({ success: false, message: 'No jammer found' });
+        }
+
+        uoj.jammerData = JSON.stringify(data);
+        await uoj.save();
+        return res.status(200).json({ success: true, data: uoj });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -578,7 +600,6 @@ const validateUser = async (req) => {
         return null;
     }
 };
-
 
 module.exports = {
     registerUser,
@@ -598,5 +619,6 @@ module.exports = {
     registerUsersFromCSV,
     addRol,
     deleteRol,
-    validateUser
+    validateUser,
+    saveJammerData
 };

@@ -219,7 +219,7 @@ const getJamByUser = async(req, res) => {
             siteId: site._id,
             "jammers._id" : id
         })
-        return res.status(200).send({success: true, data: {jam: jam, site: site, team: team}});
+        return res.status(200).send({success: true, data: {jam: jam, site: site, team: team, jammerData: jamOfUser.jammerData }});
     } catch(error) {
         if(!jam) return res.status(400).send({success: false, message: error.message});
     }
