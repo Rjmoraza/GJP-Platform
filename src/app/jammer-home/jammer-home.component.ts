@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators,  } from '@angular/forms';
 import { CommonModule, formatDate } from '@angular/common';
 import { TeamService } from '../services/team.service';
 import { UserService } from '../services/user.service';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { MessagesComponent } from '../messages/messages.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { User, Site, Region, Jam, Team } from '../../types';
+import { User, Site, Region, Country, Jam, Team } from '../../types';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons';
@@ -48,8 +48,10 @@ import { faJar } from '@fortawesome/free-solid-svg-icons';
 export class JammerHomeComponent implements OnInit {
   @Input() user!: User;
   @ViewChild(MessagesComponent) message!: MessagesComponent;
+  jammerDataForm!: FormGroup;
   regions: Region[] = [];
   sites: Site[] = [];
+  countries: Country[] = [];
   staff: User[] = [];
   jammers: User[] = [];
   selectedRegion?: Region;
@@ -62,6 +64,11 @@ export class JammerHomeComponent implements OnInit {
   site?: Site;
   jam?: Jam;
   team?: Team;
+  jammerData: boolean = false;
+  jammerDataFormValid: boolean = true;
+  termsOfConduct: boolean = true;
+  termsOfImage: boolean = true;
+  termsOfIP: boolean = true;
   jamData: any = {};
 
   faCoffee = faCoffee;
@@ -101,24 +108,87 @@ export class JammerHomeComponent implements OnInit {
       "pianos", "quilts", "roses", "stars", "trees", "violins", "windows", "yogurts", "zoos", "bridges"
   ];
 
-  constructor(private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private jamService: JamService) {}
+  constructor(private fb: FormBuilder, private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private jamService: JamService) {}
 
-  ngOnInit(): void 
+  ngOnInit(): void
   {
     let tzOffset = 180; // 3 hours * 60 minutes - BRT
     this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
 
+    this.listCountries();
     this.getJamOfUser();
 
     this.intervalId = setInterval(() => {
       this.getDeltaTime();
     }, 1000);
+
+    this.jammerDataForm = this.fb.group({
+      name: [this.user.name, Validators.required],
+      countryOfOrigin: ['', Validators.required],
+      countryOfResidence: ['', Validators.required],
+      city: ['', Validators.required],
+      email: [this.user.email, Validators.required],
+      discord: [this.user.discordUsername, Validators.required],
+      gender: ['', Validators.required],
+
+      pronounH: false,
+      pronounS: false,
+      pronounT: false,
+      pronounO: false,
+
+      industryFree: false,
+      industryStudio: false,
+      industryOwn: false,
+      industryNone: false,
+      industryPast: false,
+      industryNo: false,
+
+      degree: ['', Validators.required],
+
+      studyNone: false,
+      studyFree: false,
+      studyTechnical: false,
+      studyDegree: false,
+      studyPostgraduate: false,
+      studyProgramming: false,
+      studyDesign: false,
+      studyArts: false,
+      studyMusic: false,
+      studyNarrative: false,
+      studyBiz: false,
+      studyOther: false,
+
+      jamFirst: false,
+      jamFirstGJP: false,
+      jamPIIH: false,
+      jamOther: false,
+      jamGJP2: false,
+      jamGJP3: false,
+
+      termsOfConduct: ['', Validators.required],
+      termsOfImage: ['', Validators.required],
+      termsOfIP: ['', Validators.required]
+    });
+  }
+
+  listCountries(): void
+  {
+    this.siteService.getCountries(`http://${environment.apiUrl}:3000/api/site/get-countries`).subscribe({
+      next: (countries) => {
+        this.countries = countries;
+      },
+      error: (error) => {
+        console.error('Error al obtener países:', error);
+      }
+    });
   }
 
   getJamOfUser() : void
   {
     this.jamService.getJamByUser(this.user._id!).subscribe({
       next: (data) => {
+        console.log(data.jammerData);
+        if(data.jammerData) this.jammerData = true;
         this.jam = data.jam;
         this.site = data.site;
         this.team = data.team;
@@ -198,10 +268,10 @@ export class JammerHomeComponent implements OnInit {
     return Math.floor(Math.random() * (max - min)) + min;
   }
 
-  joinTeam(): void 
+  joinTeam(): void
   {
     this.message.showQuestion(
-      "Join a Team", 
+      "Join a Team",
       "Enter the team's secret code",
       (code: string) => {
         const url = `http://${environment.apiUrl}:3000/api/team/join-jammer/${code}/${this.user._id}`;
@@ -290,7 +360,7 @@ export class JammerHomeComponent implements OnInit {
   joinSite(site: Site)
   {
     this.message.showDialog(
-      "Confirm Action", 
+      "Confirm Action",
       `Join site ${site.name}?`,
       () => {
         const url = `http://${environment.apiUrl}:3000/api/site/join-site`;
@@ -330,9 +400,9 @@ export class JammerHomeComponent implements OnInit {
               next: (data) => {
                 console.log(data);
                 this.message.showMessage(
-                  "Success", 
-                  data.message, 
-                  ()=>{ 
+                  "Success",
+                  data.message,
+                  ()=>{
                     window.location.reload();
                   }
                 );
@@ -363,9 +433,9 @@ export class JammerHomeComponent implements OnInit {
               next: (data) => {
                 console.log(data);
                 this.message.showMessage(
-                  "Success", 
-                  data.message, 
-                  ()=>{ 
+                  "Success",
+                  data.message,
+                  ()=>{
                     this.team = undefined;
                   }
                 );
@@ -382,6 +452,94 @@ export class JammerHomeComponent implements OnInit {
         },
         () => {}
       );
+    }
+  }
+
+  saveJammerData()
+  {
+    if(this.user && this.jam && this.site)
+    {
+      if(this.jammerDataForm.valid)
+      {
+        let gender = this.jammerDataForm.get('gender')?.value;
+        let countryO = this.jammerDataForm.get('countryOfOrigin')?.value.name;
+        let countryR = this.jammerDataForm.get('countryOfResidence')?.value.name;
+        let degree = this.jammerDataForm.get('degree')?.value;
+        let pronouns = new Array();
+        if(this.jammerDataForm.get('pronounH')?.value) pronouns.push('He/Him');
+        if(this.jammerDataForm.get('pronounS')?.value) pronouns.push('She/Her');
+        if(this.jammerDataForm.get('pronounT')?.value) pronouns.push('They/Them');
+        if(this.jammerDataForm.get('pronounO')?.value) pronouns.push('Other');
+
+        let industry = new Array();
+        if(this.jammerDataForm.get('industryFree')?.value) industry.push('I work in the games industry as a freelancer');
+        if(this.jammerDataForm.get('industryStudio')?.value) industry.push('I work in the games industry in a studio');
+        if(this.jammerDataForm.get('industryOwn')?.value) industry.push('I own a game studio');
+        if(this.jammerDataForm.get('industryNone')?.value) industry.push("I haven't worked in the games industry yet, but I'm looking forward to it");
+        if(this.jammerDataForm.get('industryPast')?.value) industry.push("I used to work in the games industry, but I don't anymore");
+        if(this.jammerDataForm.get('industryNo')?.value) industry.push("I'm not interested in working in the games industry, I jam for fun");
+
+        let studies = new Array();
+        if(this.jammerDataForm.get('studyNone')?.value) studies.push('No studies related to games industry');
+        if(this.jammerDataForm.get('studyFree')?.value) studies.push('Free courses or self taught');
+        if(this.jammerDataForm.get('studyTechnical')?.value) studies.push('Technical degree in game development');
+        if(this.jammerDataForm.get('studyDegree')?.value) studies.push('Academic degree in game development');
+        if(this.jammerDataForm.get('studyPostgraduate')?.value) studies.push('Postgraduate degree in game development');
+        if(this.jammerDataForm.get('studyProgramming')?.value) studies.push('Programming/Computer Science');
+        if(this.jammerDataForm.get('studyDesign')?.value) studies.push('Design');
+        if(this.jammerDataForm.get('studyArts')?.value) studies.push('Fine Arts');
+        if(this.jammerDataForm.get('studyMusic')?.value) studies.push('Music/Sound');
+        if(this.jammerDataForm.get('studyNarrative')?.value) studies.push('Narrative/Communication/Letters');
+        if(this.jammerDataForm.get('studyBiz')?.value) studies.push('Business/Management');
+        if(this.jammerDataForm.get('studyOther')?.value) studies.push('Other related with Game Development');
+
+        let jams = new Array();
+        if(this.jammerDataForm.get('jamFirst')?.value) jams.push('This is my first Game Jam');
+        if(this.jammerDataForm.get('jamFirstGJP')?.value) jams.push('This is my first Game Jam Plus');
+        if(this.jammerDataForm.get('jamPIIH')?.value) jams.push('I have participated in other jams from Indie Hero');
+        if(this.jammerDataForm.get('jamOther')?.value) jams.push('I have participated in other jams in general');
+        if(this.jammerDataForm.get('jamGJP2')?.value) jams.push('This is my 2nd Game Jam Plus');
+        if(this.jammerDataForm.get('jamGJP3')?.value) jams.push('This is my 3rd or more Game Jam Plus');
+
+        this.termsOfConduct = this.jammerDataForm.get('termsOfConduct')?.value;
+        this.termsOfImage = this.jammerDataForm.get('termsOfImage')?.value;
+        this.termsOfIP = this.jammerDataForm.get('termsOfIP')?.value;
+
+        if(this.termsOfConduct && this.termsOfImage && this.termsOfImage)
+        {
+          let jammerData = {
+            name: this.jammerDataForm.get('name')?.value,
+            email: this.jammerDataForm.get('email')?.value,
+            countryOfOrigin: countryO,
+            countryOfResidence: countryR,
+            city: this.jammerDataForm.get('city')?.value,
+            gender: gender,
+            degree: degree,
+            pronouns: pronouns,
+            industry: industry,
+            studies: studies,
+            jams: jams,
+            termsOfConduct: this.termsOfConduct,
+            termsOfImage: this.termsOfImage,
+            termsOfIP: this.termsOfIP
+          };
+
+          this.userService.saveJammerData(this.user!._id!, this.site!._id!, this.jam!._id!, jammerData).subscribe({
+            next: (data)=>{
+              console.log(data);
+              this.jammerData = true;
+            },
+            error: (error)=>{
+              this.message.showMessage("Error", error.error.message);
+            }
+          });
+        }
+
+      }
+      else
+      {
+        this.jammerDataFormValid = false;
+      }
     }
   }
 
@@ -426,7 +584,7 @@ export class JammerHomeComponent implements OnInit {
     return `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
   }
 
-  generateWhatsAppLink(phoneNumber: string) : string 
+  generateWhatsAppLink(phoneNumber: string) : string
   {
     // Clean the phone number by removing non-numeric characters
     const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");
@@ -436,7 +594,7 @@ export class JammerHomeComponent implements OnInit {
 
     // Generate the full WhatsApp link
     const whatsappLink = `${baseURL}${cleanedPhoneNumber}`;
-        
+
     return whatsappLink;
   }
 
@@ -466,5 +624,5 @@ export class JammerHomeComponent implements OnInit {
       return 'card';
     }
   }
-  
+
 }

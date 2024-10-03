@@ -373,15 +373,20 @@
       </div>
 
       <div *ngIf="page == 'jammers'" class="container container-lg p-3">
-        <div class="d-flex justify-content-between">
-          <div>
+        <div class="d-flex">
+          <div class="mr-auto">
             <h1>JAMMERS: {{ jammers.length }}</h1>
             <h2>TEAMS: {{ teamCount }}</h2>
           </div>
 
+          <button class="btn btn-black align-right mr-1" (click)="exportJammers()">
+            <fa-icon [icon]="faFileCsv" class="fa-2x"></fa-icon><br>
+            Export Jammers
+          </button>
+
           <button class="btn btn-black align-right" data-toggle="modal" data-target="#jammersModal">
             <fa-icon [icon]="faUsers" class="fa-2x"></fa-icon><br>
-            Add Jammers
+            Import Jammers
           </button>
         </div>
 

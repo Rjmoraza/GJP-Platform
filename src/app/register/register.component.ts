@@ -37,9 +37,9 @@ export class RegisterComponent implements OnInit {
 
       const { email, name, region, site, discordUsername} = this.registerForm.value;
 
-      this.userService.registerUser(`http://${environment.apiUrl}:3000/api/user/register-user`, {
+      this.userService.registerUser({
         name: name,
-        email: email,
+        email: email.toLowerCase(),
         roles: ['Jammer'],
         coins: 0,
         discordUsername: discordUsername

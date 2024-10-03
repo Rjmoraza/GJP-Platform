@@ -13,16 +13,16 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  registerUser(url: string, user: User): Observable<any> {
-    return this.http.post(url, user);
+  registerUser(user: User): Observable<any> {
+    return this.http.post(this.url + 'register-user', user);
   }
 
-  updateUser(url: string, user: User): Observable<any> {
-    return this.http.put(url, user);
+  updateUser(userId: string, user: User): Observable<any> {
+    return this.http.put(this.url + `update-user/${userId}`, user);
   }
 
-  loginUser(url: string, email: string): Observable<any> {
-    return this.http.post(url, { email }); 
+  loginUser(email: string): Observable<any> {
+    return this.http.post(this.url + 'login-user', { email });
   }
 
   logOutUser(url: string): Observable<any> {
@@ -67,8 +67,14 @@ export class UserService {
     return this.http.put(url, siteId);
   }
 
-  uploadUsersFromCSV(url: string, data: any): Observable<any> {
-    return this.http.post<any>(url, {data: data}, { withCredentials: true }).pipe(
+  uploadUsersFromCSV(siteId: string, jamId: string, data: any): Observable<any> {
+    return this.http.post<any>(this.url + `register-users-from-csv/${siteId}/${jamId}`, {data: data}, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  saveJammerData(userId: string, siteId: string, jamId: string, jammerData: any): Observable<any> {
+    return this.http.post<any>(this.url + `save-jammer-data`, {userId: userId, siteId: siteId, jamId: jamId, data: jammerData}, {withCredentials: true}).pipe(
       map(response => response.data)
     );
   }

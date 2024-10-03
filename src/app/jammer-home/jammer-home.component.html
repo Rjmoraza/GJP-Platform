@@ -40,9 +40,365 @@
   </div>
 
   <!-- #endregion -->
-  
-  <div *ngIf="jam && site" class="row w-100 p-3">
 
+  <!-- #region NO JAMMER DATA -->
+
+  <!-- <div *ngIf="jam && site && !jammerData" class="row w-100 p-5"> -->
+  <div *ngIf="false" class="row w-100 p-5">
+    <div class="bg-white shadow p-4 rounded">
+      <h1 class="text-center">Jammer Information</h1>
+      <div class="warning text-center p-4">
+        <p>
+          In order to proceed to your dashboard, we require you to fill this short form.<br>
+          This information will help GameJam+ provide you a better service in the future.
+        </p>
+      </div>
+
+      <form (submit)="saveJammerData()" [formGroup]="jammerDataForm" class="m-2">
+        <div class="row">
+          <div class="form-group col-sm-6">
+            <label for="name" class="required">What's your name?</label>
+            <input type="text" class="form-control" formControlName="name">
+          </div>
+
+          <div class="form-group col-sm-6">
+            <label for="name" class="required">What country are you from?</label>
+            <select class="form-control formList" id="countries" formControlName="countryOfOrigin">
+              <option value="" disabled selected hidden>Country of Origin</option>
+              <option *ngFor="let country of countries" [ngValue]="country">{{ country.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group col-sm-6">
+            <label for="name" class="required">In which country do you live?</label>
+            <select class="form-control formList" id="countries" formControlName="countryOfResidence">
+              <option value="" disabled selected hidden>Country of Residence</option>
+              <option *ngFor="let country of countries" [ngValue]="country">{{ country.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group col-sm-6">
+            <label for="name" class="required">In which city do you live?</label>
+            <input type="text" class="form-control" formControlName="city">
+          </div>
+
+          <div class="form-group col-sm-6">
+            <label for="name" class="required">What's your contact email?</label>
+            <input type="text" class="form-control" formControlName="email">
+          </div>
+
+          <div class="form-group col-sm-6">
+            <label for="name" class="required">What's your discord tag?</label>
+            <input type="text" class="form-control" formControlName="discord">
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- GENDER -->
+            <label for="name" class="required">What's the gender you identify with?</label>
+            <div class="border border-secondary rounded p-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="gender" id="genderM" value="Male" formControlName="gender">
+                <label class="form-check-label" for="gender1">
+                  Male
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="gender" id="genderF" value="Female" formControlName="gender">
+                <label class="form-check-label" for="gender1">
+                  Female
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="gender" id="genderO" value="Other" formControlName="gender">
+                <label class="form-check-label" for="gender1">
+                  Other
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="gender" id="genderN" value="NoAnswer" formControlName="gender">
+                <label class="form-check-label" for="gender1">
+                  Prefer not to answer
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- PRONOUNS -->
+            <label for="industry">What pronouns do you use</label>
+            <div class="border border-secondary rounded p-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pronoun1" formControlName="pronounH">
+                <label class="form-check-label" for="pronoun1">
+                  He/Him
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pronoun2" formControlName="pronounS">
+                <label class="form-check-label" for="pronoun2">
+                  She/Her
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pronoun3" formControlName="pronounT">
+                <label class="form-check-label" for="pronoun3">
+                  They/Them
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pronoun4" formControlName="pronounO">
+                <label class="form-check-label" for="pronoun4">
+                  Other / Prefer not to answer
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- DEGREE -->
+            <label for="name">Select your highest education degree to date</label>
+            <div class="border border-secondary rounded p-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="degree" id="degree1" value="Highschool Incomplete" formControlName="degree">
+                <label class="form-check-label" for="degree1">
+                  I'm in Highschool
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="degree" id="degree2" value="Highschool Complete" formControlName="degree">
+                <label class="form-check-label" for="degree2">
+                  I have my Highschool diploma
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="degree" id="degree3" value="Technical Degree" formControlName="degree">
+                <label class="form-check-label" for="degree3">
+                  I have a Technical Degree
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="degree" id="degree4" value="Undergraduate" formControlName="degree">
+                <label class="form-check-label" for="degree4">
+                  I am in College
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="degree" id="degree5" value="Bachelor or Licenciate" formControlName="degree">
+                <label class="form-check-label" for="degree5">
+                  I have a Bachelor's or a Licenciate degree
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="degree" id="degree6" value="Postgraduate" formControlName="degree">
+                <label class="form-check-label" for="degree6">
+                  I have a Master's or Doctorade
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- INDUSTRY -->
+            <label for="industry">Check all that apply</label>
+            <div class="border border-secondary rounded p-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="He/Him" id="industry1" formControlName="industryFree">
+                <label class="form-check-label" for="industry1">
+                  I work at the games industry as a freelancer
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="He/Him" id="industry2" formControlName="industryStudio">
+                <label class="form-check-label" for="industry2">
+                  I work at the games industry in a studio
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="He/Him" id="industry3" formControlName="industryOwn">
+                <label class="form-check-label" for="industry3">
+                  I own a game studio
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="He/Him" id="industry4" formControlName="industryNone">
+                <label class="form-check-label" for="industry4">
+                  I haven't worked in the games industry yet, but I'm looking forward to it
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="He/Him" id="industry5" formControlName="industryPast">
+                <label class="form-check-label" for="industry5">
+                  I used to work in the games industry, but I don't anymore
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="He/Him" id="industry6" formControlName="industryNo">
+                <label class="form-check-label" for="industry6">
+                  I'm not interested in working in the games industry, I jam for fun
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- STUDIES -->
+            <label for="industry">Check all that apply</label>
+            <div class="border border-secondary rounded p-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study1" formControlName="studyNone">
+                <label class="form-check-label" for="study1">
+                  I haven't studied anything related to game development
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study2" formControlName="studyFree">
+                <label class="form-check-label" for="study2">
+                  I have taken free courses or learned game development on my own
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study3" formControlName="studyTechnical">
+                <label class="form-check-label" for="study3">
+                  I have taken a technical course or degree in game development from an institution
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study4" formControlName="studyDegree">
+                <label class="form-check-label" for="study4">
+                  I have taken an academic degree in game development (Diploma, Bachelor or Licenciate)
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study4" formControlName="studyPostgraduate">
+                <label class="form-check-label" for="study4">
+                  I have taken a Postgraduate degree in game development (Masters or Doctorade)
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study5" formControlName="studyProgramming">
+                <label class="form-check-label" for="study5">
+                  I have taken a degree in computer science, programming, or equivalent
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study6" formControlName="studyDesign">
+                <label class="form-check-label" for="study6">
+                  I have taken a degree in Design, Graphic Design, Product Design, or equivalent
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study7" formControlName="studyArts">
+                <label class="form-check-label" for="study7">
+                  I have taken a degree in Fine Arts or equivalent
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study8" formControlName="studyMusic">
+                <label class="form-check-label" for="study8">
+                  I have taken a degree in Music Production, Composition, Sound Engineering, or equivalent
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study9" formControlName="studyNarrative">
+                <label class="form-check-label" for="study9">
+                  I have taken a degre in Narrative, Communication, Letters, or equivalent
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study10" formControlName="studyBiz">
+                <label class="form-check-label" for="study10">
+                  I have taken a degree in Business, Management, or equivalent
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="study11" formControlName="studyOther">
+                <label class="form-check-label" for="study11">
+                  I have taken other studies related to the games industry
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- JAMS -->
+            <label for="industry">Check all that apply</label>
+            <div class="border border-secondary rounded p-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="jam1" formControlName="jamFirst">
+                <label class="form-check-label" for="jam1">
+                  This is my first Game Jam
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="jam2" formControlName="jamFirstGJP">
+                <label class="form-check-label" for="jam2">
+                  This is my first Game Jam Plus
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="jam3" formControlName="jamPIIH">
+                <label class="form-check-label" for="jam3">
+                  I have participated in other game jams from Indie Hero
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="jam4" formControlName="jamOther">
+                <label class="form-check-label" for="jam4">
+                  I have participated in other game jams in general
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="jam5" formControlName="jamGJP2">
+                <label class="form-check-label" for="jam5">
+                  This is my 2nd Game Jam Plus
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="jam6" formControlName="jamGJP3">
+                <label class="form-check-label" for="jam6">
+                  This is my 3rd or more Game Jam Plus
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-sm-6"> <!-- TERMS AND CONDITIONS -->
+            <label for="terms" class="required">
+              To participate in this edition, I confirm that I read, understood and agreed with the <a href="" target="_blank">Terms and Conditions</a> of the event.
+            </label>
+            <div class="border border-secondary rounded p-2">
+
+              <div [ngClass]="{'form-check': true, 'error': !termsOfConduct}">
+                <input class="form-check-input" type="checkbox" id="terms" formControlName="termsOfConduct">
+                <label class="form-check-label" for="terms">
+                  I understand that I have to treat other participants, organizers, mentors and judges with respect and courtesy
+                </label>
+              </div>
+
+              <div [ngClass]="{'form-check': true, 'error': !termsOfImage}">
+                <input class="form-check-input" type="checkbox" id="terms" formControlName="termsOfImage">
+                <label class="form-check-label" for="terms">
+                  I understand that my image and likeness will be recorded and could be used by Game Jam Plus for communication and marketing purposes
+                </label>
+              </div>
+
+              <div [ngClass]="{'form-check': true, 'error': !termsOfIP}">
+                <input class="form-check-input" type="checkbox" id="terms" formControlName="termsOfIP">
+                <label class="form-check-label" for="terms">
+                  I understand that my game, videos, and assets produced and submitted to this event will be shared by Game Jam Plus for communication, evaluation, and marketing purposes
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="error p-3 d-block text-center" *ngIf="!jammerDataFormValid">
+            Please fill all the required fields to proceed
+          </div>
+
+          <button type="submit" class="navbutton navL1 flex-center my-3 col-sm-12">SAVE CHANGES</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- #endregion -->
+
+  <!--<div *ngIf="jam && site && jammerData" class="row w-100 p-3">-->
+  <div *ngIf="jam && site" class="row w-100 p-3">
     <div class="p-3 mb-2 darkbg d-block text-white text-center timer">{{ deltaTime }}</div>
 
     <!-- #region NAV BAR -->
@@ -103,7 +459,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="col-md-4 p-2">
             <div class="pseudocard inverted m-1 py-2 minh-3">
               <div class="row align-items-start">
@@ -111,7 +467,7 @@
                 <h2 class="col-8 maxh-05">Contact Info</h2>
                 <hr>
               </div>
-              
+
               <div class="row align-items-end p-2">
                 <span class="col-4 text-right heavy mb-1 align-bottom" *ngIf="site.email">Email</span> <a *ngIf="site.email" [href]="'mailto:' + site.email" class="col-8">{{ site.email }}</a>
                 <span class="col-4 text-right heavy mb-1 align-bottom" *ngIf="site.phoneNumber">Phone</span> <span *ngIf="site.phoneNumber" class="col-8">{{ site.phoneNumber }}</span>
@@ -195,7 +551,7 @@
           </div>
 
           <hr class="my-4">
-          
+
           <!-- STAGES -->
           <div class="row pb-3 align-items-end">
             <h2 class="col-12 text-center">Stages<a matTooltip="All stages start at 00:00:00 and end at 11:59:59 in Brazilian Time (GMT-3)." class="tooltip-trigger">?</a></h2>
@@ -228,7 +584,7 @@
 
         <div *ngIf="team">
           <h1 class="text-center">My Team: {{ team.teamName.toUpperCase() }}</h1>
-          
+
           <div class="row mt-3">
             <div class="col-8">
               <h3 class="text-center">Team Name:</h3>
@@ -248,7 +604,7 @@
             </div>
           </div>
 
-          
+
           <h2 class="text-center mt-3">Team Members</h2>
           <hr>
           <div class="row">

@@ -206,7 +206,8 @@ export class UserCrudComponent implements OnInit{
         const url = `http://${environment.apiUrl}:3000/api/user/delete-user/${id}`;
         this.userService.deleteUser(url).subscribe({
             next: (data) => {
-                this.users = this.users.filter(item => item !== user);
+                //this.users = this.users.filter(item => item !== user);
+                this.listUsers();
                 this.message.showMessage("Success", data.message);
             },
             error: (error) => {
@@ -267,7 +268,7 @@ export class UserCrudComponent implements OnInit{
 
       const user: User = {
         name : this.userForm.get('name')!.value,
-        email: this.userForm.get('email')!.value,
+        email: this.userForm.get('email')!.value.toLowerCase(),
         roles: roles,
         coins: 0,
         region: region,
@@ -278,7 +279,7 @@ export class UserCrudComponent implements OnInit{
       console.log('Adding user: ');
       console.log(user);
 
-      this.userService.registerUser(`http://${environment.apiUrl}:3000/api/user/register-user`, user).subscribe({
+      this.userService.registerUser(user).subscribe({
         next: (data) => {
           if(data.success)
           {
@@ -351,7 +352,7 @@ export class UserCrudComponent implements OnInit{
       console.log('Editing user: ');
       console.log(user);
 
-      this.userService.updateUser(`http://${environment.apiUrl}:3000/api/user/update-user/${this.userToEdit._id}`, user).subscribe({
+      this.userService.updateUser(this.userToEdit._id!, user).subscribe({
         next: (data) => {
           this.closeUserForm.nativeElement.click();
           this.message.showMessage("Success", "User updated successfully");

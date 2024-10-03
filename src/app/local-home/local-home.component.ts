@@ -11,6 +11,7 @@ import { MessagesComponent } from '../messages/messages.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { environment } from '../../environments/environment.prod';
+import { saveAs } from 'file-saver';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons';
@@ -23,6 +24,10 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faJar } from '@fortawesome/free-solid-svg-icons';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faFileExport } from '@fortawesome/free-solid-svg-icons';
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
 
 import { EditorComponent } from '@tinymce/tinymce-angular';
 
@@ -79,6 +84,10 @@ export class LocalHomeComponent implements OnDestroy {
   faDiscord = faDiscord;
   faEnvelope = faEnvelope;
   faJar = faJar;
+  faDownload = faDownload;
+  faUpload = faUpload;
+  faFileExport = faFileExport;
+  faFileCsv = faFileCsv;
 
   locationAdjectives = [
     "Spacious",
@@ -710,9 +719,32 @@ export class LocalHomeComponent implements OnDestroy {
   {
     this.message.showDialog(
       "Confirm Action",
-      `Are you sure you want to remove ${jammer.name} from this site?<br>THIS FEATURE IS STILL UNDER CONSTRUCTION`,
+      `Are you sure you want to remove ${jammer.name} from this site?`,
       ()=>{
-        console.log("Kicking Jammer...");
+        if(jammer && this.site && this.jam)
+        {
+          const url = `http://${environment.apiUrl}:3000/api/site/exit-site`;
+            this.siteService.exitSite(url, {
+              userId: jammer._id,
+              siteId: this.site._id,
+              jamId: this.jam._id
+            }).subscribe({
+              next: (data) => {
+                console.log(data);
+                this.message.showMessage(
+                  "Success",
+                  data.message,
+                  ()=>{
+                    this.listJammers();
+                  }
+                );
+              },
+              error: (error) => {
+                console.log(error);
+                this.message.showMessage('Error', error.error.message);
+              }
+            });
+          }
       },
       ()=>{}
     );
@@ -739,17 +771,19 @@ export class LocalHomeComponent implements OnDestroy {
       for(let j = 0; j < jammerRows.length; ++j)
       {
         let jammerRow = jammerRows[j].split(',');
-        let jammer = {
-          name: jammerRow[0],
-          email: jammerRow[1],
-          discordUsername: jammerRow[2],
-          teamName: jammerRow[3]
-        };
-        jammers.push(jammer);
+        if(jammerRow.length == 4)
+        {
+          let jammer = {
+            name: jammerRow[0].trim(),
+            email: jammerRow[1].toLowerCase().trim(),
+            discordUsername: jammerRow[2].trim(),
+            teamName: jammerRow[3].trim()
+          };
+          jammers.push(jammer);
+        }
       }
 
-      let url = `http://${environment.apiUrl}:3000/api/user/register-users-from-csv/${this.site!._id}/${this.jam!._id}`;
-      this.userService.uploadUsersFromCSV(url, jammers).subscribe({
+      this.userService.uploadUsersFromCSV(this.site._id!, this.jam._id!, jammers).subscribe({
         next: (data) => {
           this.bulkResult = data;
         },
@@ -759,6 +793,18 @@ export class LocalHomeComponent implements OnDestroy {
         }
       });
     }
+  }
+
+  exportJammers()
+  {
+    let rows = "#, Name, Email, Discord, Team\n";
+    this.jammers.forEach((jammer, index) => {
+      rows += `${index + 1}, ${jammer.name}, ${jammer.email}, ${jammer.discordUsername}, ${jammer.team ? jammer.team.name : 'None'}\n`;
+    });
+    rows = rows.trim();
+
+    let blob = new Blob([rows], {type: 'text/csv'});
+    saveAs(blob, "jammers.csv");
   }
 
   reload()

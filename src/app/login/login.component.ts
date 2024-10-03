@@ -13,7 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     MessagesComponent,
-    FormsModule, 
+    FormsModule,
     ReactiveFormsModule
   ],
   templateUrl: './login.component.html',
@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit, AfterViewInit{
   @ViewChild(MessagesComponent) message!: MessagesComponent;
 
   ngOnInit(): void {
-    
+
   }
 
   ngAfterViewInit(): void {
@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit, AfterViewInit{
         if (params['error']) {
           console.log(params['error']);
           this.message.showMessage(
-            "Error", 
+            "Error",
             "Login link has expired, please login again",
             () => {
               this.router.navigate(['/login']);
@@ -47,15 +47,14 @@ export class LoginComponent implements OnInit, AfterViewInit{
         }
       });
     }, 100);
-    
+
   }
 
   sendEmail(): void {
     console.log(this.email);
-    if(this.email)
+    if(this.email?.toLowerCase())
     {
-      const url = `http://${environment.apiUrl}:3000/api/user/login-user`;
-      this.userService.loginUser(url, this.email).subscribe({
+      this.userService.loginUser(this.email).subscribe({
         next: (data) =>{
           this.message.showMessage(
             "Success",
