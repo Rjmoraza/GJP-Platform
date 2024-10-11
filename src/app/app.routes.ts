@@ -5,6 +5,7 @@ import { GameInformationComponent } from './game-information/game-information.co
 import { JammerHomeComponent } from './jammer-home/jammer-home.component';
 import { JuezMainComponent } from './juez-main/juez-main.component';
 import { HomeComponent } from './home/home.component';
+import { RulesComponent } from './rules/rules.component';
 
 export const routes: Routes = [
     {path: '',redirectTo: "login", pathMatch: "full"},
@@ -16,4 +17,5 @@ export const routes: Routes = [
     {path: 'Jammer', component: JammerHomeComponent},
     {path: 'Juez', component: JuezMainComponent},
     {path: 'home', component: HomeComponent},
+    {path: 'rules', component: RulesComponent}
 ];

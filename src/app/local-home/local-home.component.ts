@@ -11,6 +11,7 @@ import { MessagesComponent } from '../messages/messages.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { environment } from '../../environments/environment.prod';
+import { RulesComponent } from '../rules/rules.component';
 import { saveAs } from 'file-saver';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -43,7 +44,8 @@ import tinymce from 'tinymce';
     ReactiveFormsModule,
     FontAwesomeModule,
     EditorComponent,
-    MatTooltipModule
+    MatTooltipModule,
+    RulesComponent
   ],
   templateUrl: './local-home.component.html',
   styleUrl: './local-home.component.css',

@@ -64,6 +64,8 @@
         <li class="navbutton navL2" (click)="page = 'fellows'">Fellowship</li>
       </ul>
     </div>
+
+    <div class="navbutton navL1" (click)="page = 'rules'">Rules and Conditions</div>
     <!-- #endregion -->
 
     <div id="localHomeMainContent" class="col-8">
@@ -440,6 +442,10 @@
         <p>This section is still under construction</p>
       </div>
       <!-- #endregion -->
+
+      <div *ngIf="page == 'rules'" class="container container-lg p-3">
+        <app-rules></app-rules>
+      </div>
     </div>
 
     <!-- #region SIDEBAR -->
