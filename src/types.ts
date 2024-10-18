@@ -71,6 +71,8 @@ export interface Site {
       code: string;
     };
     city?: string;
+    igda?: boolean;
+    customSubmissionTime?: string;
 }
 
 export interface Region {
@@ -210,20 +212,30 @@ export interface Chat {
 
 export interface Submission {
   _id?: string;
+  jamId: string,
+  siteId: string,
+  teamId: string,
   title: string;
+  contact: {
+    _id: string,
+    name: string,
+    email: string
+  },
+  link: string;
   description: string;
-  pitch: string;
-  game: string;
-  teamId: string;
-  categoryId: string;
-  stageId?: string;
-  themeId: string;
-  score: number;
-  evaluators?: {
-      userId?: string;
-      name?: string;
-      email?: string;
-  }[];
+  themes: string[];
+  categories: string[];
+  topics: string[];
+  genres: string[];
+  platforms: string[];
+  graphics: string;
+  engine: string;
+  recommendation: number;
+  enjoyment: number;
+  suggestions: string;
+  authorization: boolean;
+  submissionTime: Date;
+  submissionDelta: number;
 }
 
 export interface Rating {

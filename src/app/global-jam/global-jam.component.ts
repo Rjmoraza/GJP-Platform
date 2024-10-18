@@ -5,6 +5,7 @@ import { JamService } from '../services/jam.service';
 import { SiteService } from '../services/site.service';
 import { TeamService } from '../services/team.service';
 import { UserService } from '../services/user.service';
+import { SubmissionService } from '../services/submission.service';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { CommonModule, formatDate } from '@angular/common';
@@ -39,12 +40,13 @@ export class GlobalJamComponent {
   jamData: any = {};
   activeSites: any[] = [];
   inactiveSites: any[] = [];
+  submissions: any[] = [];
 
   @Input() page: string = '';
 
   @ViewChild(MessagesComponent) message!: MessagesComponent;
   @ViewChild('closeStageModal') closeStageModal?: ElementRef;
-  constructor(private route: ActivatedRoute, private jamService: JamService, private siteService: SiteService, private fb: FormBuilder){}
+  constructor(private route: ActivatedRoute, private jamService: JamService, private siteService: SiteService, private submissionService: SubmissionService, private fb: FormBuilder){}
 
   ngOnInit(): void {
     this.loadActiveJam();
@@ -95,8 +97,12 @@ export class GlobalJamComponent {
       roleJammer: [false]
     });
 
-    let now = new Date();
-    let tzOffset = now.getTimezoneOffset();
+    //let now = new Date();
+    //let tzOffset = now.getTimezoneOffset();
+    //this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
+
+    // BRT Time Zone
+    let tzOffset = 180; // 3 hours * 60 minutes - BRT
     this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
   }
 
@@ -142,6 +148,21 @@ export class GlobalJamComponent {
         console.log(error);
       }
     });
+  }
+
+  getSubmissions()
+  {
+    if(this.activeJam?._id)
+    {
+      this.submissionService.getSubmissionsByJam(this.activeJam._id).subscribe({
+        next: (data) => {
+          this.submissions = data;
+        },
+        error: (error) => {
+          this.message.showMessage("Error", error.error.message);
+        }
+      });
+    }
   }
 
   patchJamForm(): void{
@@ -408,13 +429,24 @@ export class GlobalJamComponent {
     {
       let stage = this.activeJam!.stages[index];
 
-      let startDate = stage.startDate ? formatDate(stage.startDate, 'yyyy-MM-dd', 'en', this.timeZone) : null;
-      let endDate = stage.endDate ? formatDate(stage.endDate, 'yyyy-MM-dd', 'en', this.timeZone) : null;
+      // Calculate the current timezone offset and remove the BRT offset
+      let now = new Date();
+      let tzOffset = (now.getTimezoneOffset() - 180) * 60000;
+
+      // Remove the BRT offset
+      let startDate = new Date(stage.startDate);
+      startDate = new Date(startDate.getTime() + tzOffset);
+
+      let endDate = new Date(stage.endDate);
+      endDate = new Date(endDate.getTime() + tzOffset);
+
+      //let startDate = stage.startDate ? formatDate(stage.startDate, 'yyyy-MM-dd', 'en', this.timeZone) : null;
+      //let endDate = stage.endDate ? formatDate(stage.endDate, 'yyyy-MM-dd', 'en', this.timeZone) : null;
 
       this.stageForm.setValue({
         stageName: stage.stageName,
-        startDate: startDate,
-        endDate: endDate,
+        startDate: formatDate(startDate, 'yyyy-MM-dd', 'en'),
+        endDate: formatDate(endDate, 'yyyy-MM-dd', 'en'),
         roleGlobal: stage.roles.some(r => r.roleName === "GlobalOrganizer"),
         roleLocal: stage.roles.some(r => r.roleName === "LocalOrganizer"),
         roleJudge: stage.roles.some(r => r.roleName === "Judge"),
@@ -430,7 +462,15 @@ export class GlobalJamComponent {
   }
 
   formatDate(date: Date){
-    return formatDate(date, 'yyyy-MM-dd', 'en', this.timeZone);
+    date = new Date(date);
+
+    let now = new Date();
+    let tzOffset = (now.getTimezoneOffset() - 180) * 60000;
+
+    // Remove the BRT offset
+    date = new Date(date.getTime() + tzOffset);
+
+    return formatDate(date, 'yyyy-MM-dd', 'en');
   }
 
   clearStageForm(): void {
@@ -459,7 +499,7 @@ export class GlobalJamComponent {
     if(this.stageForm.get('roleJammer')!.value) roles.push({roleName: "Jammer"});
 
     const startDate = moment.tz(`${this.stageForm.get('startDate')!.value} 00:00:00`, `YYYY-MM-DD HH:mm:ss`, `America/Sao_Paulo`).toDate();
-    const endDate = moment.tz(`${this.stageForm.get('endDate')!.value} 11:59:59`, `YYYY-MM-DD HH:mm:ss`, `America/Sao_Paulo`).toDate();
+    const endDate = moment.tz(`${this.stageForm.get('endDate')!.value} 23:59:59`, `YYYY-MM-DD HH:mm:ss`, `America/Sao_Paulo`).toDate();
     const delta = endDate.getTime() - startDate.getTime();
 
     if(delta < 0)
@@ -473,8 +513,8 @@ export class GlobalJamComponent {
 
     let stage = {
       stageName: this.stageForm.get('stageName')!.value,
-      startDate: this.stageForm.get('startDate')!.value,
-      endDate: this.stageForm.get('endDate')!.value,
+      startDate: startDate,
+      endDate: endDate,
       roles: roles
     }
 

@@ -270,6 +270,21 @@
               <input type="text" class="form-control" id="siteServer" formControlName="server">
             </div>
 
+
+            <div class="input-group"> <!-- IGDA -->
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  IGDA Venue
+                  <a matTooltip="Mark this check if your venue is affiliated to IGDA" class="tooltip-trigger">?</a>
+                </span>
+              </div>
+              <div class="input-group-append">
+                <div class="input-group-text form-switch">
+                  <input type="checkbox" formControlName="igda">
+                </div>
+              </div>
+            </div>
+
             <h3 class="mt-3">Contact Info</h3>
             <hr>
 
@@ -333,6 +348,16 @@
             <div class="input-group input-group"> <!--START TIME-->
               <div class="input-group-prepend"><span class="input-group-text">Start time</span></div>
               <input type="time" class="form-control" id="siteStartTime" formControlName="startTime">
+            </div>
+
+            <div class="input-group input-group"> <!--CUSTOM SUBMISSION TIME-->
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  Custom Submission Time
+                  <a matTooltip="Change this value if your site has an authorized custom submission time. Leave blank otherwise." class="tooltip-trigger">?</a>
+                </span>
+              </div>
+              <input type="datetime-local" class="form-control" id="siteStartTime" formControlName="customSubmissionTime">
             </div>
 
             <h3 class="mt-3">Social Media</h3>
@@ -420,7 +445,17 @@
 
       <div *ngIf="page == 'games'" class="container container-lg p-3">
         <h1>SUBMISSIONS</h1>
-        <p>Submission list and tools</p>
+        <button class="btn btn-black btn-block" (click)="getSubmissionsOfSite()">LOAD SUBMISSIONS</button>
+        <div class="row m-2">
+          <div *ngFor="let s of siteSubmissions" class="p-2 col-4">
+            <div class="rounded shadow bg-light text-center p-4">
+              <h2>{{ s.title }}</h2>
+              by<br>
+              <b>{{ s.teamName }}</b><br>
+              <a [href]="s.link" target="_blank">{{ s.link }}</a><br>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="page == 'organizers'" class="container container-lg p-3">

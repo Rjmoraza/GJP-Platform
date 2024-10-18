@@ -245,6 +245,21 @@
 
 <div *ngIf="activeJam && page == 'jam-submissions'" class="w-100 p-5">
   <h1 class="text-center">Submissions</h1>
+  <button class="btn btn-black btn-block" (click)="getSubmissions()">LOAD SUBMISSIONS</button>
+  <div class="row m-2">
+    <div *ngFor="let s of submissions" class="p-2 col-4">
+      <div class="rounded shadow bg-light text-center p-4">
+        <h2>{{ s.title }}</h2>
+        by<br>
+        <b>{{ s.teamName }}</b><br>
+        <a [href]="s.link" target="_blank">{{ s.link }}</a><br>
+        <hr>
+        <b>Venue:</b> {{s.site}}<br>
+        <b>Country:</b> {{s.country}}<br>
+        <b>Region:</b> {{s.region}}
+      </div>
+    </div>
+  </div>
 </div>
 
 <div *ngIf="activeJam && page == 'jam-evaluations'" class="w-100 p-5">

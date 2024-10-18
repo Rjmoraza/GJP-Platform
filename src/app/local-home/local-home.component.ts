@@ -4,6 +4,7 @@ import { RegionService } from '../services/region.service';
 import { SiteService } from '../services/site.service';
 import { UserService } from '../services/user.service';
 import { JamService } from '../services/jam.service';
+import { SubmissionService } from '../services/submission.service';
 import { User, Site, Region, Country, Jam, Team } from '../../types'
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -64,6 +65,7 @@ export class LocalHomeComponent implements OnDestroy {
   site?: Site;
   staff: User[] = [];
   jammers: User[] = [];
+  siteSubmissions: any[] = [];
   teamColors: any = {};
   teamCount: number = 0;
   modalError: string = '';
@@ -217,7 +219,7 @@ export class LocalHomeComponent implements OnDestroy {
     suffix: '.min'
   };
 
-  constructor(private fb: FormBuilder, private regionService: RegionService, private siteService: SiteService, private userService: UserService, private jamService: JamService, private modalService: BsModalService){}
+  constructor(private fb: FormBuilder, private regionService: RegionService, private siteService: SiteService, private userService: UserService, private jamService: JamService, private submissionService: SubmissionService, private modalService: BsModalService){}
 
   async ngOnInit() {
     this.siteForm = this.fb.group({
@@ -236,7 +238,9 @@ export class LocalHomeComponent implements OnDestroy {
       whatsapp: '',
       discord: '',
       startTime: '',
-      language: 'PT'
+      language: 'PT',
+      igda: false,
+      customSubmissionTime: ''
     });
 
 
@@ -518,6 +522,14 @@ export class LocalHomeComponent implements OnDestroy {
     {
       const selectedCountry = this.countries.find(country => country.name === this.site!.country.name);
 
+      let submissionDateString = '';
+      if(this.site.customSubmissionTime)
+      {
+        let submissionTime = new Date(this.site.customSubmissionTime);
+        console.log(submissionTime);
+        submissionDateString = formatDate(submissionTime, 'yyyy-MM-dd HH:mm', 'en');
+      }
+
       this.siteForm.setValue({
         name: this.site.name,
         modality: this.site.modality,
@@ -534,7 +546,9 @@ export class LocalHomeComponent implements OnDestroy {
         whatsapp: this.site.whatsapp ? this.site.whatsapp : '',
         discord: this.site.discord ? this.site.discord : '',
         language: this.site.language ? this.site.language : 'PT',
-        startTime: this.site.startTime ? this.site.startTime : ''
+        startTime: this.site.startTime ? this.site.startTime : '',
+        igda: this.site.igda ? this.site.igda : false,
+        customSubmissionTime: submissionDateString
       });
     }
   }
@@ -654,13 +668,23 @@ export class LocalHomeComponent implements OnDestroy {
   }
 
   formatDate(date: Date){
-    return formatDate(date, 'yyyy-MM-dd', 'en', this.timeZone);
+    date = new Date(date);
+
+    let now = new Date();
+    let tzOffset = (now.getTimezoneOffset() - 180) * 60000;
+
+    // Remove the BRT offset
+    date = new Date(date.getTime() + tzOffset);
+
+    return formatDate(date, 'yyyy-MM-dd', 'en');
   }
 
   saveSite() : void {
     if(this.site)
     {
       let countryName: any = this.siteForm.get('country')?.value.name;
+      let customSubmissionTime: string = this.siteForm.get('customSubmissionTime')?.value;
+
       let site: Site = {
         name : this.siteForm.get('name')?.value,
         modality : this.siteForm.get('modality')?.value,
@@ -678,7 +702,9 @@ export class LocalHomeComponent implements OnDestroy {
         website : this.siteForm.get('website')?.value,
         instagram: this.siteForm.get('instagram')?.value,
         discord: this.siteForm.get('discord')?.value,
-        whatsapp: this.siteForm.get('whatsapp')?.value
+        whatsapp: this.siteForm.get('whatsapp')?.value,
+        igda: this.siteForm.get('igda')?.value,
+        customSubmissionTime: customSubmissionTime ? customSubmissionTime : ''
       };
 
       this.siteService.updateSite(`http://${environment.apiUrl}:3000/api/site/update-site/${this.site._id}`, site).subscribe({
@@ -821,6 +847,21 @@ export class LocalHomeComponent implements OnDestroy {
       if(!url.includes("http")) url = `http://${url}`;
       console.log(url);
       window.open(url, '_blank');
+    }
+  }
+
+  getSubmissionsOfSite()
+  {
+    if(this.site?._id && this.jam?._id)
+    {
+      this.submissionService.getSubmissionsBySite(this.site._id, this.jam._id).subscribe({
+        next: (data) => {
+          this.siteSubmissions = data;
+        },
+        error: (error) => {
+          this.message.showMessage("Error", error.error.message);
+        }
+      });
     }
   }
 }

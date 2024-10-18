@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators,  } from '@angular/forms';
 import { CommonModule, formatDate } from '@angular/common';
 import { TeamService } from '../services/team.service';
@@ -6,13 +6,14 @@ import { UserService } from '../services/user.service';
 import { SiteService } from '../services/site.service';
 import { RegionService } from '../services/region.service';
 import { JamService } from '../services/jam.service';
+import { SubmissionService } from '../services/submission.service';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.prod';
 import { MessagesComponent } from '../messages/messages.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataFormComponent } from './data-form/data-form.component';
 import { RulesComponent } from '../rules/rules.component';
-import { User, Site, Region, Country, Jam, Team } from '../../types';
+import { User, Site, Region, Country, Jam, Team, Submission } from '../../types';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons';
@@ -52,6 +53,51 @@ import { faJar } from '@fortawesome/free-solid-svg-icons';
 export class JammerHomeComponent implements OnInit {
   @Input() user!: User;
   @ViewChild(MessagesComponent) message!: MessagesComponent;
+  @ViewChild('selectGenre') set selectGenre(content: ElementRef) {
+    if(content) {
+      for(let o = 0; o < content.nativeElement.length; ++o)
+      {
+        if(this.gameGenres.includes(content.nativeElement[o].value))
+          content.nativeElement[o].selected = true;
+      }
+    }
+  }
+  @ViewChild('selectTopic') set selectTopic(content: ElementRef) {
+    if(content) {
+      for(let o = 0; o < content.nativeElement.length; ++o)
+      {
+        if(this.gameTopics.includes(content.nativeElement[o].value))
+          content.nativeElement[o].selected = true;
+      }
+    }
+  }
+  @ViewChild('selectThemes') set selectTheme(content: ElementRef) {
+    if(content) {
+      for(let o = 0; o < content.nativeElement.length; ++o)
+      {
+        if(this.gameThemes.includes(content.nativeElement[o].value))
+          content.nativeElement[o].selected = true;
+      }
+    }
+  }
+  @ViewChild('selectCategories') set selectCategory(content: ElementRef) {
+    if(content) {
+      for(let o = 0; o < content.nativeElement.length; ++o)
+      {
+        if(this.gameCategories.includes(content.nativeElement[o].value))
+          content.nativeElement[o].selected = true;
+      }
+    }
+  }
+  @ViewChild('selectPlatforms') set selectPlatorm(content: ElementRef) {
+    if(content) {
+      for(let o = 0; o < content.nativeElement.length; ++o)
+      {
+        if(this.gamePlatforms.includes(content.nativeElement[o].value))
+          content.nativeElement[o].selected = true;
+      }
+    }
+  }
   regions: Region[] = [];
   sites: Site[] = [];
   countries: Country[] = [];
@@ -67,8 +113,17 @@ export class JammerHomeComponent implements OnInit {
   site?: Site;
   jam?: Jam;
   team?: Team;
+  submission?: Submission;
+  siteSubmissions: any[] = [];
   jammerData: boolean = false;
   jamData: any = {};
+
+  submissionForm!: FormGroup;
+  gameGenres: string[] = [];
+  gameTopics: string[] = [];
+  gameThemes: string[] = [];
+  gameCategories: string[] = [];
+  gamePlatforms: string[] = [];
 
   faCoffee = faCoffee;
   faCircleInfo = faCircleInfo;
@@ -107,10 +162,23 @@ export class JammerHomeComponent implements OnInit {
       "pianos", "quilts", "roses", "stars", "trees", "violins", "windows", "yogurts", "zoos", "bridges"
   ];
 
-  constructor(private fb: FormBuilder, private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private jamService: JamService) {}
+  constructor(private fb: FormBuilder, private router: Router, private teamService: TeamService, private userService: UserService, private siteService: SiteService, private regionService: RegionService, private jamService: JamService, private submissionService: SubmissionService) {}
 
   ngOnInit(): void
   {
+    this.submissionForm = this.fb.group({
+      title: ['', Validators.required],
+      contact: ['', Validators.required],
+      link: ['', Validators.required],
+      description: ['', Validators.required],
+      graphics: ['', Validators.required],
+      engine: ['', Validators.required],
+      recommendation: '',
+      enjoyment: '',
+      suggestions: '',
+      authorization: ['', Validators.required]
+    });
+
     let tzOffset = 180; // 3 hours * 60 minutes - BRT
     this.timeZone = tzOffset > 0 ? `+${tzOffset}` : `${tzOffset}`;
 
@@ -146,6 +214,9 @@ export class JammerHomeComponent implements OnInit {
         this.listStaff();
         this.listJammers();
         this.countJamData();
+        this.getSubmission();
+
+        console.log(this.team);
       },
       error: (error) => {
         //if(error.status === 404)
@@ -169,6 +240,21 @@ export class JammerHomeComponent implements OnInit {
     }
   }
 
+  getSubmissionsOfSite()
+  {
+    if(this.site?._id && this.jam?._id)
+    {
+      this.submissionService.getSubmissionsBySite(this.site._id, this.jam._id).subscribe({
+        next: (data) => {
+          this.siteSubmissions = data;
+        },
+        error: (error) => {
+          this.message.showMessage("Error", error.error.message);
+        }
+      });
+    }
+  }
+
   getTeam() : void
   {
     if(this.site && this.jam)
@@ -177,6 +263,24 @@ export class JammerHomeComponent implements OnInit {
       this.teamService.getTeam(url).subscribe({
         next: (team: Team) => {
           this.team = team;
+          this.getSubmission();
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
+  }
+
+  getSubmission() : void
+  {
+    if(this.site && this.jam && this.team)
+    {
+      this.submissionService.getSubmissionByTeam(this.team._id!).subscribe({
+        next: (submission: Submission) => {
+          console.log(submission);
+          this.submission = submission;
+          this.patchSubmissionForm(submission);
         },
         error: (error) => {
           console.log(error);
@@ -434,8 +538,26 @@ export class JammerHomeComponent implements OnInit {
     }
   }
 
+  /**
+   * Receives a date in text format from the database with the time reference of BRT
+   * Converts it to Date format with the local timezone
+   * Removes the local timezone
+   * Removes the offset of the brazilian timezone
+   * Prints the normalized date for the UI
+   * @param date Date in text format from the database
+   * @returns
+   */
   formatDate(date: Date){
-    return formatDate(date, 'yyyy-MM-dd', 'en', this.timeZone);
+    // Receives a date in text format from the database
+    date = new Date(date);
+
+    let now = new Date();
+    let tzOffset = (now.getTimezoneOffset() - 180) * 60000;
+
+    // Remove the BRT offset
+    date = new Date(date.getTime() + tzOffset);
+
+    return formatDate(date, 'yyyy-MM-dd', 'en');
   }
 
   convertTo12h(time24h: string) : string {
@@ -481,6 +603,19 @@ export class JammerHomeComponent implements OnInit {
     else return false;
   }
 
+  getCurrentStage()
+  {
+    if(this.jam)
+    {
+      let currentStage: any = null;
+      this.jam.stages.forEach(stage => {
+        if(this.isCurrentStage(stage)) currentStage = stage;
+      })
+      return currentStage;
+    }
+    return null;
+  }
+
   getStageClass(stage: any)
   {
     if(this.isCurrentStage(stage))
@@ -493,4 +628,286 @@ export class JammerHomeComponent implements OnInit {
     }
   }
 
+  onTimeForSubmission()
+  {
+    // for now we rather don't close the form and track late entries
+    return true;
+
+    /*
+    if(this.site && this.jam)
+    {
+      // If this site has a customSubmissionTime ignore the stage submission and use that instead
+      if(this.site.customSubmissionTime)
+      {
+        let endDate = new Date(this.site.customSubmissionTime);
+        let now = new Date();
+        let delta = endDate.getTime() - now.getTime();
+        return delta > 0;
+      }
+
+      // if this site doesn't have a custom submission form, find the current stage of the jam
+      let currentStage: any = null;
+      let now = new Date().getTime();
+
+      for(let s = 0; s < this.jam.stages.length; ++s)
+      {
+        let startDate = this.offsetDate(this.jam.stages[s].startDate).getTime();
+        let endDate = this.offsetDate(this.jam.stages[s].endDate).getTime();
+        if(startDate <= now && now <= endDate)
+        {
+          currentStage = this.jam.stages[s];
+          break;
+        }
+      }
+
+      if(currentStage)
+      {
+        const jammerRole = currentStage?.roles.find((role: any) => role.roleName == 'Jammer');
+
+        if(currentStage && jammerRole)
+        {
+          let endDate = this.offsetDate(currentStage.endDate);
+          let now = new Date();
+          let delta = endDate.getTime() - now.getTime();
+          return delta > 0;
+        }
+      }
+    }
+    return false;
+    */
+  }
+
+  getTimeZoneOffset()
+  {
+    return (new Date()).getTimezoneOffset();
+  }
+
+  /**
+   * Gets the time delta from the local time to the first edition endTime
+   * NOTE: this function only works for a stage with stageName == "GameJam"
+   * @returns
+   */
+  getRelativeTimeDelta()
+  {
+    if(this.jam)
+    {
+      let now = new Date();
+      let offset = now.getTimezoneOffset() * 60000;
+      now = new Date((now.getTime() - offset));
+      let currentStage: any = null;
+
+      for(let s = 0; s < this.jam.stages.length; ++s)
+      {
+        if(this.jam.stages[s].stageName == "GameJam")
+        {
+          let endDate = new Date(this.jam.stages[s].endDate);
+          endDate = new Date(endDate.getTime() - (180 * 60000));
+
+          return endDate.getTime() - now.getTime();
+        }
+      }
+    }
+    return 0;
+  }
+
+  formatTimeDelta(delta: number)
+  {
+    const days = Math.floor(delta / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+    const hours = Math.floor((delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+    const minutes = Math.floor((delta % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+    const seconds = Math.floor((delta % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+    return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
+  }
+
+  getSubmissionDelta()
+  {
+    if(this.jam)
+    {
+      let currentStage: any = null;
+      let now = new Date().getTime();
+      let startDate = 0;
+      let endDate = 0;
+      for(let s = 0; s < this.jam.stages.length; ++s)
+      {
+        startDate = this.offsetDate(this.jam.stages[s].startDate).getTime();
+        endDate = this.offsetDate(this.jam.stages[s].endDate).getTime();
+        if(startDate <= now && now <= endDate)
+        {
+          currentStage = this.jam.stages[s];
+          break;
+        }
+      }
+
+      if(currentStage)
+      {
+        let delta = endDate - now;
+        return this.formatTimeDelta(delta);
+      }
+    }
+    return '';
+  }
+
+  getDeadline()
+  {
+    let currentStage = this.getCurrentStage();
+    let deadline = new Date(currentStage.endDate);
+    if(this.site?.customSubmissionTime) deadline = new Date(this.site.customSubmissionTime);
+    return formatDate(deadline, 'yyyy-MM-dd HH:mm', 'en');
+  }
+
+  /**
+   * Offsets the enddate of a stage by three hours to match the latest timezone
+   * @param date input date in UTC format from the database in BRT timezone
+   */
+  offsetDate(dateStr: any)
+  {
+    let date = new Date(dateStr);
+
+    // BRT is GMT-3, offset by 3 hours to match GMT-6
+    // 3h * 60m * 60s * 1000ms
+    let millis = date.getTime() + 10800000;
+    return new Date(millis);
+  }
+
+  setGameGenre(value: any)
+  {
+    let genres = new Array();
+    for(var g = 0; g < value.length; ++g)
+    {
+      genres.push(value[g].value);
+    }
+    this.gameGenres = genres;
+  }
+
+  setGameTopics(value: any)
+  {
+    let topics = new Array();
+    for(var t = 0; t < value.length; ++t)
+    {
+      topics.push(value[t].value);
+    }
+    this.gameTopics = topics;
+  }
+
+  setGameThemes(value: any)
+  {
+    let topics = new Array();
+    for(var t = 0; t < value.length; ++t)
+    {
+      topics.push(value[t].value);
+    }
+    this.gameThemes = topics;
+  }
+
+  setGameCategories(value: any)
+  {
+    let categories = new Array();
+    for(var c = 0; c < value.length; ++c)
+    {
+      categories.push(value[c].value);
+    }
+    this.gameCategories = categories;
+  }
+
+  setGamePlatforms(value: any)
+  {
+    let platforms = new Array();
+    for(var p = 0; p < value.length; ++p)
+    {
+      platforms.push(value[p].value);
+    }
+    this.gamePlatforms = platforms;
+  }
+
+  patchSubmissionForm(submission: Submission): void {
+    if(this.jam && this.site && this.team)
+    {
+      let contact = -1;
+      for(let i = 0; i < this.team.jammers.length; ++i)
+      {
+        if(this.team.jammers[i]._id == submission.contact._id) contact = i
+      }
+
+      this.gameGenres = submission.genres;
+      this.gameTopics = submission.topics;
+      this.gameThemes = submission.themes;
+      this.gameCategories = submission.categories;
+      this.gamePlatforms = submission.platforms;
+
+      this.submissionForm.setValue({
+        title: submission.title,
+        link: submission.link,
+        contact: contact,
+        description: submission.description,
+        graphics: submission.graphics,
+        engine: submission.engine,
+        recommendation: submission.recommendation,
+        enjoyment: submission.enjoyment,
+        suggestions: submission.suggestions,
+        authorization: submission.authorization ? 'Yes' : 'No'
+      });
+    }
+  }
+
+  saveSubmission()
+  {
+    if(this.site && this.jam && this.team)
+    {
+      if(!this.submissionForm.valid)
+      {
+        const controls = this.submissionForm.controls;
+        for (const name in controls) {
+            if (controls[name].invalid) {
+                console.log(name);
+            }
+        }
+        this.message.showMessage("Error", "Please fill all the required fields");
+      }
+      else
+      {
+        const contactIndex: number = this.submissionForm.get('contact')?.value;
+        const contact: any = {
+          _id: this.team.jammers[contactIndex]._id,
+          name: "",
+          email: ""
+        }
+
+        console.log(this.getRelativeTimeDelta());
+
+        const submission: Submission = {
+          jamId : this.jam._id!,
+          siteId: this.site._id!,
+          teamId: this.team._id!,
+          title: this.submissionForm.get('title')?.value,
+          contact: contact,
+          link: this.submissionForm.get('link')?.value,
+          description: this.submissionForm.get('description')?.value,
+          themes: this.gameThemes,
+          categories: this.gameCategories,
+          genres: this.gameGenres,
+          topics: this.gameTopics,
+          platforms: this.gamePlatforms,
+          graphics: this.submissionForm.get('graphics')?.value,
+          engine: this.submissionForm.get('engine')?.value,
+          recommendation: this.submissionForm.get('recommendation')?.value,
+          enjoyment: this.submissionForm.get('enjoyment')?.value,
+          suggestions: this.submissionForm.get('suggestions')?.value,
+          authorization: this.submissionForm.get('authorization')?.value,
+          submissionTime: new Date(),
+          submissionDelta: this.getRelativeTimeDelta()
+        };
+
+        this.submissionService.createSubmission(submission).subscribe({
+          next: (submission: Submission) => {
+            this.submission = submission;
+            this.patchSubmissionForm(submission);
+          },
+          error: (error) => {
+            this.message.showMessage("Error", error.error.message);
+          }
+        });
+      }
+    }
+  }
 }

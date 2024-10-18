@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { SubmissionService } from '../services/submission.service';
-import { GameInformationComponent } from '../game-information/game-information.component';
 import { Category, Site, Submission, Team, Theme, User } from '../../types';
 import { SiteService } from '../services/site.service';
 import { forkJoin } from 'rxjs';
@@ -19,7 +18,6 @@ import { environment } from '../../environments/environment.prod';
   standalone: true,
   imports: [
     CommonModule,
-    GameInformationComponent,
     FormsModule
   ],
   templateUrl: './juez-main.component.html',
