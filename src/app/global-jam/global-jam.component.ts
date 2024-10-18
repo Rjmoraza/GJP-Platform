@@ -30,6 +30,8 @@ export class GlobalJamComponent {
   selectedThemeIndex: number = -1;
   selectedCategoryIndex: number = -1;
   selectedStageIndex: number = -1;
+  selectedSite: any = null;
+  selectedJammers: any[] = [];
   timeZone: string = '';
   jamForm!: FormGroup;
   themeForm!: FormGroup;
@@ -41,12 +43,13 @@ export class GlobalJamComponent {
   activeSites: any[] = [];
   inactiveSites: any[] = [];
   submissions: any[] = [];
+  teamColors: any = {};
 
   @Input() page: string = '';
 
   @ViewChild(MessagesComponent) message!: MessagesComponent;
   @ViewChild('closeStageModal') closeStageModal?: ElementRef;
-  constructor(private route: ActivatedRoute, private jamService: JamService, private siteService: SiteService, private submissionService: SubmissionService, private fb: FormBuilder){}
+  constructor(private route: ActivatedRoute, private jamService: JamService, private siteService: SiteService, private userService: UserService, private submissionService: SubmissionService, private fb: FormBuilder){}
 
   ngOnInit(): void {
     this.loadActiveJam();
@@ -545,5 +548,78 @@ export class GlobalJamComponent {
         }
       });
   }
+// #endregion
+
+// #region SiteView functions
+  selectSite(site: any){
+    this.selectedSite = site;
+    this.listJammersOfSite(site);
+  }
+
+  clearSite()
+  {
+    this.selectedSite = null;
+  }
+
+  listJammersOfSite(site: any) : void
+  {
+    if(site && this.activeJam)
+    {
+      const url = `http://${environment.apiUrl}:3000/api/user/get-jammers-per-site/${site._id}/${this.activeJam._id}`;
+      this.userService.getJammersPerSite(url).subscribe({
+        next: (jammers: User[]) => {
+          this.selectedJammers = jammers;
+          this.selectedJammers.sort((a,b) =>{
+            if(!a.team && b.team) return -1;
+            if(a.team && !b.team) return 1;
+            if(a.team && b.team)
+            {
+              if(a.team.name.toLowerCase() < b.team.name.toLowerCase()) return -1;
+              if(a.team.name.toLowerCase() > b.team.name.toLowerCase()) return 1;
+            }
+            if(a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+            if(a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+            return 0;
+          });
+
+          let lastTeamName = '';
+          let colors = ['', 'table-secondary'];
+          let colorIndex = 0;
+          let teamCount = 0;
+          for(let j = 0; j < jammers.length; ++j)
+          {
+            if(jammers[j].team)
+            {
+              if(jammers[j].team!.name != lastTeamName)
+              {
+                lastTeamName = jammers[j].team!.name;
+                this.teamColors[lastTeamName] = colors[colorIndex];
+                colorIndex = colorIndex == 0 ? 1 : 0;
+                ++teamCount;
+              }
+            }
+          }
+          console.log(this.teamColors);
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+    }
+
+  }
+
+  getJammerRowColor(jammer: User)
+  {
+    if(jammer.team)
+    {
+      return this.teamColors[jammer.team.name];
+    }
+    else
+    {
+      return 'table-warning';
+    }
+  }
+
 // #endregion
 }
