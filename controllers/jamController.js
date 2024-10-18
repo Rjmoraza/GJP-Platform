@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const Team = require('../models/teamModel');
 const SiteOnJam = require('../models/siteOnJamModel');
 const UserOnJam = require('../models/userOnJamModel');
+const Submission = require('../models/submissionModel');
 const jwt = require('jsonwebtoken');
 const userController = require('./userController');
 const mongoose = require('mongoose');
@@ -256,6 +257,10 @@ const countJamData = async(req, res) => {
         let teams = await Team.countDocuments({ jamId: jamId });
 
         result.teamCount = teams;
+
+        let submissions = await Submission.countDocuments({ jamId: jamId });
+
+        result.submissionCount = submissions;
 
         return res.status(200).send({ success: true, data: result });
     } catch(error) {

@@ -2,12 +2,42 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const submissionSchema = mongoose.Schema({
+    jamId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Jam',
+        required: true
+    },
+    siteId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Site',
+        required: true
+    },
+    teamId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Team',
+        required: true
+    },
     title:{
         type:String,
         required:true
     },
-    participating: {
-        type: Number,
+    contact:{
+        _id: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        email: {
+            type: String,
+            required: true
+        }
+    },
+    link: {
+        type: String,
         required: true
     },
     description:{
@@ -15,111 +45,54 @@ const submissionSchema = mongoose.Schema({
         required:true
     },
     pitch: {
-        type:String,
-        required:true
+        type:String
     },
-    game: {
-        type:String,
-        required:true
-    },
-    teamId: {
-        type: Schema.Types.ObjectId, 
-        ref: 'Team',
+    themes: [{
+        type: String,
         required: true
-    },
-    categoryId: [{
-        type: Schema.Types.ObjectId, 
-        ref: 'Category',
-        required: false
     }],
-    stageId: {
-        type: Schema.Types.ObjectId, 
-        ref: 'Stage',
+    categories: [{
+        type: String,
         required: true
-    },
-    themeId: [{
-        type: Schema.Types.ObjectId, 
-        ref: 'Theme',
-        required: false
     }],
-    numberEvaluations: {
+    topics: [{
+        type: String,
+        required: true
+    }],
+    genres: [{
+        type: String,
+        required: true
+    }],
+    platforms: [{
+        type: String,
+        required: true
+    }],
+    graphics: {
+        type: String
+    },
+    engine: {
+        type: String
+    },
+    recommendation: {
         type: Number
     },
-    creatorUser:  {
-        userId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'User',
-            required: true
-        },
-        name: { 
-            type: String, 
-            required: true 
-        },
-        email: { 
-            type: String, 
-            required: true 
-        }
+    enjoyment: {
+        type: Number
     },
-    creationDate: {
+    suggestions: {
+        type: String
+    },
+    authorization: {
+        type: Boolean
+    },
+    submissionTime: {
         type: Date,
         required: true
     },
-    lastUpdateUser:  {
-        userId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'User'
-        },
-        name: { 
-            type: String
-        },
-        email: { 
-            type: String
-        }
-    },
-    evaluationScore:{
+    submissionDelta: {
         type: Number,
-        required: false
-    },
-    evaluators: [{
-        userId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'User'
-        },
-        name: { 
-            type: String
-        },
-        email: { 
-            type: String
-        },
-        pitchScore: { type: Number },
-        pitchFeedback: { type: String },
-        gameDesignScore: { type: Number },
-        gameDesignFeedback: { type: String },
-        artScore: { type: Number },
-        artFeedback: { type: String },
-        buildScore: { type: Number },
-        buildFeedback: { type: String },
-        audioScore: { type: Number },
-        audioFeedback: { type: String },
-        continuityPotential: { type: Number },
-        audienceCompetitorAwarenessValue: { type: Number },
-        marketPositioningValue: { type: Number },
-        gameDesignCoreLoopValue: { type: Number },
-        gameDesignHookValue: { type: Number },
-        gameDesignBalanceValue: { type: Number },
-        artVisualsCoherenceQualityValue: { type: Number },
-        audioDesignCoherenceQualityValue: { type: Number },
-        buildQualityValue: { type: Number },
-        UIUXQualityValue: { type: Number },
-        narrativeWorldBuildingValue: { type: Number },
-        artVisualsFeedback: { type: String },
-        audioDesignFeedback: { type: String },    
-        personalFeedback: { type: String }         
-    }],
-    lastUpdateDate: {
-        type: Date
+        required: true
     }
 });
 
-submissionSchema.index({numberEvaluations: 1});
 module.exports = mongoose.model("Submission", submissionSchema);

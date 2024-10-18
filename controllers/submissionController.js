@@ -2,6 +2,9 @@ const Submission = require('../models/submissionModel');
 const Stage = require('../models/stageModel');
 const Category = require('../models/categoryModel');
 const GameJam = require('../models/gameJamEventModel');
+const Jam = require('../models/jamModel');
+const Site = require('../models/siteModel');
+const Region = require('../models/regionModel');
 const Team = require('../models/teamModel');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
@@ -10,85 +13,154 @@ const Theme = require('../models/themeModel')
 const { sendScore } = require('../services/mailer');
 
 const createSubmission = async (req, res) => {
-    const { description, pitch, game, teamId, categoryId, stageId, themeId, title } = req.body;
     try {
-        const currentDate = new Date();
+        const now = new Date();
 
-        if (!mongoose.Types.ObjectId.isValid(stageId)) {
-            return res.status(400).json({ success: false, error: 'The provided stage ID is not valid.' });
+        const jam = await Jam.findById(req.body.jamId);
+        if(!jam) return res.status(400).json({ success: false, message: 'No valid jam found' });
+
+        const site = await Site.findById(req.body.siteId);
+        if(!site) return res.status(400).json({ success: false, message: 'No valid site found' });
+
+        const team = await Team.findById(req.body.teamId);
+        if(!team) return res.status(400).json({ success: false, message: 'No valid team found' });
+
+        const user = await User.findById(req.body.contact._id);
+        if(!user) return res.status(400).json({ success: false, message: 'Contact user not found' });
+
+        const contact = {
+            _id: user._id,
+            name: user.name,
+            email: user.email
         }
 
-        const existingStage = await Stage.findById(stageId);
-        if (!existingStage) {
-            return res.status(404).json({ success: false, error: "That stage doesn't exist" });
-        }
+        const authorization = req.body.authorization == 'Yes';
 
-        if (currentDate < existingStage.startDate || currentDate > existingStage.endDate) {
-            return res.status(400).json({ success: false, error: 'The current date is outside the allowed range for this stage.' });
-        }
-
-        const userId = req.cookies.token ? jwt.verify(req.cookies.token, 'MY_JWT_SECRET').userId : null;
-        const creatorUser = await User.findById(userId);
-
-        let existingTeam;
-        if (!mongoose.Types.ObjectId.isValid(teamId)) {
-            return res.status(400).json({ success: false, error: 'The provided team ID is not valid.' });
-        } else {
-            existingTeam = await Team.findById(teamId);
-            if (!existingTeam) {
-                return res.status(404).json({ success: false, error: "That team doesn't exist" });
-            }
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-            return res.status(400).json({ success: false, error: 'The provided category ID is not valid.' });
-        } else {
-            const existingCategory = await Category.findById(categoryId);
-            if (!existingCategory) {
-                return res.status(404).json({ success: false, error: "That category doesn't exist" });
-            }
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(themeId)) {
-            return res.status(400).json({ success: false, error: 'The provided theme ID is not valid.' });
-        } else {
-            const existingCategory = await Theme.findById(themeId);
-            if (!existingCategory) {
-                return res.status(404).json({ success: false, error: "That theme doesn't exist" });
-            }
-        }
-
-        const submission = new Submission({
-            title: title,
-            participating: 1,
-            description: description,
-            pitch: pitch,
-            game: game,
-            teamId: teamId,
-            categoryId: categoryId,
-            stageId: stageId,
-            themeId: themeId,
-            creatorUser: {
-                userId: creatorUser._id,
-                name: creatorUser.name,
-                email: creatorUser.email
-            },
-            creationDate: new Date()
+        let submission = await Submission.findOne({
+            jamId: jam._id,
+            siteId: site._id,
+            teamId: team._id
         });
 
-        await submission.save();
+        console.log(req.body.submissionDelta);
 
-        existingTeam.submissions.push(submission._id);
-        await existingTeam.save();
+        // IF THIS IS A TOTALLY NEW SUBMISSION
+        if(!submission) 
+        {
+            submission = new Submission({
+                jamId: jam._id,
+                siteId: site._id,
+                teamId: team._id,
+                title: req.body.title,
+                contact: contact,
+                link: req.body.link,
+                description: req.body.description,
+                pitch: req.body.pitch? req.body.pitch : '',
+                themes: req.body.themes,
+                categories: req.body.categories,
+                topics: req.body.topics,
+                genres: req.body.genres,
+                platforms: req.body.platforms,
+                graphics: req.body.graphics,
+                engine: req.body.engine,
+                recommendation: req.body.recommendation,
+                enjoyment: req.body.enjoyment,
+                suggestions: req.body.suggestions,
+                authorization: authorization,
+                submissionTime: new Date(),
+                submissionDelta: req.body.submissionDelta
+            });
+        }
+        // IF THIS IS AN EXISTING SUBMISSION FOR THIS TEAM
+        else{
+            submission.title = req.body.title;
+            submission.contact = contact;
+            submission.link = req.body.link;
+            submission.description = req.body.description;
+            submission.pitch = req.body.pitch? req.body.pitch : '';
+            submission.themes = req.body.themes;
+            submission.categories = req.body.categories;
+            submission.topics = req.body.topics;
+            submission.genres = req.body.genres;
+            submission.platforms = req.body.platforms;
+            submission.graphics = req.body.graphics;
+            submission.engine = req.body.engine;
+            submission.recommendation = req.body.recommendation;
+            submission.enjoyment = req.body.enjoyment;
+            submission.suggestions = req.body.suggestions;
+            submission.authorization = authorization;
+            submission.submissionTime = new Date();
+            submission.submissionDelta = req.body.submissionDelta;
+        }
 
-        existingTeam.lastSub = submission._id;
-        await existingTeam.save();
-
-        res.status(200).json({ success: true, msg: 'Submission created successfully' });
+        submission = await submission.save();
+        return res.status(200).json({ success: true, message: 'Submission created successfully', data: submission });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        return res.status(400).json({ success: false, message: error.message });
     }
 };
+
+const getSubmissionByTeam = async(req, res) => {
+    try { 
+        let submission = await Submission.findOne({ teamId: req.params.teamId });
+
+        if(!submission) return res.status(400).json({ success: false, message: "No valid submission found" });
+        else return res.status(200).json({ success: true, data: submission });
+    } catch(error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+}
+
+const getSubmissionsBySite = async(req,res) => {
+    try{
+        const siteId = req.params.siteId;
+        const jamId = req.params.jamId;
+
+        const submissions = await Submission.find({ siteId: siteId, jamId: jamId });
+        let submissionList = new Array();
+        for(let s = 0; s < submissions.length; ++s)
+        {
+            let submission = submissions[s].toObject();
+            const team = await Team.findById(submission.teamId);
+            if(team) submission.teamName = team.teamName;
+            submissionList.push(submission);
+        }
+
+        return res.status(200).json({ success: true, data: submissionList });
+    } catch(error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+}
+
+const getSubmissionsByJam = async(req,res) => {
+    try{
+        const jamId = req.params.jamId;
+
+        const submissions = await Submission.find({ jamId: jamId });
+        let submissionList = new Array();
+        for(let s = 0; s < submissions.length; ++s)
+        {
+            let submission = submissions[s].toObject();
+            const team = await Team.findById(submission.teamId);
+            if(team) submission.teamName = team.teamName;
+
+            const site = await Site.findById(submission.siteId);
+            if(site) {
+                submission.site = site.name;
+                submission.country = site.country.name;
+
+                const region = await Region.findById(site.regionId);
+
+                if(region) submission.region = region.name;
+            }
+            submissionList.push(submission);
+        }
+
+        return res.status(200).json({ success: true, data: submissionList });
+    } catch(error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+}
 
 const updateSubmission = async (req, res) => {
     try {
@@ -623,10 +695,12 @@ const getRatingsEvaluator = async (req, res) => {
 module.exports = {
     createSubmission,
     updateSubmission,
+    getSubmissionByTeam,
+    getSubmissionsBySite,
+    getSubmissionsByJam,
     getCurrentTeamSubmission,
     getSubmission,
     getSubmissions,
-    getSubmissionsSite,
     deleteSubmission,
     setEvaluatorToSubmission,
     giveRating,

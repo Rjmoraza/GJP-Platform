@@ -14,11 +14,12 @@ const submissionController = require('../controllers/submissionController');
 
 submission_route.post('/create-submission', upload.none(), submissionController.createSubmission);
 submission_route.put('/update-submission/:id', upload.none(), submissionController.updateSubmission);
-submission_route.get('/get-current-submission/:teamId/:stageId', submissionController.getCurrentTeamSubmission);
+submission_route.get('/get-submission-by-team/:teamId', submissionController.getSubmissionByTeam);
+submission_route.get('/get-submissions-by-site/:siteId/:jamId', submissionController.getSubmissionsBySite);
+submission_route.get('/get-submissions-by-jam/:jamId', submissionController.getSubmissionsByJam);
 submission_route.get('/get-submission/:id', submissionController.getSubmission);
 submission_route.get('/get-submission-name/:name', submissionController.getSubmissionName);
 submission_route.get('/get-submissions', submissionController.getSubmissions);
-submission_route.get('/get-submissions-site/:id', submissionController.getSubmissionsSite);
 submission_route.get('/get-submissions-site-name/:name', submissionController.getSubmissionsSiteName);
 submission_route.get('/get-new-evaluation', submissionController.setEvaluatorToSubmission);
 submission_route.delete('/delete-submission/:id', submissionController.deleteSubmission);

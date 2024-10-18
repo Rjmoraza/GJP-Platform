@@ -80,7 +80,7 @@ const createSite = async (req, res) => {
 
 const updateSite = async (req, res) => {
     // TODO change this method to receive full country struct
-    const { name, regionId, country, city, open, address, server, instagram, whatsapp, discord, website, modality, description, language, phoneNumber, email, startTime } = req.body;
+    const { name, regionId, country, city, open, address, server, instagram, whatsapp, discord, website, modality, description, language, phoneNumber, email, startTime, igda, customSubmissionTime } = req.body;
     const id = req.params.id;
     try {
         const creatorUser = await userController.validateUser(req);
@@ -106,11 +106,8 @@ const updateSite = async (req, res) => {
         }
         let countryData = { name: "None", code: "00" };
         countryData = findCountry(country);
-        /*
-        if (!countryData) {
-            return res.status(400).json({ success: false, message: "The country is not valid" });
-        }
-        */
+        
+        console.log(customSubmissionTime);
         
         site.name = name;
         site.regionId = regionId;
@@ -129,6 +126,8 @@ const updateSite = async (req, res) => {
         if(whatsapp) site.whatsapp = whatsapp;
         if(discord) site.discord = discord;
         if(website) site.website = website;
+        if(igda) site.igda = igda;
+        site.customSubmissionTime = customSubmissionTime;
         site.lastUpdateUser = creatorUser;
         site.lastUpdateDate = new Date();
 

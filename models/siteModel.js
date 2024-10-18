@@ -68,6 +68,12 @@ const siteSchema = mongoose.Schema({
     startTime: {
         type: String
     },
+    igda: {
+        type: Boolean
+    },
+    customSubmissionTime: {
+        type: String
+    },
     creatorUser:  {
         userId: {
             type: Schema.Types.ObjectId, 
