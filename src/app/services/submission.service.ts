@@ -19,6 +19,12 @@ export class SubmissionService {
     );
   }
 
+  updatePitch(pitch: any): Observable<Submission> {
+    return this.http.post<any>(`${ this.url }update-pitch`, pitch, { withCredentials: true }).pipe(
+      map(response => response.data)
+    );
+  }
+
   getSubmissionByTeam(teamId: string): Observable<Submission> {
     return this.http.get<any>(`${ this.url }get-submission-by-team/${teamId}`).pipe(
       map(response => response.data)

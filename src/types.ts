@@ -222,6 +222,8 @@ export interface Submission {
     email: string
   },
   link: string;
+  pitch?: string;
+  incubation?: boolean;
   description: string;
   themes: string[];
   categories: string[];
@@ -236,6 +238,8 @@ export interface Submission {
   authorization: boolean;
   submissionTime: Date;
   submissionDelta: number;
+  pitchTimeDelta?: number;
+  pitchTime?: Date;
 }
 
 export interface Rating {

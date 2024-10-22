@@ -119,6 +119,7 @@ export class JammerHomeComponent implements OnInit {
   jamData: any = {};
 
   submissionForm!: FormGroup;
+  pitchForm!: FormGroup;
   gameGenres: string[] = [];
   gameTopics: string[] = [];
   gameThemes: string[] = [];
@@ -177,6 +178,11 @@ export class JammerHomeComponent implements OnInit {
       enjoyment: '',
       suggestions: '',
       authorization: ['', Validators.required]
+    });
+
+    this.pitchForm = this.fb.group({
+      link: ['', Validators.required],
+      incubation: false
     });
 
     let tzOffset = 180; // 3 hours * 60 minutes - BRT
@@ -710,8 +716,32 @@ export class JammerHomeComponent implements OnInit {
     return 0;
   }
 
+  getRelativePitchDelta()
+  {
+    if(this.jam)
+      {
+        let now = new Date();
+        let offset = now.getTimezoneOffset() * 60000;
+        now = new Date((now.getTime() - offset));
+        let currentStage: any = null;
+
+        for(let s = 0; s < this.jam.stages.length; ++s)
+        {
+          if(this.jam.stages[s].stageName == "GameJam")
+          {
+            let endDate = new Date(this.jam.stages[s].endDate);
+            endDate = new Date(endDate.getTime() - (180 * 60000) + (48*60*60*1000));
+
+            return endDate.getTime() - now.getTime();
+          }
+        }
+      }
+      return 0;
+  }
+
   formatTimeDelta(delta: number)
   {
+    delta = Math.abs(delta);
     const days = Math.floor(delta / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
     const hours = Math.floor((delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
     const minutes = Math.floor((delta % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
@@ -847,6 +877,14 @@ export class JammerHomeComponent implements OnInit {
         suggestions: submission.suggestions,
         authorization: submission.authorization ? 'Yes' : 'No'
       });
+
+
+      this.pitchForm.setValue({
+        link: submission.pitch? submission.pitch : '',
+        incubation: submission.incubation? submission.incubation: false
+      });
+
+      console.log(submission);
     }
   }
 
@@ -902,12 +940,40 @@ export class JammerHomeComponent implements OnInit {
           next: (submission: Submission) => {
             this.submission = submission;
             this.patchSubmissionForm(submission);
+            this.message.showMessage("Success", "Submission accepted");
           },
           error: (error) => {
             this.message.showMessage("Error", error.error.message);
           }
         });
       }
+    }
+  }
+
+  savePitch()
+  {
+    if(this.jam && this.site && this.team)
+    {
+      let pitch = {
+        jamId: this.jam._id,
+        siteId: this.site._id,
+        teamId: this.team._id,
+        link: this.pitchForm.get('link')?.value,
+        incubation: this.pitchForm.get('incubation')?.value,
+        pitchTimeDelta: this.getRelativePitchDelta()
+      }
+      console.log(pitch);
+
+      this.submissionService.updatePitch(pitch).subscribe({
+        next: (submission: Submission) => {
+          this.submission = submission;
+            this.patchSubmissionForm(submission);
+            this.message.showMessage("Success", "Submission updated");
+        },
+        error: (error) => {
+          this.message.showMessage("Error", error.error.message);
+        }
+      });
     }
   }
 }

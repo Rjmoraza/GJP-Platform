@@ -403,7 +403,7 @@
                 </div>
 
                 <div class="form-group col-4"> <!-- CATEGORIES -->
-                  <label for="Categories" class="required">CATEGORIA onde seu jogo compite?</label>
+                  <label for="Categories">CATEGORIA onde seu jogo compite?</label>
                   <select class="form-select" #selectCategories (change)="setGameCategories(selectCategories.selectedOptions)" multiple>
                     <option *ngFor="let category of jam.categories; index as i" [value]="category.titleEN">{{ category.titlePT }}</option>
                   </select>
@@ -482,6 +482,33 @@
 
                 <button type="submit" class="btn btn-black col-12">ENVIAR JOGO</button>
               </div>
+            </form>
+
+            <hr class="my-2">
+            <h2>PITCH SUBMISSÃO</h2>
+            <div *ngIf="getRelativePitchDelta() > 0">
+              <b>{{ formatTimeDelta(getRelativePitchDelta())}}</b>
+            </div>
+
+            <form (submit)="savePitch()" class="rounded shadow m-2 bg-light p-4" [formGroup]="pitchForm" enctype="multipart/form-data">
+              <div class="form-group col-12"> <!-- LINK -->
+                <label for="title" class="required">Link para o seu video-pitch</label>
+                <input type="text" class="form-control form-control-lg" placeholder="https://www.youtube.com/my-pitch-video" formControlName="link">
+              </div>
+
+              <h3>Você deseja ir para a etapa de incubação?</h3>
+
+              <div class="form-group border p-2">
+                Ao marcar isso, você reconhece que a próxima etapa exige que você continue trabalhando no seu jogo e na apresentação, e faça outra submissão em janeiro.
+                <label for="incubation">Você deseja ir para a etapa de incubação?</label>
+                <select class="form-control" formControlName="incubation">
+                  <option value="" disabled selected hidden>Selecciona una opción</option>
+                  <option value="true">SIM</option>
+                  <option value="false">NÃO</option>
+                </select>
+              </div>
+
+              <button type="submit" *ngIf="getRelativePitchDelta() > 0" class="btn btn-black col-12">ENVIAR PITCH</button>
             </form>
           </div>
 
@@ -580,7 +607,7 @@
                 </div>
 
                 <div class="form-group col-4"> <!-- CATEGORIES -->
-                  <label for="Categories" class="required">Is your game competing in any CATEGORIES?</label>
+                  <label for="Categories">Is your game competing in any CATEGORIES?</label>
                   <select class="form-select" #selectCategories (change)="setGameCategories(selectCategories.selectedOptions)" multiple>
                     <option *ngFor="let category of jam.categories; index as i" [value]="category.titleEN">{{ category.titleEN }}</option>
                   </select>
@@ -659,6 +686,32 @@
 
                 <button type="submit" class="btn btn-black col-12">SUBMIT GAME</button>
               </div>
+            </form>
+
+            <hr class="my-2">
+            <h2>PITCH SUBMISSION</h2>
+            <div *ngIf="getRelativePitchDelta() > 0">
+              <b>{{ formatTimeDelta(getRelativePitchDelta())}}</b>
+            </div>
+            <form (submit)="savePitch()" class="rounded shadow m-2 bg-light p-4" [formGroup]="pitchForm" enctype="multipart/form-data">
+              <div class="form-group col-12"> <!-- LINK -->
+                <label for="title" class="required">Link to your video-pitch</label>
+                <input type="text" class="form-control form-control-lg" placeholder="https://www.youtube.com/my-pitch-video" formControlName="link">
+              </div>
+
+              <h3>Do you wish to move forward to the incubation stage?</h3>
+
+              <div class="form-group p-2 border">
+                By marking this you acknowledge that the next stage requires you to keep working on your game and pitch, and make another submission on January.
+                <label for="incubation">Do you wish to move forward to the incubation stage?</label>
+                <select class="form-control" formControlName="incubation">
+                  <option value="" disabled selected hidden>Select an option</option>
+                  <option value="true">YES</option>
+                  <option value="false">NO</option>
+                </select>
+              </div>
+
+              <button type="submit" *ngIf="getRelativePitchDelta() > 0" class="btn btn-black col-12">ENVIAR PITCH</button>
             </form>
           </div>
 
@@ -757,7 +810,7 @@
                 </div>
 
                 <div class="form-group col-4"> <!-- CATEGORIES -->
-                  <label for="Categories" class="required">¿Tu juego tiene alguna CATEGORÍA?</label>
+                  <label for="Categories">¿Tu juego tiene alguna CATEGORÍA?</label>
                   <select class="form-select" #selectCategories (change)="setGameCategories(selectCategories.selectedOptions)" multiple>
                     <option *ngFor="let category of jam.categories; index as i" [value]="category.titleEN">{{ category.titleES }}</option>
                   </select>
@@ -836,6 +889,32 @@
 
                 <button type="submit" class="btn btn-black col-12">ENVIAR JUEGO</button>
               </div>
+            </form>
+
+            <hr class="my-2">
+            <h2>ENVÍO DE PITCH</h2>
+            <div *ngIf="getRelativePitchDelta() > 0">
+              <b>{{ formatTimeDelta(getRelativePitchDelta())}}</b>
+            </div>
+            <form (submit)="savePitch()" class="rounded shadow m-2 bg-light p-4" [formGroup]="pitchForm" enctype="multipart/form-data">
+              <div class="form-group col-12"> <!-- LINK -->
+                <label for="title" class="required">Link de su video-pitch</label>
+                <input type="text" class="form-control form-control-lg" placeholder="https://www.youtube.com/my-pitch-video" formControlName="link">
+              </div>
+
+              <h3>¿Deseas participar en la etapa de incubación?</h3>
+
+              <div class="p-2 border form-group">
+                Al marcar esto reconocemos que la próxima etapa requiere que continuemos trabajando nuestro juego y pitch, y que hagamos otro envío en Enero.
+                <label for="incubation">¿Quieren ir a la etapa de incubación?</label>
+                <select class="form-control" formControlName="incubation">
+                  <option value="" disabled selected hidden>Selecciona una opción</option>
+                  <option value="true">SÍ</option>
+                  <option value="false">NO</option>
+                </select>
+              </div>
+
+              <button type="submit" *ngIf="getRelativePitchDelta() > 0" class="btn btn-black col-12">ENVIAR PITCH</button>
             </form>
           </div>
         </div>
