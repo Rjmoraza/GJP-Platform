@@ -100,6 +100,38 @@ const createSubmission = async (req, res) => {
     }
 };
 
+const updatePitch = async(req, res) => {
+    try
+    {
+        const jamId = req.body.jamId;
+        const siteId = req.body.siteId;
+        const teamId = req.body.teamId;
+
+        console.log(req.body);
+        
+        await Submission.updateOne({
+            jamId: jamId,
+            siteId: siteId,
+            teamId: teamId
+        },{
+            pitch: req.body.link,
+            pitchTimeDelta: req.body.pitchTimeDelta,
+            incubation: req.body.incubation,
+            pitchTime: new Date()
+        });
+
+        const submission = await Submission.findOne({
+            jamId: jamId,
+            siteId: siteId,
+            teamId: teamId
+        });
+        
+        return res.status(200).json({ success: true, data: submission });
+    } catch(error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+}
+
 const getSubmissionByTeam = async(req, res) => {
     try { 
         let submission = await Submission.findOne({ teamId: req.params.teamId });
@@ -694,6 +726,7 @@ const getRatingsEvaluator = async (req, res) => {
 
 module.exports = {
     createSubmission,
+    updatePitch,
     updateSubmission,
     getSubmissionByTeam,
     getSubmissionsBySite,

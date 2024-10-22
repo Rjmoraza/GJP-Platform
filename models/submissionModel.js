@@ -85,6 +85,9 @@ const submissionSchema = mongoose.Schema({
     authorization: {
         type: Boolean
     },
+    incubation: {
+        type: Boolean
+    },
     submissionTime: {
         type: Date,
         required: true
@@ -92,6 +95,12 @@ const submissionSchema = mongoose.Schema({
     submissionDelta: {
         type: Number,
         required: true
+    },
+    pitchTime: {
+        type: Date
+    },
+    pitchTimeDelta: {
+        type: Number
     }
 });
 
