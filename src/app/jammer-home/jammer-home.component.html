@@ -310,7 +310,7 @@
         <div *ngIf="team">
           <div *ngIf="site.language == 'PT'"> <!-- SUBMISSION FORM IN PORTUGUESE -->
             <h2 *ngIf="getRelativeTimeDelta() > 0" class="text-success">No Prazo - {{ formatTimeDelta( getRelativeTimeDelta() ) }}</h2>
-            <h2 *ngIf="getRelativeTimeDelta() < 0" class="text-danger">Atrasado - {{ formatTimeDelta( getRelativeTimeDelta() ) }}</h2>
+            <h2 *ngIf="getRelativeTimeDelta() < 0">Envios Fechados</h2>
             <div class="info m-3 p-4">
               <p class="py-2">
                 Antes de enviar seu jogo, certifique-se de ler as <b><a href="/rules" target="_blank">Regras e Regulamentos</a></b>.<br>
@@ -480,7 +480,8 @@
                   </div>
                 </div>
 
-                <button type="submit" class="btn btn-black col-12">ENVIAR JOGO</button>
+                <button type="submit" class="btn btn-black col-12" *ngIf="getRelativeTimeDelta() > 0">ENVIAR JOGO</button>
+                <div class="d-block p-3 text-center bg-secondary not-allowed" *ngIf="getRelativeTimeDelta() < 0">ENVIOS FECHADOS</div>
               </div>
             </form>
 
@@ -492,7 +493,8 @@
 
             <form (submit)="savePitch()" class="rounded shadow m-2 bg-light p-4" [formGroup]="pitchForm" enctype="multipart/form-data">
               <div class="form-group col-12"> <!-- LINK -->
-                <label for="title" class="required">Link para o seu video-pitch</label>
+                Enviar um vídeo-pitch é obrigatório para avançar para a próxima etapa. <br>
+                <label for="title">Link para o seu video-pitch</label>
                 <input type="text" class="form-control form-control-lg" placeholder="https://www.youtube.com/my-pitch-video" formControlName="link">
               </div>
 
@@ -509,12 +511,13 @@
               </div>
 
               <button type="submit" *ngIf="getRelativePitchDelta() > 0" class="btn btn-black col-12">ENVIAR PITCH</button>
+              <div class="d-block p-3 text-center bg-secondary not-allowed" *ngIf="getRelativePitchDelta() < 0">ENVIOS FECHADOS</div>
             </form>
           </div>
 
           <div *ngIf="site.language == 'EN'"> <!-- SUBMISSION FORM IN ENGLISH -->
             <h2 *ngIf="getRelativeTimeDelta() > 0" class="text-success">On Time - {{ formatTimeDelta( getRelativeTimeDelta() ) }}</h2>
-            <h2 *ngIf="getRelativeTimeDelta() < 0" class="text-danger">Late - {{ formatTimeDelta( getRelativeTimeDelta() ) }}</h2>
+            <h2 *ngIf="getRelativeTimeDelta() < 0" class="">Submissions Closed</h2>
             <div class="info m-3 p-4">
               <p class="py-2">
                 Before submitting your game, make sure to read the <b><a href="/rules" target="_blank">Rules and Regulations</a></b>.<br>
@@ -684,7 +687,8 @@
                   </div>
                 </div>
 
-                <button type="submit" class="btn btn-black col-12">SUBMIT GAME</button>
+                <button type="submit" class="btn btn-black col-12" *ngIf="getRelativeTimeDelta() > 0">SEND GAME</button>
+                <div class="d-block p-3 text-center bg-secondary not-allowed" *ngIf="getRelativeTimeDelta() < 0">SUBMISSIONS CLOSED</div>
               </div>
             </form>
 
@@ -695,7 +699,8 @@
             </div>
             <form (submit)="savePitch()" class="rounded shadow m-2 bg-light p-4" [formGroup]="pitchForm" enctype="multipart/form-data">
               <div class="form-group col-12"> <!-- LINK -->
-                <label for="title" class="required">Link to your video-pitch</label>
+                Submitting a pitch is required to move forward to the next stage. <br>
+                <label for="title">Link to your video-pitch</label>
                 <input type="text" class="form-control form-control-lg" placeholder="https://www.youtube.com/my-pitch-video" formControlName="link">
               </div>
 
@@ -712,12 +717,13 @@
               </div>
 
               <button type="submit" *ngIf="getRelativePitchDelta() > 0" class="btn btn-black col-12">ENVIAR PITCH</button>
+              <div class="d-block p-3 text-center bg-secondary" *ngIf="getRelativePitchDelta() < 0">SUBMISSIONS CLOSED</div>
             </form>
           </div>
 
           <div *ngIf="site.language == 'ES'"> <!-- SUBMISSION FORM IN SPANISH -->
             <h2 *ngIf="getRelativeTimeDelta() > 0" class="text-success">A Tiempo - {{ formatTimeDelta( getRelativeTimeDelta() ) }}</h2>
-            <h2 *ngIf="getRelativeTimeDelta() < 0" class="text-danger">Tarde - {{ formatTimeDelta( getRelativeTimeDelta() ) }}</h2>
+            <h2 *ngIf="getRelativeTimeDelta() < 0">Envíos Cerrados</h2>
             <div class="info m-3 p-4">
               <p class="py-2">
                 Antes de enviar tu juego, procura leer las <b><a href="/rules" target="_blank">Reglas y Condiciones</a></b>.<br>
@@ -887,7 +893,8 @@
                   </div>
                 </div>
 
-                <button type="submit" class="btn btn-black col-12">ENVIAR JUEGO</button>
+                <button type="submit" class="btn btn-black col-12" *ngIf="getRelativeTimeDelta() > 0">ENVIAR JUEGO</button>
+                <div class="d-block p-3 text-center bg-secondary not-allowed" *ngIf="getRelativeTimeDelta() < 0">ENVÍOS CERRADOS</div>
               </div>
             </form>
 
@@ -898,7 +905,8 @@
             </div>
             <form (submit)="savePitch()" class="rounded shadow m-2 bg-light p-4" [formGroup]="pitchForm" enctype="multipart/form-data">
               <div class="form-group col-12"> <!-- LINK -->
-                <label for="title" class="required">Link de su video-pitch</label>
+                Enviar un pitch es obligatorio si quieres continuar a la próxima etapa. <br>
+                <label for="title">Link de su video-pitch</label>
                 <input type="text" class="form-control form-control-lg" placeholder="https://www.youtube.com/my-pitch-video" formControlName="link">
               </div>
 
@@ -915,6 +923,7 @@
               </div>
 
               <button type="submit" *ngIf="getRelativePitchDelta() > 0" class="btn btn-black col-12">ENVIAR PITCH</button>
+              <div class="d-block p-3 text-center bg-secondary not-allowed" *ngIf="getRelativePitchDelta() < 0">ENVÍOS CERRADOS</div>
             </form>
           </div>
         </div>

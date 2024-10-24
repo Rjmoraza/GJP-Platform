@@ -337,3 +337,7 @@ h4, h5, h6
   width: calc(4rem + 0.75rem);
   border-radius: 5rem;
 }
+
+.not-allowed{
+  cursor: not-allowed;
+}

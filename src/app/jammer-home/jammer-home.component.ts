@@ -695,8 +695,16 @@ export class JammerHomeComponent implements OnInit {
    */
   getRelativeTimeDelta()
   {
-    if(this.jam)
+    if(this.jam && this.site && this.team)
     {
+      if(this.site.customSubmissionTime)
+      {
+        let endDate = new Date(this.site.customSubmissionTime);
+        let now = new Date();
+        let delta = endDate.getTime() - now.getTime();
+        return delta;
+      }
+
       let now = new Date();
       let offset = now.getTimezoneOffset() * 60000;
       now = new Date((now.getTime() - offset));
@@ -718,25 +726,34 @@ export class JammerHomeComponent implements OnInit {
 
   getRelativePitchDelta()
   {
-    if(this.jam)
+    if(this.jam && this.site && this.team)
+    {
+      if(this.site.customSubmissionTime)
       {
+        let endDate = new Date(this.site.customSubmissionTime);
+        endDate = new Date((endDate.getTime() + 48*60*60*1000));
         let now = new Date();
-        let offset = now.getTimezoneOffset() * 60000;
-        now = new Date((now.getTime() - offset));
-        let currentStage: any = null;
+        let delta = endDate.getTime() - now.getTime();
+        return delta;
+      }
 
-        for(let s = 0; s < this.jam.stages.length; ++s)
+      let now = new Date();
+      let offset = now.getTimezoneOffset() * 60000;
+      now = new Date((now.getTime() - offset));
+      let currentStage: any = null;
+
+      for(let s = 0; s < this.jam.stages.length; ++s)
+      {
+        if(this.jam.stages[s].stageName == "GameJam")
         {
-          if(this.jam.stages[s].stageName == "GameJam")
-          {
-            let endDate = new Date(this.jam.stages[s].endDate);
-            endDate = new Date(endDate.getTime() - (180 * 60000) + (48*60*60*1000));
+          let endDate = new Date(this.jam.stages[s].endDate);
+          endDate = new Date(endDate.getTime() - (180 * 60000) + (48*60*60*1000));
 
-            return endDate.getTime() - now.getTime();
-          }
+          return endDate.getTime() - now.getTime();
         }
       }
-      return 0;
+    }
+    return 0;
   }
 
   formatTimeDelta(delta: number)
